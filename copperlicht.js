@@ -112,7 +112,6 @@ CL3D.CCFileLoader = function(a) {
       CL3D.gCCDebugOutput.printError("Could not open file " + this.FileToLoad + ": " + f.message);
       return
     }
-    var d = this;
     this.xmlhttp.onreadystatechange = function() {
       if(d.xmlhttp.readyState == 4) {
         if(d.xmlhttp.status != 200 && d.xmlhttp.status != 0 && d.xmlhttp.status != null) {
@@ -498,6 +497,10 @@ CL3D.Box3d.prototype.intersectsWithBox = function(a) {
 CL3D.Box3d.prototype.isPointInside = function(a) {
   return a.X >= this.MinEdge.X && a.X <= this.MaxEdge.X && a.Y >= this.MinEdge.Y && a.Y <= this.MaxEdge.Y && a.Z >= this.MinEdge.Z && a.Z <= this.MaxEdge.Z
 };
+CL3D.Box3d.prototype.reset = function(a, c, b) {
+  this.MaxEdge.set(a, c, b);
+  this.MinEdge.set(a, c, b)
+};
 CL3D.Plane3d = function() {
   this.Normal = new CL3D.Vect3d(0, 1, 0);
   this.recalculateD(new CL3D.Vect3d(0, 0, 0))
@@ -508,7 +511,7 @@ CL3D.Plane3d.ISREL3D_FRONT = 0;
 CL3D.Plane3d.ISREL3D_BACK = 1;
 CL3D.Plane3d.ISREL3D_PLANAR = 2;
 CL3D.Plane3d.prototype.clone = function() {
-  var a = new CL3D.Plane3dF(false);
+  var a = new CL3D.Plane3d(false);
   a.Normal = this.Normal.clone();
   a.D = this.D;
   return a
@@ -551,21 +554,21 @@ CL3D.Plane3d.prototype.getIntersectionWithPlanes = function(d, c, b) {
   }
   return false
 };
-CL3D.Plane3d.prototype.getIntersectionWithPlane = function(k, m, g) {
+CL3D.Plane3d.prototype.getIntersectionWithPlane = function(j, l, g) {
   var f = this.Normal.getLength();
-  var e = this.Normal.dotProduct(k.Normal);
-  var a = k.Normal.getLength();
+  var e = this.Normal.dotProduct(j.Normal);
+  var a = j.Normal.getLength();
   var h = f * a - e * e;
   if(Math.abs(h) < 1.0E-8) {
     return false
   }
   var d = 1 / h;
-  var l = (a * -this.D + e * k.D) * d;
-  var j = (f * -k.D + e * this.D) * d;
-  this.Normal.crossProduct(k.Normal).copyTo(g);
-  var c = this.Normal.multiplyWithScal(l);
-  var b = k.Normal.multiplyWithScal(j);
-  c.add(b).copyTo(m);
+  var k = (a * -this.D + e * j.D) * d;
+  var i = (f * -j.D + e * this.D) * d;
+  this.Normal.crossProduct(j.Normal).copyTo(g);
+  var c = this.Normal.multiplyWithScal(k);
+  var b = j.Normal.multiplyWithScal(i);
+  c.add(b).copyTo(l);
   return true
 };
 CL3D.Plane3d.prototype.getIntersectionWithLine = function(d, e, c) {
@@ -612,27 +615,27 @@ CL3D.Triangle3d.prototype.getPlane = function() {
   a.setPlaneFrom3Points(this.pointA, this.pointB, this.pointC);
   return a
 };
-CL3D.Triangle3d.prototype.isPointInsideFast = function(k) {
-  var m = this.pointB.substract(this.pointA);
-  var l = this.pointC.substract(this.pointA);
-  var v = m.dotProduct(m);
-  var t = m.dotProduct(l);
-  var r = l.dotProduct(l);
-  var j = k.substract(this.pointA);
-  var o = j.dotProduct(m);
-  var n = j.dotProduct(l);
-  var u = o * r - n * t;
-  var s = n * v - o * t;
-  var h = v * r - t * t;
-  var q = u + s - h;
-  return q < 0 && !(u < 0 || s < 0)
+CL3D.Triangle3d.prototype.isPointInsideFast = function(j) {
+  var l = this.pointB.substract(this.pointA);
+  var k = this.pointC.substract(this.pointA);
+  var u = l.dotProduct(l);
+  var s = l.dotProduct(k);
+  var q = k.dotProduct(k);
+  var i = j.substract(this.pointA);
+  var n = i.dotProduct(l);
+  var m = i.dotProduct(k);
+  var t = n * q - m * s;
+  var r = m * u - n * s;
+  var h = u * q - s * s;
+  var o = t + r - h;
+  return o < 0 && !(t < 0 || r < 0)
 };
 CL3D.Triangle3d.prototype.isPointInside = function(a) {
   return this.isOnSameSide(a, this.pointA, this.pointB, this.pointC) && this.isOnSameSide(a, this.pointB, this.pointA, this.pointC) && this.isOnSameSide(a, this.pointC, this.pointA, this.pointB)
 };
-CL3D.Triangle3d.prototype.isOnSameSide = function(j, g, d, c) {
+CL3D.Triangle3d.prototype.isOnSameSide = function(i, g, d, c) {
   var e = c.substract(d);
-  var h = e.crossProduct(j.substract(d));
+  var h = e.crossProduct(i.substract(d));
   var f = e.crossProduct(g.substract(d));
   return h.dotProduct(f) >= 0
 };
@@ -788,7 +791,7 @@ CL3D.Matrix4.prototype.transformPlane = function(a) {
     b.Y *= 1 / (c.Y * c.Y);
     b.Z *= 1 / (c.Z * c.Z)
   }
-  rotateVect(b);
+  this.rotateVect(b);
   b.normalize();
   a.setPlane(d, b)
 };
@@ -1015,13 +1018,13 @@ CL3D.Matrix4.prototype.buildCameraLookAtMatrixLH = function(b, e, d) {
 CL3D.Matrix4.prototype.setRotationDegrees = function(a) {
   this.setRotationRadians(a.multiplyWithScal(CL3D.DEGTORAD))
 };
-CL3D.Matrix4.prototype.setRotationRadians = function(j) {
-  var e = Math.cos(j.X);
-  var a = Math.sin(j.X);
-  var f = Math.cos(j.Y);
-  var c = Math.sin(j.Y);
-  var d = Math.cos(j.Z);
-  var g = Math.sin(j.Z);
+CL3D.Matrix4.prototype.setRotationRadians = function(i) {
+  var e = Math.cos(i.X);
+  var a = Math.sin(i.X);
+  var f = Math.cos(i.Y);
+  var c = Math.sin(i.Y);
+  var d = Math.cos(i.Z);
+  var g = Math.sin(i.Z);
   this.m00 = f * d;
   this.m01 = f * g;
   this.m02 = -c;
@@ -1159,9 +1162,9 @@ CL3D.Quaternion.prototype.slerp = function(g, f, b) {
   if(c + 1 > 0.05) {
     if(1 - c >= 0.05) {
       var a = Math.acos(c);
-      var j = 1 / Math.sin(a);
-      d = Math.sin(a * (1 - b)) * j;
-      e = Math.sin(a * b) * j
+      var i = 1 / Math.sin(a);
+      d = Math.sin(a * (1 - b)) * i;
+      e = Math.sin(a * b) * i
     }else {
       d = 1 - b;
       e = b
@@ -1217,24 +1220,24 @@ CL3D.Quaternion.prototype.toEuler = function(a) {
   a.X = Math.atan2(2 * (this.Y * this.Z + this.X * this.W), -d - c + b + e);
   a.Y = Math.asin(CL3D.clamp(-2 * (this.X * this.Z - this.Y * this.W), -1, 1))
 };
-CL3D.Quaternion.prototype.setFromEuler = function(n, m, j) {
-  var f = n * 0.5;
+CL3D.Quaternion.prototype.setFromEuler = function(m, l, i) {
+  var f = m * 0.5;
   var a = Math.sin(f);
   var g = Math.cos(f);
-  f = m * 0.5;
+  f = l * 0.5;
   var c = Math.sin(f);
-  var k = Math.cos(f);
-  f = j * 0.5;
-  var l = Math.sin(f);
+  var j = Math.cos(f);
+  f = i * 0.5;
+  var k = Math.sin(f);
   var e = Math.cos(f);
-  var o = k * e;
+  var n = j * e;
   var h = c * e;
-  var d = k * l;
-  var b = c * l;
-  this.X = a * o - g * b;
+  var d = j * k;
+  var b = c * k;
+  this.X = a * n - g * b;
   this.Y = g * h + a * d;
   this.Z = g * d - a * h;
-  this.W = g * o + a * b;
+  this.W = g * n + a * b;
   this.normalize()
 };
 CL3D.Quaternion.prototype.normalize = function() {
@@ -1246,7 +1249,7 @@ CL3D.Quaternion.prototype.normalize = function() {
   this.multiplyThisWith(a)
 };
 CL3D.Quaternion.prototype.toString = function() {
-  return"(x: " + X + " y:" + Y + " z:" + Z + " w:" + W + ")"
+  return"(x: " + this.X + " y:" + this.Y + " z:" + this.Z + " w:" + this.W + ")"
 };
 CL3D.ViewFrustrum = function() {
   this.planes = new Array;
@@ -1388,33 +1391,33 @@ CL3D.Action.SetOverlayText.prototype.execute = function(a, h) {
   if(!a || !h) {
     return
   }
-  var k = null;
+  var j = null;
   if(this.ChangeCurrentSceneNode) {
-    k = a
+    j = a
   }else {
     if(this.SceneNodeToChange != -1) {
-      k = h.getSceneNodeFromId(this.SceneNodeToChange)
+      j = h.getSceneNodeFromId(this.SceneNodeToChange)
     }
   }
-  if(k && k.setText) {
+  if(j && j.setText) {
     var g = this.Text.indexOf("$");
     if(g != -1) {
       var c = this.Text;
       var e = 0;
-      var l = true;
-      while(l) {
-        l = false;
+      var k = true;
+      while(k) {
+        k = false;
         g = c.indexOf("$", e);
         if(g != -1) {
           e = g + 1;
           var d = c.indexOf("$", g + 1);
           if(d != -1) {
-            l = true;
+            k = true;
             var b = c.substr(g + 1, d - (g + 1));
-            var j = CL3D.CopperCubeVariable.getVariable(b);
-            if(j) {
+            var i = CL3D.CopperCubeVariable.getVariable(b);
+            if(i) {
               var f = c.substr(0, g);
-              f += j.getValueAsString();
+              f += i.getValueAsString();
               e = f.length + 1;
               f += c.substr(d + 1, c.length - d);
               c = f
@@ -1422,14 +1425,14 @@ CL3D.Action.SetOverlayText.prototype.execute = function(a, h) {
           }
         }
       }
-      k.setText(c)
+      j.setText(c)
     }else {
-      k.setText(this.Text)
+      j.setText(this.Text)
     }
   }
 };
 CL3D.Action.MakeSceneNodeInvisible = function() {
-  this.InvisibleMakeType = false;
+  this.InvisibleMakeType = 0;
   this.SceneNodeToMakeInvisible = null;
   this.ChangeCurrentSceneNode = false;
   this.Type = "MakeSceneNodeInvisible"
@@ -1502,10 +1505,10 @@ CL3D.Action.ChangeSceneNodePosition.prototype.execute = function(a, f) {
       case 3:
         var e = this.Vector.getLength();
         var c = h.AbsoluteTransformation;
-        var j = new CL3D.Vect3d(1, 0, 0);
-        c.rotateVect(j);
-        j.setLength(e);
-        d = h.Pos.add(j);
+        var i = new CL3D.Vect3d(1, 0, 0);
+        c.rotateVect(i);
+        i.setLength(e);
+        d = h.Pos.add(i);
         break
     }
     if(d != null) {
@@ -1735,17 +1738,17 @@ CL3D.Action.Shoot.prototype.execute = function(d, a) {
   if(!d || !a) {
     return
   }
-  var k = new CL3D.Line3d;
-  var s = false;
-  var j = null;
+  var j = new CL3D.Line3d;
+  var r = false;
+  var i = null;
   var h = null;
   var e = a.getAllSceneNodesWithAnimator("gameai");
   if(this.SceneNodeToShootFrom != -1) {
-    var l = a.getSceneNodeFromId(this.SceneNodeToShootFrom);
-    if(l != null) {
-      s = true;
-      j = l;
-      k.Start = l.getTransformedBoundingBox().getCenter();
+    var k = a.getSceneNodeFromId(this.SceneNodeToShootFrom);
+    if(k != null) {
+      r = true;
+      i = k;
+      j.Start = k.getTransformedBoundingBox().getCenter();
       h = a.getActiveCamera();
       if(this.ShootToCameraTarget && h) {
         var c = new CL3D.Line3d;
@@ -1755,83 +1758,83 @@ CL3D.Action.Shoot.prototype.execute = function(d, a) {
         b.setLength(this.WeaponRange);
         c.End = c.Start.add(b);
         this.shortenRayToClosestCollisionPointWithWorld(c, e, this.WeaponRange, a);
-        this.shortenRayToClosestCollisionPointWithAIAnimator(c, e, this.WeaponRange, j, a);
-        k.End = c.End
+        this.shortenRayToClosestCollisionPointWithAIAnimator(c, e, this.WeaponRange, i, a);
+        j.End = c.End
       }else {
-        var u = l.AbsoluteTransformation;
+        var t = k.AbsoluteTransformation;
         if(this.AdditionalDirectionRotation) {
-          var n = new CL3D.Matrix4;
-          n.setRotationDegrees(this.AdditionalDirectionRotation);
-          u = u.multiply(n)
+          var m = new CL3D.Matrix4;
+          m.setRotationDegrees(this.AdditionalDirectionRotation);
+          t = t.multiply(m)
         }
-        k.End.set(1, 0, 0);
-        u.transformVect(k.End);
-        k.End.addToThis(k.Start)
+        j.End.set(1, 0, 0);
+        t.transformVect(j.End);
+        j.End.addToThis(j.Start)
       }
     }
   }else {
     if(d != null) {
-      var r = d.getAnimatorOfType("gameai");
-      if(r && r.isCurrentlyShooting()) {
-        k = r.getCurrentlyShootingLine();
-        s = true
+      var q = d.getAnimatorOfType("gameai");
+      if(q && q.isCurrentlyShooting()) {
+        j = q.getCurrentlyShootingLine();
+        r = true
       }
     }
   }
-  if(!s) {
-    var h = a.getActiveCamera();
+  if(!r) {
+    h = a.getActiveCamera();
     if(h) {
-      k.Start = h.getAbsolutePosition();
-      k.End = h.getTarget();
-      s = true
+      j.Start = h.getAbsolutePosition();
+      j.End = h.getTarget();
+      r = true
     }
   }
-  if(!s) {
+  if(!r) {
     return
   }
-  var o = k.getVector();
-  o.setLength(this.WeaponRange);
-  k.End = k.Start.add(o);
-  this.shortenRayToClosestCollisionPointWithWorld(k, e, this.WeaponRange, a);
+  var n = j.getVector();
+  n.setLength(this.WeaponRange);
+  j.End = j.Start.add(n);
+  this.shortenRayToClosestCollisionPointWithWorld(j, e, this.WeaponRange, a);
   if(this.ShootType == 1) {
-    var t = null;
+    var s = null;
     if(this.SceneNodeToUseAsBullet != -1) {
-      t = a.getSceneNodeFromId(this.SceneNodeToUseAsBullet)
+      s = a.getSceneNodeFromId(this.SceneNodeToUseAsBullet)
     }
-    if(t) {
-      var g = t.createClone(a.getRootSceneNode());
+    if(s) {
+      var g = s.createClone(a.getRootSceneNode());
       a.getRootSceneNode().addChild(g);
       if(g != null) {
-        g.Pos = k.Start;
+        g.Pos = j.Start;
         g.updateAbsolutePosition();
         g.Visible = true;
         g.Id = -1;
         g.Name = "";
-        var q = this.BulletSpeed;
-        if(q == 0) {
-          q = 1
+        var p = this.BulletSpeed;
+        if(p == 0) {
+          p = 1
         }
-        var p = new CL3D.AnimatorFlyStraight;
-        p.Start = k.Start;
-        p.End = k.End;
-        p.TimeForWay = k.getLength() / q;
-        p.DeleteMeAfterEndReached = true;
-        p.recalculateImidiateValues();
-        p.TestShootCollisionWithBullet = true;
-        p.ShootCollisionNodeToIgnore = d;
-        p.ShootCollisionDamage = this.Damage;
-        p.DeleteSceneNodeAfterEndReached = true;
-        g.addAnimator(p)
+        var o = new CL3D.AnimatorFlyStraight;
+        o.Start = j.Start;
+        o.End = j.End;
+        o.TimeForWay = j.getLength() / p;
+        o.DeleteMeAfterEndReached = true;
+        o.recalculateImidiateValues();
+        o.TestShootCollisionWithBullet = true;
+        o.ShootCollisionNodeToIgnore = d;
+        o.ShootCollisionDamage = this.Damage;
+        o.DeleteSceneNodeAfterEndReached = true;
+        g.addAnimator(o)
       }
     }
   }else {
     if(this.ShootType == 0) {
-      var v = this.WeaponRange;
-      var m = this.shortenRayToClosestCollisionPointWithAIAnimator(k, e, this.WeaponRange, j, a);
-      if(m != null) {
-        var f = m.getAnimatorOfType("gameai");
+      var u = this.WeaponRange;
+      var l = this.shortenRayToClosestCollisionPointWithAIAnimator(j, e, this.WeaponRange, i, a);
+      if(l != null) {
+        var f = l.getAnimatorOfType("gameai");
         if(f) {
-          f.OnHit(this.Damage, m)
+          f.OnHit(this.Damage, l)
         }
       }
     }
@@ -1843,7 +1846,7 @@ CL3D.Action.Shoot.prototype.shortenRayToClosestCollisionPointWithWorld = functio
     if(e) {
       var g = e.World;
       if(g) {
-        var a = CL3D.AnimatorOnClick.prototype.static_getDistanceToNearestCollisionPointWithWorld(f, c.Start, c.End, g);
+        var a = CL3D.AnimatorOnClick.prototype.static_getDistanceToNearestCollisionPointWithWorld(f, c.Start, c.End, g, true);
         if(a < b) {
           var d = c.getVector();
           d.setLength(a);
@@ -1967,7 +1970,7 @@ CL3D.Action.IfVariable.prototype.execute = function(b, a) {
       if(e.isString() && d.isString()) {
         c = e.getValueAsString() == d.getValueAsString()
       }else {
-        c = Core.equals(e.getValueAsFloat(), d.getValueAsFloat())
+        c = CL3D.equals(e.getValueAsFloat(), d.getValueAsFloat())
       }
       if(this.ComparisonType == 1) {
         c = !c
@@ -2826,7 +2829,7 @@ CL3D.BinaryStream.prototype._readFixedPoint = function(c, a) {
   return b
 };
 CL3D.BinaryStream.prototype.readFloat16 = function() {
-  return this._readFloatingPoint(5, 10)
+  return this.decodeFloat32fast(5, 10)
 };
 CL3D.BinaryStream.prototype.readFloat = function() {
   var a = this.decodeFloat32fast(this._buffer, this._offset);
@@ -2843,33 +2846,33 @@ CL3D.BinaryStream.prototype.decodeFloat32fast = function(d, c) {
   var h = d.charCodeAt(c + 3) & 255, g = d.charCodeAt(c + 2) & 255, f = d.charCodeAt(c + 1) & 255, e = d.charCodeAt(c + 0) & 255;
   var a = 1 - 2 * (h >> 7);
   var b = (h << 1 & 255 | g >> 7) - 127;
-  var j = (g & 127) << 16 | f << 8 | e;
-  if(j == 0 && b == -127) {
+  var i = (g & 127) << 16 | f << 8 | e;
+  if(i == 0 && b == -127) {
     return 0
   }
-  return a * (1 + j * Math.pow(2, -23)) * Math.pow(2, b)
+  return a * (1 + i * Math.pow(2, -23)) * Math.pow(2, b)
 };
-CL3D.BinaryStream.prototype.decodeFloat = function(f, c, o) {
-  var m = (m = new this.Buffer(this.bigEndian, f), m), g = Math.pow(2, o - 1) - 1, k = m.readBits(c + o, 1), l = m.readBits(c, o), j = 0, d = 2, a = m.buffer.length + (-c >> 3) - 1, e, h, n;
+CL3D.BinaryStream.prototype.decodeFloat = function(f, c, n) {
+  var l = (l = new this.Buffer(this.bigEndian, f), l), g = Math.pow(2, n - 1) - 1, j = l.readBits(c + n, 1), k = l.readBits(c, n), i = 0, d = 2, a = l.buffer.length + (-c >> 3) - 1, e, h, m;
   do {
-    for(e = m.buffer[++a], h = c % 8 || 8, n = 1 << h;n >>= 1;e & n && (j += 1 / d), d *= 2) {
+    for(e = l.buffer[++a], h = c % 8 || 8, m = 1 << h;m >>= 1;e & m && (i += 1 / d), d *= 2) {
     }
   }while(c -= h);
-  return l == (g << 1) + 1 ? j ? NaN : k ? -Infinity : +Infinity : (1 + k * -2) * (l || j ? !l ? Math.pow(2, -g + 1) * j : Math.pow(2, l - g) * (1 + j) : 0)
+  return k == (g << 1) + 1 ? i ? NaN : j ? -Infinity : +Infinity : (1 + j * -2) * (k || i ? !k ? Math.pow(2, -g + 1) * i : Math.pow(2, k - g) * (1 + i) : 0)
 };
 CL3D.BinaryStream.prototype.Buffer = function(b, a) {
   this.bigEndian = b || 0, this.buffer = [], this.setBuffer(a)
 };
 CL3D.BinaryStream.prototype.Buffer.prototype.readBits = function(b, d) {
-  function c(l, k) {
-    for(++k;--k;l = ((l %= 2147483647 + 1) & 1073741824) == 1073741824 ? l * 2 : (l - 1073741824) * 2 + 2147483647 + 1) {
+  function c(k, j) {
+    for(++j;--j;k = ((k %= 2147483647 + 1) & 1073741824) == 1073741824 ? k * 2 : (k - 1073741824) * 2 + 2147483647 + 1) {
     }
-    return l
+    return k
   }
   if(b < 0 || d <= 0) {
     return 0
   }
-  for(var e, f = b % 8, a = this.buffer.length - (b >> 3) - 1, j = this.buffer.length + (-(b + d) >> 3), h = a - j, g = (this.buffer[a] >> f & (1 << (h ? 8 - f : d)) - 1) + (h && (e = (b + d) % 8) ? (this.buffer[j++] & (1 << e) - 1) << (h-- << 3) - f : 0);h;g += c(this.buffer[j++], (h-- << 3) - f)) {
+  for(var e, f = b % 8, a = this.buffer.length - (b >> 3) - 1, i = this.buffer.length + (-(b + d) >> 3), h = a - i, g = (this.buffer[a] >> f & (1 << (h ? 8 - f : d)) - 1) + (h && (e = (b + d) % 8) ? (this.buffer[i++] & (1 << e) - 1) << (h-- << 3) - f : 0);h;g += c(this.buffer[i++], (h-- << 3) - f)) {
   }
   return g
 };
@@ -3153,13 +3156,13 @@ CL3D.Renderer.prototype.drawWebGlStaticGeometry = function(a) {
 };
 CL3D.Renderer.prototype.draw3DLine = function(b, a) {
 };
-CL3D.Renderer.prototype.draw2DRectangle = function(k, h, a, p, b, e) {
-  if(a <= 0 || p <= 0 || this.width == 0 || this.height == 0) {
+CL3D.Renderer.prototype.draw2DRectangle = function(j, h, a, o, b, e) {
+  if(a <= 0 || o <= 0 || this.width == 0 || this.height == 0) {
     return
   }
-  var n = true;
+  var m = true;
   if(e == null || e == false) {
-    n = false
+    m = false
   }
   var d = this.gl;
   d.enableVertexAttribArray(0);
@@ -3168,104 +3171,104 @@ CL3D.Renderer.prototype.draw2DRectangle = function(k, h, a, p, b, e) {
   d.disableVertexAttribArray(3);
   d.disableVertexAttribArray(4);
   h = this.height - h;
-  var o = 2 / this.width;
-  var m = 2 / this.height;
-  k = k * o - 1;
-  h = h * m - 1;
-  a *= o;
-  p *= m;
+  var n = 2 / this.width;
+  var l = 2 / this.height;
+  j = j * n - 1;
+  h = h * l - 1;
+  a *= n;
+  o *= l;
   var g = new WebGLFloatArray(4 * 3);
-  g[0] = k;
+  g[0] = j;
   g[1] = h;
   g[2] = 0;
-  g[3] = k + a;
+  g[3] = j + a;
   g[4] = h;
   g[5] = 0;
-  g[6] = k + a;
-  g[7] = h - p;
+  g[6] = j + a;
+  g[7] = h - o;
   g[8] = 0;
-  g[9] = k;
-  g[10] = h - p;
+  g[9] = j;
+  g[10] = h - o;
   g[11] = 0;
-  var j = 6;
-  var l = new WebGLUnsignedShortArray(j);
-  l[0] = 0;
-  l[1] = 2;
-  l[2] = 1;
-  l[3] = 0;
-  l[4] = 3;
-  l[5] = 2;
+  var i = 6;
+  var k = new WebGLUnsignedShortArray(i);
+  k[0] = 0;
+  k[1] = 2;
+  k[2] = 1;
+  k[3] = 0;
+  k[4] = 3;
+  k[5] = 2;
   var f = d.createBuffer();
   d.bindBuffer(d.ARRAY_BUFFER, f);
   d.bufferData(d.ARRAY_BUFFER, g, d.STATIC_DRAW);
   d.vertexAttribPointer(0, 3, d.FLOAT, false, 0, 0);
   var c = d.createBuffer();
   d.bindBuffer(d.ELEMENT_ARRAY_BUFFER, c);
-  d.bufferData(d.ELEMENT_ARRAY_BUFFER, l, d.STATIC_DRAW);
+  d.bufferData(d.ELEMENT_ARRAY_BUFFER, k, d.STATIC_DRAW);
   this.currentGLProgram = this.Program2DDrawingColorOnly;
   d.useProgram(this.currentGLProgram);
-  d.uniform4f(d.getUniformLocation(this.currentGLProgram, "vColor"), CL3D.getRed(b) / 255, CL3D.getGreen(b) / 255, CL3D.getBlue(b) / 255, n ? CL3D.getAlpha(b) / 255 : 1);
+  d.uniform4f(d.getUniformLocation(this.currentGLProgram, "vColor"), CL3D.getRed(b) / 255, CL3D.getGreen(b) / 255, CL3D.getBlue(b) / 255, m ? CL3D.getAlpha(b) / 255 : 1);
   d.depthMask(false);
   d.disable(d.DEPTH_TEST);
-  if(!n) {
+  if(!m) {
     d.disable(d.BLEND)
   }else {
     d.enable(d.BLEND);
     d.blendFunc(d.SRC_ALPHA, d.ONE_MINUS_SRC_ALPHA)
   }
-  d.drawElements(d.TRIANGLES, j, d.UNSIGNED_SHORT, 0);
+  d.drawElements(d.TRIANGLES, i, d.UNSIGNED_SHORT, 0);
   d.deleteBuffer(f);
   d.deleteBuffer(c)
 };
-CL3D.Renderer.prototype.draw2DImage = function(h, g, m, l, t, o, u, k, d) {
-  if(t == null || t.isLoaded() == false || m <= 0 || l <= 0 || this.width == 0 || this.height == 0) {
+CL3D.Renderer.prototype.draw2DImage = function(h, g, l, k, s, n, t, j, d) {
+  if(s == null || s.isLoaded() == false || l <= 0 || k <= 0 || this.width == 0 || this.height == 0) {
     return
   }
-  if(k == null) {
-    k = 1
+  if(j == null) {
+    j = 1
   }
   if(d == null) {
     d = 1
   }
   var f = true;
-  if(o == null || o == false) {
+  if(n == null || n == false) {
     f = false
   }
-  var p = this.gl;
-  p.enableVertexAttribArray(0);
-  p.enableVertexAttribArray(1);
-  p.disableVertexAttribArray(2);
-  p.disableVertexAttribArray(3);
-  p.disableVertexAttribArray(4);
+  var o = this.gl;
+  o.enableVertexAttribArray(0);
+  o.enableVertexAttribArray(1);
+  o.disableVertexAttribArray(2);
+  o.disableVertexAttribArray(3);
+  o.disableVertexAttribArray(4);
   g = this.height - g;
   var e = 2 / this.width;
-  var s = 2 / this.height;
+  var r = 2 / this.height;
   h = h * e - 1;
-  g = g * s - 1;
-  m *= e;
-  l *= s;
-  var q = new WebGLFloatArray(4 * 3);
-  q[0] = h;
-  q[1] = g;
-  q[2] = 0;
-  q[3] = h + m;
-  q[4] = g;
-  q[5] = 0;
-  q[6] = h + m;
-  q[7] = g - l;
-  q[8] = 0;
-  q[9] = h;
-  q[10] = g - l;
-  q[11] = 0;
-  var j = new WebGLFloatArray(4 * 2);
-  j[0] = 0;
-  j[1] = 0;
-  j[2] = k;
-  j[3] = 0;
-  j[4] = k;
-  j[5] = d;
-  j[6] = 0;
-  j[7] = d;
+  g = g * r - 1;
+  l *= e;
+  k *= r;
+  var p = new WebGLFloatArray(4 * 3);
+  p[0] = h;
+  p[1] = g;
+  p[2] = 0;
+  p[3] = h + l;
+  p[4] = g;
+  p[5] = 0;
+  p[6] = h + l;
+  p[7] = g - k;
+  p[8] = 0;
+  p[9] = h;
+  p[10] = g - k;
+  p[11] = 0;
+  var i = new WebGLFloatArray(4 * 2);
+  i[0] = 0;
+  i[1] = 0;
+  i[2] = j;
+  i[3] = 0;
+  i[4] = j;
+  i[5] = d;
+  i[6] = 0;
+  i[7] = d;
   var a = 6;
   var b = new WebGLUnsignedShortArray(a);
   b[0] = 0;
@@ -3274,41 +3277,41 @@ CL3D.Renderer.prototype.draw2DImage = function(h, g, m, l, t, o, u, k, d) {
   b[3] = 0;
   b[4] = 3;
   b[5] = 2;
-  var n = p.createBuffer();
-  p.bindBuffer(p.ARRAY_BUFFER, n);
-  p.bufferData(p.ARRAY_BUFFER, q, p.STATIC_DRAW);
-  p.vertexAttribPointer(0, 3, p.FLOAT, false, 0, 0);
-  var r = p.createBuffer();
-  p.bindBuffer(p.ARRAY_BUFFER, r);
-  p.bufferData(p.ARRAY_BUFFER, j, p.STATIC_DRAW);
-  p.vertexAttribPointer(1, 2, p.FLOAT, false, 0, 0);
-  var c = p.createBuffer();
-  p.bindBuffer(p.ELEMENT_ARRAY_BUFFER, c);
-  p.bufferData(p.ELEMENT_ARRAY_BUFFER, b, p.STATIC_DRAW);
-  if(u == null) {
+  var m = o.createBuffer();
+  o.bindBuffer(o.ARRAY_BUFFER, m);
+  o.bufferData(o.ARRAY_BUFFER, p, o.STATIC_DRAW);
+  o.vertexAttribPointer(0, 3, o.FLOAT, false, 0, 0);
+  var q = o.createBuffer();
+  o.bindBuffer(o.ARRAY_BUFFER, q);
+  o.bufferData(o.ARRAY_BUFFER, i, o.STATIC_DRAW);
+  o.vertexAttribPointer(1, 2, o.FLOAT, false, 0, 0);
+  var c = o.createBuffer();
+  o.bindBuffer(o.ELEMENT_ARRAY_BUFFER, c);
+  o.bufferData(o.ELEMENT_ARRAY_BUFFER, b, o.STATIC_DRAW);
+  if(t == null) {
     this.currentGLProgram = this.Program2DDrawingTextureOnly
   }else {
-    this.currentGLProgram = u
+    this.currentGLProgram = t
   }
-  p.useProgram(this.currentGLProgram);
-  p.depthMask(false);
-  p.disable(p.DEPTH_TEST);
+  o.useProgram(this.currentGLProgram);
+  o.depthMask(false);
+  o.disable(o.DEPTH_TEST);
   if(!f) {
-    p.disable(p.BLEND)
+    o.disable(o.BLEND)
   }else {
-    p.enable(p.BLEND);
-    p.blendFunc(p.SRC_ALPHA, p.ONE_MINUS_SRC_ALPHA)
+    o.enable(o.BLEND);
+    o.blendFunc(o.SRC_ALPHA, o.ONE_MINUS_SRC_ALPHA)
   }
-  p.activeTexture(p.TEXTURE0);
-  p.bindTexture(p.TEXTURE_2D, t.getWebGLTexture());
-  p.texParameteri(p.TEXTURE_2D, p.TEXTURE_WRAP_S, p.CLAMP_TO_EDGE);
-  p.texParameteri(p.TEXTURE_2D, p.TEXTURE_WRAP_T, p.CLAMP_TO_EDGE);
-  p.activeTexture(p.TEXTURE1);
-  p.bindTexture(p.TEXTURE_2D, null);
-  p.drawElements(p.TRIANGLES, a, p.UNSIGNED_SHORT, 0);
-  p.deleteBuffer(r);
-  p.deleteBuffer(n);
-  p.deleteBuffer(c)
+  o.activeTexture(o.TEXTURE0);
+  o.bindTexture(o.TEXTURE_2D, s.getWebGLTexture());
+  o.texParameteri(o.TEXTURE_2D, o.TEXTURE_WRAP_S, o.CLAMP_TO_EDGE);
+  o.texParameteri(o.TEXTURE_2D, o.TEXTURE_WRAP_T, o.CLAMP_TO_EDGE);
+  o.activeTexture(o.TEXTURE1);
+  o.bindTexture(o.TEXTURE_2D, null);
+  o.drawElements(o.TRIANGLES, a, o.UNSIGNED_SHORT, 0);
+  o.deleteBuffer(q);
+  o.deleteBuffer(m);
+  o.deleteBuffer(c)
 };
 CL3D.Renderer.prototype.draw2DFontImage = function(b, h, e, a, d, c) {
   if(d == null || d.isLoaded() == false || e <= 0 || a <= 0 || this.width == 0 || this.height == 0) {
@@ -3486,43 +3489,43 @@ CL3D.Renderer.prototype.createMaterialTypeInternal = function(a, d, g, c, e) {
   return b
 };
 CL3D.Renderer.prototype.initWebGL = function() {
-  var j = this.gl;
-  var q = this.createMaterialTypeInternal(this.vs_shader_normaltransform, this.fs_shader_onlyfirsttexture);
+  var i = this.gl;
+  var p = this.createMaterialTypeInternal(this.vs_shader_normaltransform, this.fs_shader_onlyfirsttexture);
   var e = this.createMaterialTypeInternal(this.vs_shader_normaltransform, this.fs_shader_lightmapcombine);
-  var m = this.createMaterialTypeInternal(this.vs_shader_normaltransform, this.fs_shader_lightmapcombine_m4);
-  var d = this.createMaterialTypeInternal(this.vs_shader_normaltransform, this.fs_shader_onlyfirsttexture, true, j.SRC_ALPHA, j.ONE_MINUS_SRC_ALPHA);
-  var n = this.createMaterialTypeInternal(this.vs_shader_normaltransform, this.fs_shader_onlyfirsttexture, true, j.ONE, j.ONE_MINUS_SRC_COLOR);
+  var l = this.createMaterialTypeInternal(this.vs_shader_normaltransform, this.fs_shader_lightmapcombine_m4);
+  var d = this.createMaterialTypeInternal(this.vs_shader_normaltransform, this.fs_shader_onlyfirsttexture, true, i.SRC_ALPHA, i.ONE_MINUS_SRC_ALPHA);
+  var m = this.createMaterialTypeInternal(this.vs_shader_normaltransform, this.fs_shader_onlyfirsttexture, true, i.ONE, i.ONE_MINUS_SRC_COLOR);
   var f = this.createMaterialTypeInternal(this.vs_shader_reflectiontransform, this.fs_shader_lightmapcombine);
-  var l = this.createMaterialTypeInternal(this.vs_shader_reflectiontransform, this.fs_shader_lightmapcombine, true, j.SRC_ALPHA, j.ONE_MINUS_SRC_ALPHA);
+  var k = this.createMaterialTypeInternal(this.vs_shader_reflectiontransform, this.fs_shader_lightmapcombine, true, i.SRC_ALPHA, i.ONE_MINUS_SRC_ALPHA);
   var h = this.createMaterialTypeInternal(this.vs_shader_normaltransform_gouraud, this.fs_shader_onlyfirsttexture_gouraud);
   this.Program2DDrawingColorOnly = this.createMaterialTypeInternal(this.vs_shader_2ddrawing_coloronly, this.fs_shader_simplecolor);
   this.Program2DDrawingTextureOnly = this.createMaterialTypeInternal(this.vs_shader_2ddrawing_texture, this.fs_shader_onlyfirsttexture);
   this.Program2DDrawingCanvasFontColor = this.createMaterialTypeInternal(this.vs_shader_2ddrawing_texture, this.fs_shader_2ddrawing_canvasfont);
-  this.MaterialPrograms[CL3D.Material.EMT_SOLID] = q;
-  this.MaterialPrograms[CL3D.Material.EMT_SOLID + 1] = q;
+  this.MaterialPrograms[CL3D.Material.EMT_SOLID] = p;
+  this.MaterialPrograms[CL3D.Material.EMT_SOLID + 1] = p;
   this.MaterialPrograms[CL3D.Material.EMT_LIGHTMAP] = e;
   this.MaterialPrograms[CL3D.Material.EMT_LIGHTMAP + 1] = e;
   this.MaterialPrograms[CL3D.Material.EMT_LIGHTMAP + 2] = e;
-  this.MaterialPrograms[CL3D.Material.EMT_LIGHTMAP + 3] = m;
-  this.MaterialPrograms[CL3D.Material.EMT_TRANSPARENT_ADD_COLOR] = n;
+  this.MaterialPrograms[CL3D.Material.EMT_LIGHTMAP + 3] = l;
+  this.MaterialPrograms[CL3D.Material.EMT_TRANSPARENT_ADD_COLOR] = m;
   this.MaterialPrograms[CL3D.Material.EMT_TRANSPARENT_ALPHA_CHANNEL] = d;
   this.MaterialPrograms[CL3D.Material.EMT_REFLECTION_2_LAYER] = f;
-  this.MaterialPrograms[CL3D.Material.EMT_TRANSPARENT_REFLECTION_2_LAYER] = l;
+  this.MaterialPrograms[CL3D.Material.EMT_TRANSPARENT_REFLECTION_2_LAYER] = k;
   this.MaterialPrograms[23] = h;
-  j.useProgram(q);
-  this.currentGLProgram = q;
+  i.useProgram(p);
+  this.currentGLProgram = p;
   var c = 0;
-  var k = 0;
+  var j = 0;
+  var n = 1;
   var o = 1;
-  var p = 1;
-  j.clearColor(c, k, o, p);
-  j.clearDepth(1E4);
-  j.depthMask(true);
-  j.enable(j.DEPTH_TEST);
-  j.disable(j.BLEND);
-  j.blendFunc(j.SRC_ALPHA, j.ONE_MINUS_SRC_ALPHA);
-  j.enable(j.CULL_FACE);
-  j.cullFace(j.BACK)
+  i.clearColor(c, j, n, o);
+  i.clearDepth(1E4);
+  i.depthMask(true);
+  i.enable(i.DEPTH_TEST);
+  i.disable(i.BLEND);
+  i.blendFunc(i.SRC_ALPHA, i.ONE_MINUS_SRC_ALPHA);
+  i.enable(i.CULL_FACE);
+  i.cullFace(i.BACK)
 };
 CL3D.Renderer.prototype.setProjection = function(a) {
   a.copyTo(this.Projection)
@@ -3563,18 +3566,18 @@ CL3D.Renderer.prototype.createTextureFrom2DCanvas = function(b, h) {
   var g = c.createTexture();
   c.bindTexture(c.TEXTURE_2D, g);
   var a = b.width;
-  var l = b.height;
+  var k = b.height;
   var e = a;
-  var f = l;
+  var f = k;
   if(!this.isPowerOfTwo(b.width) || !this.isPowerOfTwo(b.height)) {
     var d = document.createElement("canvas");
     d.width = this.nextHighestPowerOfTwo(b.width);
     d.height = this.nextHighestPowerOfTwo(b.height);
-    var j = d.getContext("2d");
+    var i = d.getContext("2d");
     if(h) {
-      j.drawImage(b, 0, 0, b.width, b.height, 0, 0, b.width, b.height)
+      i.drawImage(b, 0, 0, b.width, b.height, 0, 0, b.width, b.height)
     }else {
-      j.drawImage(b, 0, 0, b.width, b.height, 0, 0, d.width, d.height)
+      i.drawImage(b, 0, 0, b.width, b.height, 0, 0, d.width, d.height)
     }
     b = d;
     e = d.width;
@@ -3585,16 +3588,16 @@ CL3D.Renderer.prototype.createTextureFrom2DCanvas = function(b, h) {
   c.texParameteri(c.TEXTURE_2D, c.TEXTURE_MIN_FILTER, c.LINEAR_MIPMAP_NEAREST);
   c.generateMipmap(c.TEXTURE_2D);
   c.bindTexture(c.TEXTURE_2D, null);
-  var k = new CL3D.Texture;
-  k.Name = "";
-  k.Texture = g;
-  k.Image = null;
-  k.Loaded = true;
-  k.CachedWidth = e;
-  k.CachedHeight = f;
-  k.OriginalWidth = a;
-  k.OriginalHeight = l;
-  return k
+  var j = new CL3D.Texture;
+  j.Name = "";
+  j.Texture = g;
+  j.Image = null;
+  j.Loaded = true;
+  j.CachedWidth = e;
+  j.CachedHeight = f;
+  j.OriginalWidth = a;
+  j.OriginalHeight = k;
+  return j
 };
 CL3D.Renderer.prototype.isPowerOfTwo = function(a) {
   return(a & a - 1) == 0
@@ -3734,10 +3737,10 @@ CL3D.SceneNode.prototype.getBoundingBox = function() {
 CL3D.SceneNode.prototype.getAnimators = function() {
   return this.Animators
 };
-CL3D.SceneNode.prototype.getAnimatorOfType = function(b) {
-  for(i = 0;i < this.Animators.length;++i) {
-    var a = this.Animators[i];
-    if(a.getType() == b) {
+CL3D.SceneNode.prototype.getAnimatorOfType = function(c) {
+  for(var b = 0;b < this.Animators.length;++b) {
+    var a = this.Animators[b];
+    if(a.getType() == c) {
       return a
     }
   }
@@ -4015,24 +4018,24 @@ CL3D.CameraSceneNode.prototype.onKeyUp = function(b) {
 };
 CL3D.CameraSceneNode.prototype.createClone = function(a) {
   var b = new CL3D.CameraSceneNode;
-  cloneMembers(b, a);
-  if(Target) {
+  this.cloneMembers(b, a);
+  if(this.Target) {
     b.Target = this.Target.clone()
   }
-  if(UpVector) {
+  if(this.UpVector) {
     b.UpVector = this.UpVector.clone()
   }
-  if(Projection) {
+  if(this.Projection) {
     b.Projection = this.Projection.clone()
   }
-  if(ViewMatrix) {
+  if(this.ViewMatrix) {
     b.ViewMatrix = this.ViewMatrix.clone()
   }
   b.Fovy = this.Fovy;
   b.Aspect = this.Aspect;
   b.ZNear = this.ZNear;
   b.ZFar = this.ZFar;
-  if(Box) {
+  if(this.Box) {
     b.Box = this.Box.clone()
   }
   return b
@@ -4180,12 +4183,12 @@ CL3D.SkyBoxSceneNode.prototype = new CL3D.MeshSceneNode;
 CL3D.SkyBoxSceneNode.prototype.getType = function() {
   return"sky"
 };
-CL3D.SkyBoxSceneNode.prototype.createVertex = function(g, f, e, d, c, b, j, h) {
+CL3D.SkyBoxSceneNode.prototype.createVertex = function(g, f, e, d, c, b, i, h) {
   var a = new CL3D.Vertex3D(true);
   a.Pos.X = g;
   a.Pos.Y = f;
   a.Pos.Z = e;
-  a.TCoords.X = j;
+  a.TCoords.X = i;
   a.TCoords.Y = h;
   return a
 };
@@ -4212,7 +4215,7 @@ CL3D.SkyBoxSceneNode.prototype.render = function(b) {
 CL3D.SkyBoxSceneNode.prototype.createClone = function(a) {
   var b = new CL3D.SkyBoxSceneNode;
   this.cloneMembers(b, a);
-  if(OwnedMesh) {
+  if(this.OwnedMesh) {
     b.OwnedMesh = this.OwnedMesh.clone()
   }
   b.ReadonlyMaterials = this.ReadonlyMaterials;
@@ -4255,7 +4258,7 @@ CL3D.CubeSceneNode = function(e) {
   this.init()
 };
 CL3D.CubeSceneNode.prototype = new CL3D.MeshSceneNode;
-CL3D.CubeSceneNode.prototype.createVertex = function(g, f, e, d, c, b, k, j, h) {
+CL3D.CubeSceneNode.prototype.createVertex = function(g, f, e, d, c, b, j, i, h) {
   var a = new CL3D.Vertex3D(true);
   a.Pos.X = g;
   a.Pos.Y = f;
@@ -4263,7 +4266,7 @@ CL3D.CubeSceneNode.prototype.createVertex = function(g, f, e, d, c, b, k, j, h) 
   a.Normal.X = d;
   a.Normal.Y = c;
   a.Normal.Z = b;
-  a.TCoords.X = j;
+  a.TCoords.X = i;
   a.TCoords.Y = h;
   return a
 };
@@ -4326,63 +4329,63 @@ CL3D.BillboardSceneNode.prototype.OnRegisterSceneNode = function(a) {
     CL3D.SceneNode.prototype.OnRegisterSceneNode.call(this, a)
   }
 };
-CL3D.BillboardSceneNode.prototype.render = function(l) {
+CL3D.BillboardSceneNode.prototype.render = function(k) {
   var a = this.scene.getActiveCamera();
   if(!a) {
     return
   }
   var e = this.IsVertical;
   if(!e) {
-    var n = this.getAbsolutePosition();
-    var o = l.getStaticBillboardMeshBuffer();
+    var m = this.getAbsolutePosition();
+    var n = k.getStaticBillboardMeshBuffer();
     var g = new CL3D.Matrix4(true);
     g.setScale(new CL3D.Vect3d(this.SizeX * 0.5, this.SizeY * 0.5, 0));
-    var j = l.getView().clone();
-    j.setTranslation(new CL3D.Vect3d(0, 0, 0));
-    var p = new CL3D.Matrix4(true);
-    j.getInverse(p);
-    p.setTranslation(n);
-    g = p.multiply(g);
-    l.setWorld(g);
-    l.setMaterial(this.MeshBuffer.Mat);
-    l.drawMeshBuffer(o)
+    var i = k.getView().clone();
+    i.setTranslation(new CL3D.Vect3d(0, 0, 0));
+    var o = new CL3D.Matrix4(true);
+    i.getInverse(o);
+    o.setTranslation(m);
+    g = o.multiply(g);
+    k.setWorld(g);
+    k.setMaterial(this.MeshBuffer.Mat);
+    k.drawMeshBuffer(n)
   }else {
-    var n = this.getAbsolutePosition();
+    var m = this.getAbsolutePosition();
     var c = a.getAbsolutePosition();
     var h = a.getTarget();
     var f = a.getUpVector();
-    var m = h.substract(c);
-    m.normalize();
-    var b = f.crossProduct(m);
+    var l = h.substract(c);
+    l.normalize();
+    var b = f.crossProduct(l);
     if(b.getLengthSQ() == 0) {
       b.set(f.Y, f.X, f.Z)
     }
     b.normalize();
     b.multiplyThisWithScal(0.5 * this.SizeX);
-    var d = b.crossProduct(m);
+    var d = b.crossProduct(l);
     d.normalize();
     d.multiplyThisWithScal(0.5 * this.SizeY);
     if(this.IsVertical) {
       d.set(0, -0.5 * this.SizeY, 0)
     }
-    m.multiplyThisWithScal(1);
-    this.vtx1.Pos.setTo(n);
+    l.multiplyThisWithScal(1);
+    this.vtx1.Pos.setTo(m);
     this.vtx1.Pos.addToThis(b);
     this.vtx1.Pos.addToThis(d);
-    this.vtx2.Pos.setTo(n);
+    this.vtx2.Pos.setTo(m);
     this.vtx2.Pos.addToThis(b);
     this.vtx2.Pos.substractFromThis(d);
-    this.vtx3.Pos.setTo(n);
+    this.vtx3.Pos.setTo(m);
     this.vtx3.Pos.substractFromThis(b);
     this.vtx3.Pos.substractFromThis(d);
-    this.vtx4.Pos.setTo(n);
+    this.vtx4.Pos.setTo(m);
     this.vtx4.Pos.substractFromThis(b);
     this.vtx4.Pos.addToThis(d);
     this.MeshBuffer.update();
-    var k = new CL3D.Matrix4(true);
-    l.setWorld(k);
-    l.setMaterial(this.MeshBuffer.Mat);
-    l.drawMeshBuffer(this.MeshBuffer)
+    var j = new CL3D.Matrix4(true);
+    k.setWorld(j);
+    k.setMaterial(this.MeshBuffer.Mat);
+    k.drawMeshBuffer(this.MeshBuffer)
   }
 };
 CL3D.BillboardSceneNode.prototype.getMaterialCount = function() {
@@ -4447,7 +4450,7 @@ CL3D.PathSceneNode.prototype.getPathNodePosition = function(a) {
     return new CL3D.Vect3d(0, 0, 0)
   }
   if(!this.AbsoluteTransformation) {
-    updateAbsolutePosition()
+    this.updateAbsolutePosition()
   }
   var b = this.Nodes[a];
   b = b.clone();
@@ -4460,13 +4463,13 @@ CL3D.PathSceneNode.prototype.clampPathIndex = function(a, b) {
   }
   return a < 0 ? 0 : a >= b ? b - 1 : a
 };
-CL3D.PathSceneNode.prototype.getPointOnPath = function(q, a) {
+CL3D.PathSceneNode.prototype.getPointOnPath = function(p, a) {
   var h = this.Nodes.length;
   if(this.IsClosedCircle) {
-    q *= h
+    p *= h
   }else {
-    q = CL3D.clamp(q, 0, 1);
-    q *= h - 1
+    p = CL3D.clamp(p, 0, 1);
+    p *= h - 1
   }
   var e = new CL3D.Vect3d;
   if(h == 0) {
@@ -4475,23 +4478,23 @@ CL3D.PathSceneNode.prototype.getPointOnPath = function(q, a) {
   if(h == 1) {
     return e
   }
-  var b = q;
-  var p = CL3D.fract(b);
-  var m = Math.floor(b) % h;
-  var r = this.Nodes[this.clampPathIndex(m - 1, h)];
-  var o = this.Nodes[this.clampPathIndex(m + 0, h)];
-  var n = this.Nodes[this.clampPathIndex(m + 1, h)];
-  var l = this.Nodes[this.clampPathIndex(m + 2, h)];
-  var k = 2 * p * p * p - 3 * p * p + 1;
-  var j = -2 * p * p * p + 3 * p * p;
-  var g = p * p * p - 2 * p * p + p;
-  var f = p * p * p - p * p;
-  var d = n.substract(r);
+  var b = p;
+  var o = CL3D.fract(b);
+  var l = Math.floor(b) % h;
+  var q = this.Nodes[this.clampPathIndex(l - 1, h)];
+  var n = this.Nodes[this.clampPathIndex(l + 0, h)];
+  var m = this.Nodes[this.clampPathIndex(l + 1, h)];
+  var k = this.Nodes[this.clampPathIndex(l + 2, h)];
+  var j = 2 * o * o * o - 3 * o * o + 1;
+  var i = -2 * o * o * o + 3 * o * o;
+  var g = o * o * o - 2 * o * o + o;
+  var f = o * o * o - o * o;
+  var d = m.substract(q);
   d.multiplyThisWithScal(this.Tightness);
-  var c = l.substract(o);
+  var c = k.substract(n);
   c.multiplyThisWithScal(this.Tightness);
-  e = o.multiplyWithScal(k);
-  e.addToThis(n.multiplyWithScal(j));
+  e = n.multiplyWithScal(j);
+  e.addToThis(m.multiplyWithScal(i));
   e.addToThis(d.multiplyWithScal(g));
   e.addToThis(c.multiplyWithScal(f));
   if(!a) {
@@ -4570,69 +4573,69 @@ CL3D.Overlay2DSceneNode.prototype.OnRegisterSceneNode = function(a) {
     CL3D.SceneNode.prototype.OnRegisterSceneNode.call(this, a)
   }
 };
-CL3D.Overlay2DSceneNode.prototype.render = function(m) {
-  var d = this.getScreenCoordinatesRect(true, m);
+CL3D.Overlay2DSceneNode.prototype.render = function(l) {
+  var d = this.getScreenCoordinatesRect(true, l);
   var f = d;
-  var l = false;
+  var k = false;
   if(this.engine != null && this.AnimateOnHover) {
     var c = this.engine.getMouseX();
     var b = this.engine.getMouseY();
-    l = d.x <= c && d.y <= b && d.x + d.w >= c && d.y + d.h >= b
+    k = d.x <= c && d.y <= b && d.x + d.w >= c && d.y + d.h >= b
   }
-  if(l && this.OnHoverSetBackgroundColor) {
-    m.draw2DRectangle(d.x, d.y, d.w, d.h, this.HoverBackgroundColor, true)
+  if(k && this.OnHoverSetBackgroundColor) {
+    l.draw2DRectangle(d.x, d.y, d.w, d.h, this.HoverBackgroundColor, true)
   }else {
     if(this.ShowBackGround) {
-      m.draw2DRectangle(d.x, d.y, d.w, d.h, this.BackGroundColor, true)
+      l.draw2DRectangle(d.x, d.y, d.w, d.h, this.BackGroundColor, true)
     }
   }
-  var o = this.Texture;
-  if(l && this.TextureHover && this.OnHoverDrawTexture) {
-    o = this.TextureHover
+  var n = this.Texture;
+  if(k && this.TextureHover && this.OnHoverDrawTexture) {
+    n = this.TextureHover
   }
-  if(o != null && o.isLoaded()) {
-    var n = o.getWidth();
-    var k = o.getHeight();
+  if(n != null && n.isLoaded()) {
+    var m = n.getWidth();
+    var j = n.getHeight();
     if(!this.RetainAspectRatio) {
-      m.draw2DImage(d.x, d.y, d.w, d.h, o, true)
+      l.draw2DImage(d.x, d.y, d.w, d.h, n, true)
     }else {
-      if(n && k && d.h && d.w) {
-        var q = k / n;
+      if(m && j && d.h && d.w) {
+        var p = j / m;
         var a = d.w;
-        var p = a * q;
-        if(p > d.h) {
-          var s = d.h / p;
-          a *= s;
-          p *= s
+        var o = a * p;
+        if(o > d.h) {
+          var r = d.h / o;
+          a *= r;
+          o *= r
         }
         d.w = a;
-        d.h = p;
+        d.h = o;
         f = d;
-        m.draw2DImage(d.x, d.y, d.w, d.h, o, true)
+        l.draw2DImage(d.x, d.y, d.w, d.h, n, true)
       }
     }
   }
   if(this.DrawText && this.FontName && this.Text != "") {
-    this.createNewTextTexturesIfNecessary(m);
-    var j = this.TextTexture;
+    this.createNewTextTexturesIfNecessary(l);
+    var i = this.TextTexture;
     var e = this.TextColor;
-    if(l) {
+    if(k) {
       if(this.TextHoverTexture) {
-        j = this.TextHoverTexture
+        i = this.TextHoverTexture
       }
       e = this.HoverFontColor
     }
-    if(j) {
-      var g = j.OriginalWidth;
-      var r = j.OriginalHeight;
+    if(i) {
+      var g = i.OriginalWidth;
+      var q = i.OriginalHeight;
       if(this.TextAlignment == 0) {
-        m.draw2DFontImage(d.x, d.y, g, r, j, e)
+        l.draw2DFontImage(d.x, d.y, g, q, i, e)
       }else {
-        m.draw2DFontImage(d.x + (d.w - g) / 2, d.y + (d.h - r) / 2, g, r, j, e)
+        l.draw2DFontImage(d.x + (d.w - g) / 2, d.y + (d.h - q) / 2, g, q, i, e)
       }
     }
   }else {
-    this.destroyTextTextures(m)
+    this.destroyTextTextures(l)
   }
 };
 CL3D.Overlay2DSceneNode.prototype.destroyTextTextures = function(a) {
@@ -4661,7 +4664,7 @@ CL3D.Overlay2DSceneNode.prototype.createNewTextTexturesIfNecessary = function(f)
   if(h == null) {
     return
   }
-  var j = 12;
+  var i = 12;
   var c = this.parseCopperCubeFontString(this.FontName);
   h.font = c;
   var e = h.measureText(this.Text);
@@ -4786,7 +4789,7 @@ CL3D.DummyTransformationSceneNode = function() {
 };
 CL3D.DummyTransformationSceneNode.prototype = new CL3D.SceneNode;
 CL3D.DummyTransformationSceneNode.prototype.createClone = function(a) {
-  var b = new DummyTransformationSceneNode;
+  var b = new CL3D.DummyTransformationSceneNode;
   this.cloneMembers(b, a);
   if(this.Box) {
     b.Box = this.Box.clone()
@@ -5019,12 +5022,12 @@ CL3D.AnimatedMeshSceneNode.prototype.render = function(c) {
         a.Mat = this.Materials[b]
       }
       if(a.Transformation != null) {
-        c.setWorld(AbsoluteTransformation.multiply(a.Transformation))
+        c.setWorld(this.AbsoluteTransformation.multiply(a.Transformation))
       }
       c.setMaterial(a.Mat);
       c.drawMeshBuffer(a);
       if(a.Transformation != null) {
-        c.setWorld(AbsoluteTransformation)
+        c.setWorld(this.AbsoluteTransformation)
       }
     }
   }
@@ -5108,14 +5111,14 @@ CL3D.AnimatorCameraFPS.prototype.lookAt = function(b) {
     this.relativeRotationX -= 360
   }
 };
-CL3D.AnimatorCameraFPS.prototype.animateNode = function(l, v) {
+CL3D.AnimatorCameraFPS.prototype.animateNode = function(k, u) {
   if(this.Camera == null) {
     return false
   }
   var b = CL3D.CLTimer.getTime();
-  var k = b - this.lastAnimTime;
-  if(k > 250) {
-    k = 250
+  var j = b - this.lastAnimTime;
+  if(j > 250) {
+    j = 250
   }
   this.lastAnimTime = b;
   var e = this.Camera.Pos.clone();
@@ -5126,22 +5129,22 @@ CL3D.AnimatorCameraFPS.prototype.animateNode = function(l, v) {
     }
     g.normalize();
     if(this.upKeyDown) {
-      e.addToThis(g.multiplyWithScal(this.MoveSpeed * -k))
+      e.addToThis(g.multiplyWithScal(this.MoveSpeed * -j))
     }
     if(this.downKeyDown) {
-      e.addToThis(g.multiplyWithScal(this.MoveSpeed * k))
+      e.addToThis(g.multiplyWithScal(this.MoveSpeed * j))
     }
   }
   if(this.MayMove && (this.leftKeyDown || this.rightKeyDown)) {
     var d = this.Camera.Pos.substract(this.Camera.getTarget()).crossProduct(this.Camera.getUpVector());
     d.normalize();
     if(this.leftKeyDown) {
-      d = d.multiplyWithScal(this.MoveSpeed * -k);
+      d = d.multiplyWithScal(this.MoveSpeed * -j);
       e.addToThis(d);
       this.Camera.setTarget(this.Camera.getTarget().add(d))
     }
     if(this.rightKeyDown) {
-      d = d.multiplyWithScal(this.MoveSpeed * k);
+      d = d.multiplyWithScal(this.MoveSpeed * j);
       e.addToThis(d);
       this.Camera.setTarget(this.Camera.getTarget().add(d))
     }
@@ -5149,49 +5152,49 @@ CL3D.AnimatorCameraFPS.prototype.animateNode = function(l, v) {
   this.Camera.Pos = e;
   if(this.MayZoom) {
     var h = CL3D.radToDeg(this.Camera.getFov());
-    this.targetZoomValue += this.getAdditionalZoomDiff() * k;
+    this.targetZoomValue += this.getAdditionalZoomDiff() * j;
     if(this.targetZoomValue < this.minZoom) {
       this.targetZoomValue = this.minZoom
     }
     if(this.targetZoomValue > this.maxZoom) {
       this.targetZoomValue = this.maxZoom
     }
-    var s = this.zoomSpeed;
-    s = Math.abs(this.targetZoomValue - h) / 8;
-    if(s < this.zoomSpeed) {
-      s = this.zoomSpeed
+    var r = this.zoomSpeed;
+    r = Math.abs(this.targetZoomValue - h) / 8;
+    if(r < this.zoomSpeed) {
+      r = this.zoomSpeed
     }
-    if(h < this.maxZoom - s && h < this.targetZoomValue) {
-      h += s;
+    if(h < this.maxZoom - r && h < this.targetZoomValue) {
+      h += r;
       if(h > this.maxZoom) {
         h = this.maxZoom
       }
     }
-    if(h > this.minZoom + s && h > this.targetZoomValue) {
-      h -= s;
+    if(h > this.minZoom + r && h > this.targetZoomValue) {
+      h -= r;
       if(h < this.minZoom) {
         h = this.minZoom
       }
     }
     this.Camera.setFov(CL3D.degToRad(h))
   }
-  var x = new CL3D.Vect3d(0, 0, 1);
-  var t = new CL3D.Matrix4;
-  t.setRotationDegrees(new CL3D.Vect3d(this.relativeRotationX, this.relativeRotationY, 0));
-  t.transformVect(x);
-  var u = 300;
+  var w = new CL3D.Vect3d(0, 0, 1);
+  var s = new CL3D.Matrix4;
+  s.setRotationDegrees(new CL3D.Vect3d(this.relativeRotationX, this.relativeRotationY, 0));
+  s.transformVect(w);
+  var t = 300;
   var c = 0;
-  var o = 1 / 5E4;
   var m = 1 / 5E4;
+  var l = 1 / 5E4;
   if(this.moveByMouseDown) {
-    o *= 3;
-    m *= 3
+    m *= 3;
+    l *= 3
   }
   if(this.moveByMouseMove) {
     var f = this.CursorControl.getRenderer().getHeight();
-    var p = this.CursorControl.getMouseY();
-    if(f > 0 && p > 0 && this.CursorControl.isMouseOverCanvas()) {
-      c = Math.sin((p - f / 2) / f) * 100 * 0.5
+    var o = this.CursorControl.getMouseY();
+    if(f > 0 && o > 0 && this.CursorControl.isMouseOverCanvas()) {
+      c = Math.sin((o - f / 2) / f) * 100 * 0.5
     }
   }else {
     if(this.moveByMouseDown || this.moveByPanoDrag) {
@@ -5201,51 +5204,51 @@ CL3D.AnimatorCameraFPS.prototype.animateNode = function(l, v) {
     }
   }
   c += this.getAdditionalYLookDiff();
-  if(c > u) {
-    c = u
+  if(c > t) {
+    c = t
   }
-  if(c < -u) {
-    c = -u
+  if(c < -t) {
+    c = -t
   }
-  this.relativeRotationX += c * k * this.RotateSpeed * m;
+  this.relativeRotationX += c * j * this.RotateSpeed * l;
   if(this.relativeRotationX < -this.MaxVerticalAngle) {
     this.relativeRotationX = -this.MaxVerticalAngle
   }
   if(this.relativeRotationX > this.MaxVerticalAngle) {
     this.relativeRotationX = this.MaxVerticalAngle
   }
-  var j = 0;
+  var i = 0;
   if(this.moveByMouseMove) {
-    var r = this.CursorControl.getRenderer().getWidth();
-    var q = this.CursorControl.getMouseX();
-    if(r > 0 && q > 0 && this.CursorControl.isMouseOverCanvas()) {
-      j = Math.sin((q - r / 2) / r) * 100 * 0.5
+    var q = this.CursorControl.getRenderer().getWidth();
+    var p = this.CursorControl.getMouseX();
+    if(q > 0 && p > 0 && this.CursorControl.isMouseOverCanvas()) {
+      i = Math.sin((p - q / 2) / q) * 100 * 0.5
     }
   }else {
     if(this.moveByMouseDown || this.moveByPanoDrag) {
       if(this.CursorControl.isMouseDown()) {
-        j = this.CursorControl.getMouseX() - this.CursorControl.getMouseDownX()
+        i = this.CursorControl.getMouseX() - this.CursorControl.getMouseDownX()
       }
     }
   }
-  j += this.getAdditionalXLookDiff();
-  if(j > u) {
-    j = u
+  i += this.getAdditionalXLookDiff();
+  if(i > t) {
+    i = t
   }
-  if(j < -u) {
-    j = -u
+  if(i < -t) {
+    i = -t
   }
-  this.relativeRotationY += j * k * this.RotateSpeed * o;
+  this.relativeRotationY += i * j * this.RotateSpeed * m;
   if(this.moveByMouseDown || this.moveByPanoDrag) {
     this.CursorControl.setMouseDownWhereMouseIsNow()
   }
   if(this.MayMove && this.jumpKeyDown) {
-    var w = l.getAnimatorOfType("collisionresponse");
-    if(w && !w.isFalling()) {
-      w.jump(this.JumpSpeed)
+    var v = k.getAnimatorOfType("collisionresponse");
+    if(v && !v.isFalling()) {
+      v.jump(this.JumpSpeed)
     }
   }
-  this.Camera.setTarget(this.Camera.Pos.add(x));
+  this.Camera.setTarget(this.Camera.Pos.add(w));
   return false
 };
 CL3D.AnimatorCameraFPS.prototype.onMouseDown = function(a) {
@@ -5253,7 +5256,7 @@ CL3D.AnimatorCameraFPS.prototype.onMouseDown = function(a) {
 };
 CL3D.AnimatorCameraFPS.prototype.onMouseWheel = function(a) {
   CL3D.Animator.prototype.onMouseWheel.call(this, a);
-  this.targetZoomValue += a.delta * zoomSpeed;
+  this.targetZoomValue += a.delta * this.zoomSpeed;
   if(this.targetZoomValue < this.minZoom) {
     this.targetZoomValue = this.minZoom
   }
@@ -5337,38 +5340,38 @@ CL3D.AnimatorCameraModelViewer.prototype.animateNode = function(e, c) {
     a = 250
   }
   this.lastAnimTime = b;
-  var o = this.Camera.Pos.clone();
-  var j = this.Camera.Target.clone();
-  var m = j.substract(this.Camera.getAbsolutePosition());
+  var m = this.Camera.Pos.clone();
+  var i = this.Camera.Target.clone();
+  var l = i.substract(this.Camera.getAbsolutePosition());
   var f = 0;
   var d = 0;
   if(this.CursorControl.isMouseDown()) {
     f = (this.CursorControl.getMouseX() - this.CursorControl.getMouseDownX()) * this.RotateSpeed / 5E4;
     d = (this.CursorControl.getMouseY() - this.CursorControl.getMouseDownY()) * this.RotateSpeed / 5E4
   }
-  var l = m.crossProduct(this.Camera.UpVector);
-  l.Y = 0;
-  l.normalize();
+  var k = l.crossProduct(this.Camera.UpVector);
+  k.Y = 0;
+  k.normalize();
   if(!CL3D.iszero(f)) {
-    l.multiplyThisWithScal(a * f);
-    o.addToThis(l)
+    k.multiplyThisWithScal(a * f);
+    m.addToThis(k)
   }
   if(!this.NoVerticalMovement && !CL3D.iszero(d)) {
     var h = this.Camera.UpVector.clone();
     h.normalize();
-    var k = o.add(h.multiplyWithScal(a * d));
-    var g = k.clone();
-    g.Y = j.Y;
-    var p = this.Radius / 10;
-    if(g.getDistanceTo(j) > p) {
-      o = k
+    var j = m.add(h.multiplyWithScal(a * d));
+    var g = j.clone();
+    g.Y = i.Y;
+    var o = this.Radius / 10;
+    if(g.getDistanceTo(i) > o) {
+      m = j
     }
   }
   this.CursorControl.setMouseDownWhereMouseIsNow();
-  m = o.substract(j);
-  m.setLength(this.Radius);
-  o = j.add(m);
-  this.Camera.Pos = o;
+  l = m.substract(i);
+  l.setLength(this.Radius);
+  m = i.add(l);
+  this.Camera.Pos = m;
   return false
 };
 CL3D.AnimatorFollowPath = function(a) {
@@ -5437,17 +5440,17 @@ CL3D.AnimatorFollowPath.prototype.animateNode = function(d, c) {
   if(!this.StartTime) {
     this.StartTime = this.Manager.getStartTime()
   }
-  var p = (c - this.StartTime + this.TimeDisplacement) / this.TimeNeeded;
-  if(p > 1 && !this.PathNodeToFollow.IsClosedCircle) {
+  var o = (c - this.StartTime + this.TimeDisplacement) / this.TimeNeeded;
+  if(o > 1 && !this.PathNodeToFollow.IsClosedCircle) {
     switch(this.EndMode) {
       case CL3D.AnimatorFollowPath.EFPFEM_START_AGAIN:
-        p = p % 1;
+        o = o % 1;
         break;
       case CL3D.AnimatorFollowPath.EFPFEM_STOP:
-        p = 1;
+        o = 1;
         break;
       case CL3D.AnimatorFollowPath.EFPFEM_SWITCH_TO_CAMERA:
-        p = 1;
+        o = 1;
         if(!this.SwitchedToNextCamera) {
           this.switchToNextCamera();
           this.SwitchedToNextCamera = true
@@ -5457,38 +5460,38 @@ CL3D.AnimatorFollowPath.prototype.animateNode = function(d, c) {
   }else {
     this.SwitchedToNextCamera = false
   }
-  var m = this.PathNodeToFollow.getPointOnPath(p);
-  f = !m.equals(d.Pos);
-  d.Pos = m;
+  var l = this.PathNodeToFollow.getPointOnPath(o);
+  f = !l.equals(d.Pos);
+  d.Pos = l;
   if(this.LookIntoMovementDirection && this.PathNodeToFollow.Nodes.length) {
-    var g = p + 0.001;
+    var g = o + 0.001;
     var h;
     if(this.PathNodeToFollow.IsClosedCircle) {
       h = this.PathNodeToFollow.getPointOnPath(g)
     }else {
       h = this.PathNodeToFollow.getPointOnPath(g)
     }
-    if(!CL3D.iszero(h.getDistanceTo(m))) {
-      var l = h.substract(m);
-      l.setLength(100);
+    if(!CL3D.iszero(h.getDistanceTo(l))) {
+      var k = h.substract(l);
+      k.setLength(100);
       if(this.IsCamera) {
         a = d;
-        var k = m.add(l);
-        f = f || !k.equals(a.Target);
-        a.setTarget(k)
+        var j = l.add(k);
+        f = f || !j.equals(a.Target);
+        a.setTarget(j)
       }else {
         var b;
         if(!this.AdditionalRotation || this.AdditionalRotation.equalsZero()) {
-          b = l.getHorizontalAngle();
+          b = k.getHorizontalAngle();
           f = f || !b.equals(d.Rot);
           d.Rot = b
         }else {
-          var o = new CL3D.Matrix4;
-          o.setRotationDegrees(l.getHorizontalAngle());
-          var j = new CL3D.Matrix4;
-          j.setRotationDegrees(this.AdditionalRotation);
-          o = o.multiply(j);
-          b = o.getRotationDegrees();
+          var m = new CL3D.Matrix4;
+          m.setRotationDegrees(k.getHorizontalAngle());
+          var i = new CL3D.Matrix4;
+          i.setRotationDegrees(this.AdditionalRotation);
+          m = m.multiply(i);
+          b = m.getRotationDegrees();
           f = f || !b.equals(d.Rot);
           d.Rot = b
         }
@@ -5728,7 +5731,7 @@ CL3D.AnimatorRotation.prototype.animateNode = function(g, f) {
       var b = this.Rotation.multiplyWithScal(CL3D.DEGTORAD);
       a.setFromEuler(b.X, b.Y, b.Z);
       var d = new CL3D.Quaternion;
-      var b = this.BeginRotation.multiplyWithScal(CL3D.DEGTORAD);
+      b = this.BeginRotation.multiplyWithScal(CL3D.DEGTORAD);
       d.setFromEuler(b.X, b.Y, b.Z);
       d.slerp(d, a, e);
       b = new CL3D.Vect3d;
@@ -5888,31 +5891,31 @@ CL3D.AnimatorOnClick.prototype.isOverNode = function(g, f, d) {
   a.End = b;
   return this.static_getCollisionDistanceWithNode(this.SMGr, g, a, this.BoundingBoxTestOnly, this.CollidesWithWorld, this.World, null)
 };
-CL3D.AnimatorOnClick.prototype.static_getDistanceToNearestCollisionPointWithWorld = function(c, d, b, f) {
-  var e = 999999999999;
-  if(!f || !c) {
-    return e
+CL3D.AnimatorOnClick.prototype.static_getDistanceToNearestCollisionPointWithWorld = function(d, e, b, g, c) {
+  var f = 999999999999;
+  if(!g || !d) {
+    return f
   }
-  var a = f.getCollisionPointWithLine(d, b, true);
+  var a = g.getCollisionPointWithLine(e, b, true, null, c);
   if(a) {
-    return d.getDistanceTo(a)
+    return e.getDistanceTo(a)
   }
-  return e
+  return f
 };
 CL3D.AnimatorOnClick.prototype.getDistanceToNearestCollisionPointWithWorld = function(b, a) {
-  return this.static_getDistanceToNearestCollisionPointWithWorld(this.SMGr, b, a, this.World)
+  return this.static_getDistanceToNearestCollisionPointWithWorld(this.SMGr, b, a, this.World, true)
 };
-CL3D.AnimatorOnClick.prototype.static_getCollisionDistanceWithNode = function(a, k, g, d, e, j, l) {
-  var f = k.getBoundingBox();
-  var c = 0;
+CL3D.AnimatorOnClick.prototype.static_getCollisionDistanceWithNode = function(b, k, h, e, f, j, l) {
+  var g = k.getBoundingBox();
+  var d = 0;
   var r = new CL3D.Matrix4(false);
   if(k.AbsoluteTransformation.getInverse(r)) {
-    if(f.intersectsWithLine(r.getTransformedVect(g.Start), r.getTransformedVect(g.End))) {
+    if(g.intersectsWithLine(r.getTransformedVect(h.Start), r.getTransformedVect(h.End))) {
       var q = null;
       if(k.getMesh && k.OwnedMesh) {
         q = k
       }
-      var o = q == null || d;
+      var o = q == null || e;
       if(!o) {
         var m = q.Selector;
         if(m == null) {
@@ -5924,21 +5927,22 @@ CL3D.AnimatorOnClick.prototype.static_getCollisionDistanceWithNode = function(a,
           q.Selector = m
         }
         if(m) {
-          var b = m.getCollisionPointWithLine(g.Start, g.End, true);
-          if(b != null) {
-            if(e) {
-              c = this.static_getDistanceToNearestCollisionPointWithWorld(a, g.Start, b, j);
-              if(c + CL3D.TOLERANCE < b.getDistanceTo(g.Start)) {
+          var c = m.getCollisionPointWithLine(h.Start, h.End, true, null, true);
+          if(c != null) {
+            if(f) {
+              d = this.static_getDistanceToNearestCollisionPointWithWorld(b, h.Start, c, j, true);
+              var a = c.getDistanceTo(h.Start);
+              if(d + CL3D.TOLERANCE < a) {
                 return false
               }else {
                 if(l != null) {
-                  l.N = b.getDistanceTo(g.Start)
+                  l.N = c.getDistanceTo(h.Start)
                 }
                 return true
               }
             }else {
               if(l != null) {
-                l.N = g.Start.getDistanceTo(k.getTransformedBoundingBox().getCenter())
+                l.N = h.Start.getDistanceTo(k.getTransformedBoundingBox().getCenter())
               }
               return true
             }
@@ -5948,26 +5952,26 @@ CL3D.AnimatorOnClick.prototype.static_getCollisionDistanceWithNode = function(a,
         }
       }
       if(o) {
-        if(!e) {
+        if(!f) {
           if(l != null) {
-            l.N = g.Start.getDistanceTo(k.getTransformedBoundingBox().getCenter())
+            l.N = h.Start.getDistanceTo(k.getTransformedBoundingBox().getCenter())
           }
           return true
         }else {
-          var t = g.Start.clone();
-          f = k.getTransformedBoundingBox();
-          var s = f.getExtent();
+          var t = h.Start.clone();
+          g = k.getTransformedBoundingBox();
+          var s = g.getExtent();
           s.multiplyThisWithScal(0.5);
           var p = CL3D.max3(s.X, s.Y, s.Z);
           p = Math.sqrt(p * p + p * p);
           var n = k.getTransformedBoundingBox().getCenter();
-          c = this.static_getDistanceToNearestCollisionPointWithWorld(a, t, n, j);
-          var h = n.getDistanceTo(t) - p;
-          if(c < h) {
+          d = this.static_getDistanceToNearestCollisionPointWithWorld(b, t, n, j, true);
+          var i = n.getDistanceTo(t) - p;
+          if(d < i) {
             return false
           }else {
             if(l != null) {
-              l.N = h
+              l.N = i
             }
             return true
           }
@@ -5992,7 +5996,7 @@ CL3D.AnimatorOnMove.prototype.getType = function() {
 CL3D.AnimatorOnMove.prototype.animateNode = function(b, e) {
   var d = this.TimeLastChecked == 0;
   var a = CL3D.CLTimer.getTime();
-  if(d || a - this.TimeLastChecked > 200) {
+  if(d || a - this.TimeLastChecked > 100) {
     this.TimeLastChecked = a;
     var c = this.isOverNode(b, this.engine.getMouseX(), this.engine.getMouseY());
     if(d) {
@@ -6020,7 +6024,7 @@ CL3D.AnimatorOnProximity = function(e, c, b, d, a) {
   this.ProximityType = 0;
   this.Range = 0;
   this.SceneNodeToTest = 0;
-  this.TheActionHandler = 0;
+  this.TheActionHandler = null;
   this.FunctionToCall = d;
   if(c) {
     this.Radius = c
@@ -6029,7 +6033,7 @@ CL3D.AnimatorOnProximity = function(e, c, b, d, a) {
     this.SceneNodeToTest = b
   }
   if(a) {
-    this.EnterType = EPET_LEAVE
+    this.EnterType = 1
   }
   this.IsInsideRadius = false
 };
@@ -6176,7 +6180,7 @@ CL3D.AnimatorCollisionResponse.prototype.animateNode = function(f, e) {
     var l = new CL3D.Triangle3d;
     var d = new Object;
     d.N = 0;
-    p = this.getCollisionResultPosition(this.World, this.LastPosition.substract(this.Translation), this.Radius, r, this.triangle, d, this.SlidingSpeed, g);
+    p = this.getCollisionResultPosition(this.World, this.LastPosition.substract(this.Translation), this.Radius, r, l, d, this.SlidingSpeed, g);
     p.addToThis(this.Translation);
     if(d.N < 0.5) {
       this.Falling = false
@@ -6208,7 +6212,7 @@ CL3D.AnimatorCollisionResponse.prototype.animateNode = function(f, e) {
   this.LastPosition = f.Pos.clone();
   return false
 };
-CL3D.AnimatorCollisionResponse.prototype.getCollisionResultPosition = function(c, e, h, d, k, g, b, n) {
+CL3D.AnimatorCollisionResponse.prototype.getCollisionResultPosition = function(c, e, h, d, j, g, b, m) {
   if(!c || h.X == 0 || h.Y == 0 || h.Z == 0) {
     return e
   }
@@ -6221,30 +6225,30 @@ CL3D.AnimatorCollisionResponse.prototype.getCollisionResultPosition = function(c
   a.slidingSpeed = b;
   a.triangleHits = 0;
   a.intersectionPoint = new CL3D.Vect3d;
-  var l = a.R3Position.divideThroughVect(a.eRadius);
-  var m = a.R3Velocity.divideThroughVect(a.eRadius);
-  var f = this.collideWithWorld(0, a, l, m);
+  var k = a.R3Position.divideThroughVect(a.eRadius);
+  var l = a.R3Velocity.divideThroughVect(a.eRadius);
+  var f = this.collideWithWorld(0, a, k, l);
   g.N = 0;
-  if(!n.equalsZero()) {
+  if(!m.equalsZero()) {
     a.R3Position = f.multiplyWithVect(a.eRadius);
-    a.R3Velocity = n.clone();
+    a.R3Velocity = m.clone();
     a.triangleHits = 0;
-    m = n.divideThroughVect(a.eRadius);
-    f = this.collideWithWorld(0, a, f, m);
+    l = m.divideThroughVect(a.eRadius);
+    f = this.collideWithWorld(0, a, f, l);
     g.N = a.triangleHits == 0 ? 1 : 0;
     if(g.N < 0.5 && a.intersectionTriangle) {
-      var j = a.intersectionTriangle.getNormal();
-      j.normalize();
-      if(!(Math.abs(j.Y) > Math.abs(j.X) && Math.abs(j.Y) > Math.abs(j.Z))) {
+      var i = a.intersectionTriangle.getNormal();
+      i.normalize();
+      if(!(Math.abs(i.Y) > Math.abs(i.X) && Math.abs(i.Y) > Math.abs(i.Z))) {
         g.N = 1
       }
     }
   }
   if(a.triangleHits) {
-    k = a.intersectionTriangle;
-    k.pointA.multiplyThisWithVect(a.eRadius);
-    k.pointB.multiplyThisWithVect(a.eRadius);
-    k.pointC.multiplyThisWithVect(a.eRadius)
+    j = a.intersectionTriangle;
+    j.pointA.multiplyThisWithVect(a.eRadius);
+    j.pointB.multiplyThisWithVect(a.eRadius);
+    j.pointC.multiplyThisWithVect(a.eRadius)
   }
   f.multiplyThisWithVect(a.eRadius);
   return f
@@ -6297,154 +6301,154 @@ CL3D.AnimatorCollisionResponse.prototype.collideWithWorld = function(l, c, k, m)
   }
   return this.collideWithWorld(l + 1, c, r, f)
 };
-CL3D.AnimatorCollisionResponse.prototype.testTriangleIntersection = function(u, z) {
-  var v = z.getPlane();
-  if(!v.isFrontFacing(u.normalizedVelocity)) {
+CL3D.AnimatorCollisionResponse.prototype.testTriangleIntersection = function(s, y) {
+  var u = y.getPlane();
+  if(!u.isFrontFacing(s.normalizedVelocity)) {
     return
   }
-  var o = 0;
-  var q = 0;
-  var k = false;
-  var A = 0;
-  var p = v.getDistanceTo(u.basePoint);
-  var G = v.Normal.dotProduct(u.velocity);
-  if(CL3D.iszero(G)) {
-    if(Math.abs(p) >= 1) {
+  var n = 0;
+  var p = 0;
+  var j = false;
+  var z = 0;
+  var o = u.getDistanceTo(s.basePoint);
+  var F = u.Normal.dotProduct(s.velocity);
+  if(CL3D.iszero(F)) {
+    if(Math.abs(o) >= 1) {
       return
     }else {
-      k = true;
-      q = 0;
-      o = 1
+      j = true;
+      p = 0;
+      n = 1
     }
   }else {
-    G = 1 / G;
-    q = (-1 - p) * G;
-    o = (1 - p) * G;
-    if(q > o) {
-      var C = o;
-      o = q;
-      q = C
+    F = 1 / F;
+    p = (-1 - o) * F;
+    n = (1 - o) * F;
+    if(p > n) {
+      var B = n;
+      n = p;
+      p = B
     }
-    if(q > 1 || o < 0) {
+    if(p > 1 || n < 0) {
       return
     }
-    q = CL3D.clamp(q, 0, 1);
-    o = CL3D.clamp(o, 0, 1)
+    p = CL3D.clamp(p, 0, 1);
+    n = CL3D.clamp(n, 0, 1)
   }
   var d = new CL3D.Vect3d;
-  var l = false;
-  var s = 1;
+  var k = false;
+  var r = 1;
+  if(!j) {
+    var v = s.basePoint.substract(u.Normal).add(s.velocity.multiplyWithScal(p));
+    if(y.isPointInsideFast(v)) {
+      k = true;
+      r = p;
+      d = v.clone()
+    }
+  }
   if(!k) {
-    var w = u.basePoint.substract(v.Normal).add(u.velocity.multiplyWithScal(q));
-    if(z.isPointInsideFast(w)) {
-      l = true;
-      s = q;
-      d = w.clone()
+    var l = s.velocity.clone();
+    var g = s.basePoint.clone();
+    var x = l.getLengthSQ();
+    var E = 0;
+    var C = 0;
+    var A = 0;
+    var q = new Object;
+    q.N = 0;
+    E = x;
+    C = 2 * l.dotProduct(g.substract(y.pointA));
+    A = y.pointA.substract(g).getLengthSQ() - 1;
+    if(this.getLowestRoot(E, C, A, r, q)) {
+      r = q.N;
+      k = true;
+      d = y.pointA.clone()
     }
-  }
-  if(!l) {
-    var m = u.velocity.clone();
-    var g = u.basePoint.clone();
-    var y = m.getLengthSQ();
-    var F = 0;
-    var D = 0;
-    var B = 0;
-    var r = new Object;
-    r.N = 0;
-    F = y;
-    D = 2 * m.dotProduct(g.substract(z.pointA));
-    B = z.pointA.substract(g).getLengthSQ() - 1;
-    if(this.getLowestRoot(F, D, B, s, r)) {
-      s = r.N;
-      l = true;
-      d = z.pointA.clone()
-    }
-    if(!l) {
-      D = 2 * m.dotProduct(g.substract(z.pointB));
-      B = z.pointB.substract(g).getLengthSQ() - 1;
-      if(this.getLowestRoot(F, D, B, s, r)) {
-        s = r.N;
-        l = true;
-        d = z.pointB.clone()
+    if(!k) {
+      C = 2 * l.dotProduct(g.substract(y.pointB));
+      A = y.pointB.substract(g).getLengthSQ() - 1;
+      if(this.getLowestRoot(E, C, A, r, q)) {
+        r = q.N;
+        k = true;
+        d = y.pointB.clone()
       }
     }
-    if(!l) {
-      D = 2 * m.dotProduct(g.substract(z.pointC));
-      B = z.pointC.substract(g).getLengthSQ() - 1;
-      if(this.getLowestRoot(F, D, B, s, r)) {
-        s = r.N;
-        l = true;
-        d = z.pointC.clone()
+    if(!k) {
+      C = 2 * l.dotProduct(g.substract(y.pointC));
+      A = y.pointC.substract(g).getLengthSQ() - 1;
+      if(this.getLowestRoot(E, C, A, r, q)) {
+        r = q.N;
+        k = true;
+        d = y.pointC.clone()
       }
     }
-    var j = z.pointB.substract(z.pointA);
-    var x = z.pointA.substract(g);
-    var n = j.getLengthSQ();
-    var h = j.dotProduct(m);
-    var e = j.dotProduct(x);
-    F = n * -y + h * h;
-    D = n * 2 * m.dotProduct(x) - 2 * h * e;
-    B = n * (1 - x.getLengthSQ()) + e * e;
-    if(this.getLowestRoot(F, D, B, s, r)) {
-      A = (h * r.N - e) / n;
-      if(A >= 0 && A <= 1) {
-        s = r.N;
-        l = true;
-        d = z.pointA.add(j.multiplyWithScal(A))
+    var i = y.pointB.substract(y.pointA);
+    var w = y.pointA.substract(g);
+    var m = i.getLengthSQ();
+    var h = i.dotProduct(l);
+    var e = i.dotProduct(w);
+    E = m * -x + h * h;
+    C = m * 2 * l.dotProduct(w) - 2 * h * e;
+    A = m * (1 - w.getLengthSQ()) + e * e;
+    if(this.getLowestRoot(E, C, A, r, q)) {
+      z = (h * q.N - e) / m;
+      if(z >= 0 && z <= 1) {
+        r = q.N;
+        k = true;
+        d = y.pointA.add(i.multiplyWithScal(z))
       }
     }
-    j = z.pointC.substract(z.pointB);
-    x = z.pointB.substract(g);
-    n = j.getLengthSQ();
-    h = j.dotProduct(m);
-    e = j.dotProduct(x);
-    F = n * -y + h * h;
-    D = n * 2 * m.dotProduct(x) - 2 * h * e;
-    B = n * (1 - x.getLengthSQ()) + e * e;
-    if(this.getLowestRoot(F, D, B, s, r)) {
-      A = (h * r.N - e) / n;
-      if(A >= 0 && A <= 1) {
-        s = r.N;
-        l = true;
-        d = z.pointB.add(j.multiplyWithScal(A))
+    i = y.pointC.substract(y.pointB);
+    w = y.pointB.substract(g);
+    m = i.getLengthSQ();
+    h = i.dotProduct(l);
+    e = i.dotProduct(w);
+    E = m * -x + h * h;
+    C = m * 2 * l.dotProduct(w) - 2 * h * e;
+    A = m * (1 - w.getLengthSQ()) + e * e;
+    if(this.getLowestRoot(E, C, A, r, q)) {
+      z = (h * q.N - e) / m;
+      if(z >= 0 && z <= 1) {
+        r = q.N;
+        k = true;
+        d = y.pointB.add(i.multiplyWithScal(z))
       }
     }
-    j = z.pointA.substract(z.pointC);
-    x = z.pointC.substract(g);
-    n = j.getLengthSQ();
-    h = j.dotProduct(m);
-    e = j.dotProduct(x);
-    F = n * -y + h * h;
-    D = n * 2 * m.dotProduct(x) - 2 * h * e;
-    B = n * (1 - x.getLengthSQ()) + e * e;
-    if(this.getLowestRoot(F, D, B, s, r)) {
-      A = (h * r.N - e) / n;
-      if(A >= 0 && A <= 1) {
-        s = r.N;
-        l = true;
-        d = z.pointC.add(j.multiplyWithScal(A))
+    i = y.pointA.substract(y.pointC);
+    w = y.pointC.substract(g);
+    m = i.getLengthSQ();
+    h = i.dotProduct(l);
+    e = i.dotProduct(w);
+    E = m * -x + h * h;
+    C = m * 2 * l.dotProduct(w) - 2 * h * e;
+    A = m * (1 - w.getLengthSQ()) + e * e;
+    if(this.getLowestRoot(E, C, A, r, q)) {
+      z = (h * q.N - e) / m;
+      if(z >= 0 && z <= 1) {
+        r = q.N;
+        k = true;
+        d = y.pointC.add(i.multiplyWithScal(z))
       }
     }
   }
-  if(l) {
-    var E = s * u.velocity.getLength();
-    if(!u.foundCollision || E < u.nearestDistance) {
-      u.nearestDistance = E;
-      u.intersectionPoint = d.clone();
-      u.foundCollision = true;
-      u.intersectionTriangle = z;
-      ++u.triangleHits
+  if(k) {
+    var D = r * s.velocity.getLength();
+    if(!s.foundCollision || D < s.nearestDistance) {
+      s.nearestDistance = D;
+      s.intersectionPoint = d.clone();
+      s.foundCollision = true;
+      s.intersectionTriangle = y;
+      ++s.triangleHits
     }
   }
 };
-CL3D.AnimatorCollisionResponse.prototype.getLowestRoot = function(m, l, j, g, d) {
-  var k = l * l - 4 * m * j;
-  if(k < 0) {
+CL3D.AnimatorCollisionResponse.prototype.getLowestRoot = function(l, k, i, g, d) {
+  var j = k * k - 4 * l * i;
+  if(j < 0) {
     return false
   }
-  var n = Math.sqrt(k);
-  var f = (-l - n) / (2 * m);
-  var e = (-l + n) / (2 * m);
+  var m = Math.sqrt(j);
+  var f = (-k - m) / (2 * l);
+  var e = (-k + m) / (2 * l);
   if(f > e) {
     var h = e;
     e = f;
@@ -6602,48 +6606,48 @@ CL3D.AnimatorGameAI.prototype.animateNode = function(c, b) {
   if(c == null || this.TheSceneManager == null) {
     return false
   }
-  var m = b - this.LastTime;
-  if(m > 150) {
-    m = 150
+  var l = b - this.LastTime;
+  if(l > 150) {
+    l = 150
   }
   this.LastTime = b;
-  var p = 0;
-  var n = false;
+  var o = 0;
+  var m = false;
   if(!(this.TheObject === c)) {
     this.TheObject = c;
     c.updateAbsolutePosition();
     this.StartPositionOfActor = c.getAbsolutePosition()
   }
-  var j = c.getAbsolutePosition();
+  var i = c.getAbsolutePosition();
   if(this.CurrentCommand == 3) {
   }else {
     if(this.CurrentCommand == 1) {
-      p = this.getCharacterWidth(c);
-      if(this.CurrentCommandTargetPos.substract(j).getLength() < p) {
+      o = this.getCharacterWidth(c);
+      if(this.CurrentCommandTargetPos.substract(i).getLength() < o) {
         this.CurrentCommand = 0;
         this.setAnimation(c, 0);
-        n = true
+        m = true
       }else {
         var g = false;
         if(this.CurrentCommandTicksDone > 2) {
           var a = this.CurrentCommandTicksDone * (this.MovementSpeed / 1E3);
-          var h = this.BeginPositionWhenStartingCurrentCommand.substract(j).getLength();
+          var h = this.BeginPositionWhenStartingCurrentCommand.substract(i).getLength();
           if(h * 2 < a) {
             this.CurrentCommand = 0;
             g = true
           }
         }
         if(!g) {
-          this.CurrentCommandTicksDone += m;
-          var d = this.CurrentCommandTargetPos.substract(j);
-          d.setLength(this.MovementSpeed / 1E3 * m);
+          this.CurrentCommandTicksDone += l;
+          var d = this.CurrentCommandTargetPos.substract(i);
+          d.setLength(this.MovementSpeed / 1E3 * l);
           c.Pos.addToThis(d)
         }
-        n = this.animateRotation(c, b - this.CurrentCommandStartTime, this.CurrentCommandTargetPos.substract(j), this.RotationSpeedMs)
+        m = this.animateRotation(c, b - this.CurrentCommandStartTime, this.CurrentCommandTargetPos.substract(i), this.RotationSpeedMs)
       }
     }else {
       if(this.CurrentCommand == 2) {
-        this.CurrentCommandTicksDone += m;
+        this.CurrentCommandTicksDone += l;
         if(!this.AttackCommandExecuted && this.CurrentCommandTicksDone > this.CurrentCommandExpectedTickCount / 2) {
           this.CurrentlyShooting = true;
           if(this.ActionHandlerOnAttack) {
@@ -6651,34 +6655,34 @@ CL3D.AnimatorGameAI.prototype.animateNode = function(c, b) {
           }
           this.CurrentlyShooting = false;
           this.AttackCommandExecuted = true;
-          n = true
+          m = true
         }
         if(this.CurrentCommandTicksDone > this.CurrentCommandExpectedTickCount) {
           this.CurrentCommand = 0
         }else {
-          n = this.animateRotation(c, b - this.CurrentCommandStartTime, this.CurrentCommandTargetPos.substract(j), Math.min(this.RotationSpeedMs, this.CurrentCommandExpectedTickCount))
+          m = this.animateRotation(c, b - this.CurrentCommandStartTime, this.CurrentCommandTargetPos.substract(i), Math.min(this.RotationSpeedMs, this.CurrentCommandExpectedTickCount))
         }
       }else {
         if(this.CurrentCommand == 0) {
           if(this.AIType == 1 || this.AIType == 2) {
-            var l = this.scanForAttackTargetIfNeeded(b, j);
-            if(l != null) {
-              var o = this.getAttackDistanceFromWeapon();
+            var k = this.scanForAttackTargetIfNeeded(b, i);
+            if(k != null) {
+              var n = this.getAttackDistanceFromWeapon();
               if(!this.Activated && this.ActionHandlerOnActivate) {
                 this.ActionHandlerOnActivate.execute(c)
               }
               this.Activated = true;
-              n = true;
-              if(l.getAbsolutePosition().getDistanceTo(j) < o) {
-                if(this.isNodeVisibleFromNode(l, c)) {
+              m = true;
+              if(k.getAbsolutePosition().getDistanceTo(i) < n) {
+                if(this.isNodeVisibleFromNode(k, c)) {
                   this.CurrentlyShootingLine.Start = c.getTransformedBoundingBox().getCenter();
-                  this.CurrentlyShootingLine.End = l.getTransformedBoundingBox().getCenter();
-                  this.attackTarget(c, l, l.getAbsolutePosition(), j, b)
+                  this.CurrentlyShootingLine.End = k.getTransformedBoundingBox().getCenter();
+                  this.attackTarget(c, k, k.getAbsolutePosition(), i, b)
                 }else {
-                  this.moveToTarget(c, l.getAbsolutePosition(), j, b)
+                  this.moveToTarget(c, k.getAbsolutePosition(), i, b)
                 }
               }else {
-                this.moveToTarget(c, l.getAbsolutePosition(), j, b)
+                this.moveToTarget(c, k.getAbsolutePosition(), i, b)
               }
             }else {
               if(this.AIType == 2) {
@@ -6689,15 +6693,15 @@ CL3D.AnimatorGameAI.prototype.animateNode = function(c, b) {
                 if(!this.LastPatrolStartTime || b > this.LastPatrolStartTime + f) {
                   var e = this.PatrolRadius;
                   this.LastPatrolStartTime = b;
-                  var k = new CL3D.Vect3d((Math.random() - 0.5) * e, (Math.random() - 0.5) * e, (Math.random() - 0.5) * e);
-                  k.addToThis(this.StartPositionOfActor);
+                  var j = new CL3D.Vect3d((Math.random() - 0.5) * e, (Math.random() - 0.5) * e, (Math.random() - 0.5) * e);
+                  j.addToThis(this.StartPositionOfActor);
                   if(!this.CanFly) {
-                    k.Y = this.StartPositionOfActor.Y
+                    j.Y = this.StartPositionOfActor.Y
                   }
-                  p = this.getCharacterWidth(c);
-                  if(!(k.substract(j).getLength() < p)) {
-                    this.moveToTarget(c, k, j, b);
-                    n = true
+                  o = this.getCharacterWidth(c);
+                  if(!(j.substract(i).getLength() < o)) {
+                    this.moveToTarget(c, j, i, b);
+                    m = true
                   }
                 }
               }
@@ -6707,9 +6711,9 @@ CL3D.AnimatorGameAI.prototype.animateNode = function(c, b) {
       }
     }
   }
-  return n
+  return m
 };
-CL3D.AnimatorGameAI.prototype.animateRotation = function(c, k, h, a) {
+CL3D.AnimatorGameAI.prototype.animateRotation = function(c, j, h, a) {
   if(!c) {
     return false
   }
@@ -6720,22 +6724,22 @@ CL3D.AnimatorGameAI.prototype.animateRotation = function(c, k, h, a) {
   if(!this.CanFly) {
     h.Y = 0
   }
-  var j = new CL3D.Matrix4;
-  j.setRotationDegrees(h.getHorizontalAngle());
+  var i = new CL3D.Matrix4;
+  i.setRotationDegrees(h.getHorizontalAngle());
   var g = new CL3D.Matrix4;
   g.setRotationDegrees(this.AdditionalRotationForLooking);
-  j = j.multiply(g);
-  var f = j.getRotationDegrees();
-  var m = c.Rot.clone();
-  var l = Math.min(k, a) / a;
-  l = CL3D.clamp(l, 0, 1);
+  i = i.multiply(g);
+  var f = i.getRotationDegrees();
+  var l = c.Rot.clone();
+  var k = Math.min(j, a) / a;
+  k = CL3D.clamp(k, 0, 1);
   f.multiplyThisWithScal(CL3D.DEGTORAD);
-  m.multiplyThisWithScal(CL3D.DEGTORAD);
+  l.multiplyThisWithScal(CL3D.DEGTORAD);
   var e = new CL3D.Quaternion;
   e.setFromEuler(f.X, f.Y, f.Z);
   var d = new CL3D.Quaternion;
-  d.setFromEuler(m.X, m.Y, m.Z);
-  d.slerp(d, e, l);
+  d.setFromEuler(l.X, l.Y, l.Z);
+  d.slerp(d, e, k);
   d.toEuler(f);
   f.multiplyThisWithScal(CL3D.RADTODEG);
   if(c.Rot.equals(f)) {
@@ -6785,7 +6789,7 @@ CL3D.AnimatorGameAI.prototype.isPositionVisibleFromPosition = function(b, a) {
   if(!this.World || !this.TheSceneManager) {
     return true
   }
-  if(this.World.getCollisionPointWithLine(b, a, true) != null) {
+  if(this.World.getCollisionPointWithLine(b, a, true, null, true) != null) {
     return false
   }
   return true
@@ -7039,6 +7043,7 @@ CL3D.CopperLicht = function(c, d, b) {
   this.MouseDownX = 0;
   this.MouseDownY = 0;
   this.MouseIsInside = true;
+  this.updateCanvasTopLeftPosition();
   if(b) {
     this.FPS = b
   }
@@ -7182,6 +7187,7 @@ CL3D.CopperLicht.prototype.draw3dScene = function() {
   if(this.Document == null || this.TheRenderer == null) {
     return
   }
+  this.updateCanvasTopLeftPosition();
   this.internalOnBeforeRendering();
   var a = this.Document.getCurrentScene();
   if(!this.IsPaused && a) {
@@ -7358,25 +7364,31 @@ CL3D.CopperLicht.prototype.registerAnimatorForKeyDown = function(a) {
     this.RegisteredAnimatorsForKeyDown.push(a)
   }
 };
-CL3D.CopperLicht.prototype.getMousePosXFromEvent = function(a) {
-  if(a.offsetX) {
-    return a.offsetX
-  }else {
-    if(a.layerX) {
-      return a.layerX
-    }
+CL3D.CopperLicht.prototype.updateCanvasTopLeftPosition = function(c) {
+  var a = 0;
+  var d = 0;
+  var b = this.MainElement;
+  while(b != null) {
+    a += b.offsetLeft;
+    d += b.offsetTop;
+    b = b.offsetParent
   }
-  return a.clientX - this.MainElement.offsetLeft + document.body.scrollLeft
+  this.CanvasTopLeftX = a;
+  this.CanvasTopLeftY = d
+};
+CL3D.CopperLicht.prototype.getMousePosXFromEvent = function(a) {
+  if(a.pageX) {
+    return a.pageX - this.CanvasTopLeftX
+  }else {
+    return a.clientX - this.MainElement.offsetLeft + document.body.scrollLeft
+  }
 };
 CL3D.CopperLicht.prototype.getMousePosYFromEvent = function(a) {
-  if(a.offsetX) {
-    return a.offsetY
+  if(a.pageY) {
+    return a.pageY - this.CanvasTopLeftY
   }else {
-    if(a.layerX) {
-      return a.layerY
-    }
+    return a.clientY - this.MainElement.offsetTop + document.body.scrollTop
   }
-  return a.clientY - this.MainElement.offsetTop + document.body.scrollTop
 };
 CL3D.CopperLicht.prototype.handleMouseDown = function(a) {
   this.MouseIsDown = true;
@@ -7447,53 +7459,53 @@ CL3D.CopperLicht.prototype.OnAnimate = null;
 CL3D.CopperLicht.prototype.OnAfterDrawAll = null;
 CL3D.CopperLicht.prototype.OnBeforeDrawAll = null;
 CL3D.CopperLicht.prototype.OnLoadingComplete = null;
-CL3D.CopperLicht.prototype.get3DPositionFrom2DPosition = function(n, l) {
+CL3D.CopperLicht.prototype.get3DPositionFrom2DPosition = function(m, k) {
   var a = this.TheRenderer;
   if(a == null) {
     return null
   }
   var c = a.getProjection();
-  var m = a.getView();
-  if(c == null || m == null) {
+  var l = a.getView();
+  if(c == null || l == null) {
     return null
   }
-  var b = c.multiply(m);
-  var j = new CL3D.ViewFrustrum;
-  j.setFrom(b);
-  var d = j.getFarLeftUp();
-  var g = j.getFarRightUp().substract(d);
-  var f = j.getFarLeftDown().substract(d);
-  var o = a.getWidth();
+  var b = c.multiply(l);
+  var i = new CL3D.ViewFrustrum;
+  i.setFrom(b);
+  var d = i.getFarLeftUp();
+  var g = i.getFarRightUp().substract(d);
+  var f = i.getFarLeftDown().substract(d);
+  var n = a.getWidth();
   var e = a.getHeight();
-  var q = n / o;
-  var p = l / e;
-  var k = d.add(g.multiplyWithScal(q)).add(f.multiplyWithScal(p));
-  return k
+  var p = m / n;
+  var o = k / e;
+  var j = d.add(g.multiplyWithScal(p)).add(f.multiplyWithScal(o));
+  return j
 };
 CL3D.CopperLicht.prototype.get2DPositionFrom3DPosition = function(b) {
-  var k = new CL3D.Matrix4(false);
+  var j = new CL3D.Matrix4(false);
   var a = this.TheRenderer;
   if(!a.Projection) {
     return null
   }
-  a.Projection.copyTo(k);
-  k = k.multiply(a.View);
-  var j = a.getWidth() / 2;
+  a.Projection.copyTo(j);
+  j = j.multiply(a.View);
+  var i = a.getWidth() / 2;
   var e = a.getHeight() / 2;
-  var h = j;
+  var h = i;
   var g = e;
-  if(e == 0 || j == 0) {
+  if(e == 0 || i == 0) {
     return null
   }
   var d = new CL3D.Vect3d(b.X, b.Y, b.Z);
   d.W = 1;
-  k.multiplyWith1x4Matrix(d);
+  j.multiplyWith1x4Matrix(d);
   var c = d.W == 0 ? 1 : 1 / d.W;
   if(d.Z < 0) {
     return null
   }
   var f = new CL3D.Vect2d;
-  f.X = j * d.X * c + h;
+  f.X = i * d.X * c + h;
   f.Y = g - e * d.Y * c;
   return f
 };
@@ -8102,179 +8114,179 @@ CL3D.FlaceLoader = function() {
       }
     }
   };
-  this.ReadSceneNode = function(v, q, w) {
-    if(q == null) {
+  this.ReadSceneNode = function(u, p, v) {
+    if(p == null) {
       return
     }
     var e = this.NextTagPos;
     var c = this.Data.readInt();
-    var k = this.Data.readInt();
-    var A = this.ReadString();
+    var j = this.Data.readInt();
+    var z = this.ReadString();
     var d = this.Read3DVectF();
-    var j = this.Read3DVectF();
-    var x = this.Read3DVectF();
+    var i = this.Read3DVectF();
+    var w = this.Read3DVectF();
     var h = this.Data.readBoolean();
-    var l = this.Data.readInt();
+    var k = this.Data.readInt();
     var f = null;
-    var o = 0;
-    if(w == 0) {
-      q.Visible = h;
-      q.Name = A;
-      q.Culling = l
+    var n = 0;
+    if(v == 0) {
+      p.Visible = h;
+      p.Name = z;
+      p.Culling = k
     }
     while(this.Data.bytesAvailable() > 0 && this.Data.getPosition() < e) {
-      var z = this.readTag();
-      switch(z) {
+      var y = this.readTag();
+      switch(y) {
         case 9:
-          this.ReadSceneNode(v, f ? f : q, w + 1);
+          this.ReadSceneNode(u, f ? f : p, v + 1);
           break;
         case 10:
           switch(c) {
             case 2037085030:
-              var t = new CL3D.SkyBoxSceneNode;
-              t.Type = c;
-              t.Pos = d;
-              t.Rot = j;
-              t.Scale = x;
-              t.Visible = h;
-              t.Name = A;
-              t.Culling = l;
-              t.Id = k;
-              t.scene = v;
-              this.readFlaceMeshNode(t);
-              q.addChild(t);
-              f = t;
+              var s = new CL3D.SkyBoxSceneNode;
+              s.Type = c;
+              s.Pos = d;
+              s.Rot = i;
+              s.Scale = w;
+              s.Visible = h;
+              s.Name = z;
+              s.Culling = k;
+              s.Id = j;
+              s.scene = u;
+              this.readFlaceMeshNode(s);
+              p.addChild(s);
+              f = s;
               f.updateAbsolutePosition();
               break;
             case 1752395110:
-              var m = new CL3D.MeshSceneNode;
-              m.Type = c;
-              m.Pos = d;
-              m.Rot = j;
-              m.Scale = x;
-              m.Visible = h;
-              m.Name = A;
-              m.Culling = l;
-              m.Id = k;
-              m.scene = v;
-              this.readFlaceMeshNode(m);
-              q.addChild(m);
-              f = m;
+              var l = new CL3D.MeshSceneNode;
+              l.Type = c;
+              l.Pos = d;
+              l.Rot = i;
+              l.Scale = w;
+              l.Visible = h;
+              l.Name = z;
+              l.Culling = k;
+              l.Id = j;
+              l.scene = u;
+              this.readFlaceMeshNode(l);
+              p.addChild(l);
+              f = l;
               f.updateAbsolutePosition();
               break;
             case 1835950438:
-              var u = new CL3D.AnimatedMeshSceneNode;
-              u.Type = c;
-              u.Pos = d;
-              u.Rot = j;
-              u.Scale = x;
-              u.Visible = h;
-              u.Name = A;
-              u.Culling = l;
-              u.Id = k;
-              u.scene = v;
-              this.readFlaceAnimatedMeshNode(u);
-              q.addChild(u);
-              f = u;
+              var t = new CL3D.AnimatedMeshSceneNode;
+              t.Type = c;
+              t.Pos = d;
+              t.Rot = i;
+              t.Scale = w;
+              t.Visible = h;
+              t.Name = z;
+              t.Culling = k;
+              t.Id = j;
+              t.scene = u;
+              this.readFlaceAnimatedMeshNode(t);
+              p.addChild(t);
+              f = t;
               f.updateAbsolutePosition();
               break;
             case 1953526632:
-              var r = new CL3D.HotspotSceneNode(this.CursorControl, null);
-              r.Type = c;
-              r.Pos = d;
-              r.Rot = j;
-              r.Scale = x;
-              r.Visible = h;
-              r.Name = A;
-              r.Culling = l;
-              r.Id = k;
-              r.scene = v;
-              this.readFlaceHotspotNode(r);
-              q.addChild(r);
-              f = r;
+              var q = new CL3D.HotspotSceneNode(this.CursorControl, null);
+              q.Type = c;
+              q.Pos = d;
+              q.Rot = i;
+              q.Scale = w;
+              q.Visible = h;
+              q.Name = z;
+              q.Culling = k;
+              q.Id = j;
+              q.scene = u;
+              this.readFlaceHotspotNode(q);
+              p.addChild(q);
+              f = q;
               f.updateAbsolutePosition();
               break;
             case 1819042406:
               var a = new CL3D.BillboardSceneNode;
               a.Type = c;
               a.Pos = d;
-              a.Rot = j;
-              a.Scale = x;
+              a.Rot = i;
+              a.Scale = w;
               a.Visible = h;
-              a.Name = A;
-              a.Culling = l;
-              a.Id = k;
-              a.scene = v;
+              a.Name = z;
+              a.Culling = k;
+              a.Id = j;
+              a.scene = u;
               this.readFlaceBillBoardNode(a);
-              q.addChild(a);
+              p.addChild(a);
               f = a;
               f.updateAbsolutePosition();
               break;
             case 1835098982:
-              var s = new CL3D.CameraSceneNode;
-              s.Type = c;
-              s.Pos = d;
-              s.Rot = j;
-              s.Scale = x;
-              s.Visible = h;
-              s.Name = A;
-              s.Culling = l;
-              s.scene = v;
-              s.Id = k;
-              this.readFlaceCameraNode(s);
-              q.addChild(s);
-              f = s;
+              var r = new CL3D.CameraSceneNode;
+              r.Type = c;
+              r.Pos = d;
+              r.Rot = i;
+              r.Scale = w;
+              r.Visible = h;
+              r.Name = z;
+              r.Culling = k;
+              r.scene = u;
+              r.Id = j;
+              this.readFlaceCameraNode(r);
+              p.addChild(r);
+              f = r;
               f.updateAbsolutePosition();
               break;
             case 1752461414:
-              var y = new CL3D.PathSceneNode;
-              y.Type = c;
-              y.Pos = d;
-              y.Rot = j;
-              y.Scale = x;
-              y.Visible = h;
-              y.Name = A;
-              y.Culling = l;
-              y.Id = k;
-              y.scene = v;
-              this.readFlacePathNode(y);
-              q.addChild(y);
-              f = y;
+              var x = new CL3D.PathSceneNode;
+              x.Type = c;
+              x.Pos = d;
+              x.Rot = i;
+              x.Scale = w;
+              x.Visible = h;
+              x.Name = z;
+              x.Culling = k;
+              x.Id = j;
+              x.scene = u;
+              this.readFlacePathNode(x);
+              p.addChild(x);
+              f = x;
               f.updateAbsolutePosition();
               break;
             case 1954112614:
               var b = new CL3D.DummyTransformationSceneNode;
               b.Type = c;
               b.Pos = d;
-              b.Rot = j;
-              b.Scale = x;
+              b.Rot = i;
+              b.Scale = w;
               b.Visible = h;
-              b.Name = A;
-              b.Culling = l;
-              b.Id = k;
-              b.scene = v;
+              b.Name = z;
+              b.Culling = k;
+              b.Id = j;
+              b.scene = u;
               b.Box = this.Read3DBoxF();
-              for(var n = 0;n < 16;++n) {
+              for(var m = 0;m < 16;++m) {
                 this.Data.readFloat()
               }
-              q.addChild(b);
+              p.addChild(b);
               f = b;
               f.updateAbsolutePosition();
               break;
             case 1868837478:
-              var p = new CL3D.Overlay2DSceneNode(this.CursorControl);
-              p.Type = c;
-              p.Pos = d;
-              p.Rot = j;
-              p.Scale = x;
-              p.Visible = h;
-              p.Name = A;
-              p.Culling = l;
-              p.Id = k;
-              p.scene = v;
-              this.readFlace2DOverlay(p);
-              q.addChild(p);
-              f = p;
+              var o = new CL3D.Overlay2DSceneNode(this.CursorControl);
+              o.Type = c;
+              o.Pos = d;
+              o.Rot = i;
+              o.Scale = w;
+              o.Visible = h;
+              o.Name = z;
+              o.Culling = k;
+              o.Id = j;
+              o.scene = u;
+              this.readFlace2DOverlay(o);
+              p.addChild(o);
+              f = o;
               f.updateAbsolutePosition();
               break;
             default:
@@ -8284,13 +8296,13 @@ CL3D.FlaceLoader = function() {
           break;
         case 11:
           var g = this.ReadMaterial();
-          if(f && f.getMaterial(o)) {
-            f.getMaterial(o).setFrom(g)
+          if(f && f.getMaterial(n)) {
+            f.getMaterial(n).setFrom(g)
           }
-          ++o;
+          ++n;
           break;
         case 25:
-          this.ReadAnimator(f, v);
+          this.ReadAnimator(f, u);
           break;
         default:
           this.SkipToNextTag()
@@ -8340,20 +8352,20 @@ CL3D.FlaceLoader = function() {
     h.Box = this.Read3DBoxF();
     var a = this.NextTagPos;
     while(this.Data.bytesAvailable() > 0 && this.Data.getPosition() < a) {
-      var o = this.readTag();
-      switch(o) {
+      var n = this.readTag();
+      switch(n) {
         case 11:
           h.Mat = this.ReadMaterial();
           break;
         case 16:
-          var k = Math.floor(this.CurrentTagSize / 2);
-          for(var f = 0;f < k;++f) {
+          var j = Math.floor(this.CurrentTagSize / 2);
+          for(var f = 0;f < j;++f) {
             h.Indices.push(this.Data.readShort())
           }
           break;
         case 17:
-          var l = Math.floor(this.CurrentTagSize / 36);
-          for(var n = 0;n < l;++n) {
+          var k = Math.floor(this.CurrentTagSize / 36);
+          for(var m = 0;m < k;++m) {
             var b = new CL3D.Vertex3D;
             b.Pos = this.Read3DVectF();
             b.Normal = this.Read3DVectF();
@@ -8364,8 +8376,8 @@ CL3D.FlaceLoader = function() {
           }
           break;
         case 18:
-          var j = Math.floor(this.CurrentTagSize / 44);
-          for(var d = 0;d < j;++d) {
+          var i = Math.floor(this.CurrentTagSize / 44);
+          for(var d = 0;d < i;++d) {
             var g = new CL3D.Vertex3D;
             g.Pos = this.Read3DVectF();
             g.Normal = this.Read3DVectF();
@@ -8377,7 +8389,7 @@ CL3D.FlaceLoader = function() {
           break;
         case 19:
           var c = this.CurrentTagSize / 60;
-          for(var m = 0;m < c;++m) {
+          for(var l = 0;l < c;++l) {
             var e = new CL3D.Vertex3D;
             e.Pos = this.Read3DVectF();
             e.Normal = this.Read3DVectF();
@@ -8895,16 +8907,16 @@ CL3D.FlaceLoader = function() {
       a.AnimatedMeshesToLink = null
     }
   };
-  this.ReadAction = function(d, q) {
-    var j = 0;
+  this.ReadAction = function(d, p) {
+    var i = 0;
     switch(d) {
       case 0:
-        var p = new CL3D.Action.MakeSceneNodeInvisible;
-        p.InvisibleMakeType = this.Data.readInt();
-        p.SceneNodeToMakeInvisible = this.Data.readInt();
-        p.ChangeCurrentSceneNode = this.Data.readBoolean();
+        var o = new CL3D.Action.MakeSceneNodeInvisible;
+        o.InvisibleMakeType = this.Data.readInt();
+        o.SceneNodeToMakeInvisible = this.Data.readInt();
+        o.ChangeCurrentSceneNode = this.Data.readBoolean();
         this.Data.readInt();
-        return p;
+        return o;
       case 1:
         var h = new CL3D.Action.ChangeSceneNodePosition;
         h.PositionChangeType = this.Data.readInt();
@@ -8913,8 +8925,8 @@ CL3D.FlaceLoader = function() {
         h.Vector = this.Read3DVectF();
         h.RelativeToCurrentSceneNode = this.Data.readBoolean();
         h.SceneNodeRelativeTo = this.Data.readInt();
-        j = this.Data.readInt();
-        if(j & 1) {
+        i = this.Data.readInt();
+        if(i & 1) {
           h.UseAnimatedMovement = true;
           h.TimeNeededForMovementMs = this.Data.readInt()
         }
@@ -8926,8 +8938,8 @@ CL3D.FlaceLoader = function() {
         g.ChangeCurrentSceneNode = this.Data.readBoolean();
         g.Vector = this.Read3DVectF();
         g.RotateAnimated = false;
-        j = this.Data.readInt();
-        if(j & 1) {
+        i = this.Data.readInt();
+        if(i & 1) {
           g.RotateAnimated = true;
           g.TimeNeededForRotationMs = this.Data.readInt()
         }
@@ -8954,48 +8966,48 @@ CL3D.FlaceLoader = function() {
         this.SkipToNextTag();
         return null;
       case 7:
-        var r = new CL3D.Action.ExecuteJavaScript;
+        var q = new CL3D.Action.ExecuteJavaScript;
         this.Data.readInt();
-        r.JScript = this.ReadString();
-        return r;
+        q.JScript = this.ReadString();
+        return q;
       case 8:
-        var s = new CL3D.Action.OpenWebpage;
+        var r = new CL3D.Action.OpenWebpage;
         this.Data.readInt();
-        s.Webpage = this.ReadString();
-        s.Target = this.ReadString();
-        return s;
+        r.Webpage = this.ReadString();
+        r.Target = this.ReadString();
+        return r;
       case 9:
-        var t = new CL3D.Action.SetSceneNodeAnimation;
-        t.SceneNodeToChangeAnim = this.Data.readInt();
-        t.ChangeCurrentSceneNode = this.Data.readBoolean();
-        t.Loop = this.Data.readBoolean();
-        t.AnimName = this.ReadString();
+        var s = new CL3D.Action.SetSceneNodeAnimation;
+        s.SceneNodeToChangeAnim = this.Data.readInt();
+        s.ChangeCurrentSceneNode = this.Data.readBoolean();
+        s.Loop = this.Data.readBoolean();
+        s.AnimName = this.ReadString();
         this.Data.readInt();
-        return t;
+        return s;
       case 10:
         var c = new CL3D.Action.SwitchToScene(this.CursorControl);
         c.SceneName = this.ReadString();
         this.Data.readInt();
         return c;
       case 11:
-        var m = new CL3D.Action.SetActiveCamera(this.CursorControl);
-        m.CameraToSetActive = this.Data.readInt();
+        var l = new CL3D.Action.SetActiveCamera(this.CursorControl);
+        l.CameraToSetActive = this.Data.readInt();
         this.Data.readInt();
-        return m;
+        return l;
       case 12:
-        var k = new CL3D.Action.SetCameraTarget;
-        k.PositionChangeType = this.Data.readInt();
-        k.SceneNodeToChangePosition = this.Data.readInt();
-        k.ChangeCurrentSceneNode = this.Data.readBoolean();
-        k.Vector = this.Read3DVectF();
-        k.RelativeToCurrentSceneNode = this.Data.readBoolean();
-        k.SceneNodeRelativeTo = this.Data.readInt();
-        j = this.Data.readInt();
-        if(j & 1) {
-          k.UseAnimatedMovement = true;
-          k.TimeNeededForMovementMs = this.Data.readInt()
+        var j = new CL3D.Action.SetCameraTarget;
+        j.PositionChangeType = this.Data.readInt();
+        j.SceneNodeToChangePosition = this.Data.readInt();
+        j.ChangeCurrentSceneNode = this.Data.readBoolean();
+        j.Vector = this.Read3DVectF();
+        j.RelativeToCurrentSceneNode = this.Data.readBoolean();
+        j.SceneNodeRelativeTo = this.Data.readInt();
+        i = this.Data.readInt();
+        if(i & 1) {
+          j.UseAnimatedMovement = true;
+          j.TimeNeededForMovementMs = this.Data.readInt()
         }
-        return k;
+        return j;
       case 13:
         var b = new CL3D.Action.Shoot;
         b.ShootType = this.Data.readInt();
@@ -9003,8 +9015,8 @@ CL3D.FlaceLoader = function() {
         b.BulletSpeed = this.Data.readFloat();
         b.SceneNodeToUseAsBullet = this.Data.readInt();
         b.WeaponRange = this.Data.readFloat();
-        j = this.Data.readInt();
-        if(j & 1) {
+        i = this.Data.readInt();
+        if(i & 1) {
           b.SceneNodeToShootFrom = this.Data.readInt();
           b.ShootToCameraTarget = this.Data.readBoolean();
           b.AdditionalDirectionRotation = this.Read3DVectF()
@@ -9014,20 +9026,20 @@ CL3D.FlaceLoader = function() {
         this.SkipToNextTag();
         return null;
       case 15:
-        var n = new CL3D.Action.SetOverlayText;
+        var m = new CL3D.Action.SetOverlayText;
         this.Data.readInt();
-        n.SceneNodeToChange = this.Data.readInt();
-        n.ChangeCurrentSceneNode = this.Data.readBoolean();
-        n.Text = this.ReadString();
-        return n;
+        m.SceneNodeToChange = this.Data.readInt();
+        m.ChangeCurrentSceneNode = this.Data.readBoolean();
+        m.Text = this.ReadString();
+        return m;
       case 16:
-        var o = new CL3D.Action.SetOrChangeAVariable;
+        var n = new CL3D.Action.SetOrChangeAVariable;
         this.Data.readInt();
-        o.VariableName = this.ReadString();
-        o.Operation = this.Data.readInt();
-        o.ValueType = this.Data.readInt();
-        o.Value = this.ReadString();
-        return o;
+        n.VariableName = this.ReadString();
+        n.Operation = this.Data.readInt();
+        n.ValueType = this.Data.readInt();
+        n.Value = this.ReadString();
+        return n;
       case 17:
         var a = new CL3D.Action.IfVariable;
         this.Data.readInt();
@@ -9035,14 +9047,14 @@ CL3D.FlaceLoader = function() {
         a.ComparisonType = this.Data.readInt();
         a.ValueType = this.Data.readInt();
         a.Value = this.ReadString();
-        a.TheActionHandler = this.ReadActionHandlerSection(q);
+        a.TheActionHandler = this.ReadActionHandlerSection(p);
         return a;
       case 18:
-        var l = new CL3D.Action.RestartBehaviors;
-        l.SceneNodeToRestart = this.Data.readInt();
-        l.ChangeCurrentSceneNode = this.Data.readBoolean();
+        var k = new CL3D.Action.RestartBehaviors;
+        k.SceneNodeToRestart = this.Data.readInt();
+        k.ChangeCurrentSceneNode = this.Data.readBoolean();
         this.Data.readInt();
-        return l;
+        return k;
       default:
         this.SkipToNextTag()
     }
@@ -9129,80 +9141,83 @@ CL3D.TriangleSelector.prototype.getAllTriangles = function(a, b) {
 CL3D.TriangleSelector.prototype.getTrianglesInBox = function(c, a, b) {
   this.getAllTriangles(a, b)
 };
-CL3D.TriangleSelector.prototype.getCollisionPointWithLine = function(d, c, e, l) {
-  if(!d || !c) {
+CL3D.TriangleSelector.prototype.getCollisionPointWithLine = function(e, d, f, m, a) {
+  if(!e || !d) {
     return null
   }
-  var g = new CL3D.Box3d;
-  g.MinEdge = d.clone();
-  g.MaxEdge = d.clone();
-  g.addInternalPointByVector(c);
-  var k = new Array;
-  this.getTrianglesInBox(g, null, k);
-  var b = c.substract(d);
-  b.normalize();
-  var f;
-  var a = 9.999999999E8;
-  var j = c.substract(d).getLengthSQ();
-  var u = Math.min(d.X, c.X);
-  var s = Math.max(d.X, c.X);
-  var r = Math.min(d.Y, c.Y);
-  var q = Math.max(d.Y, c.Y);
-  var p = Math.min(d.Z, c.Z);
-  var o = Math.max(d.Z, c.Z);
-  var v = null;
-  for(var n = 0;n < k.length;++n) {
-    var m = k[n];
-    if(e && !m.getPlane().isFrontFacing(b)) {
+  if(this.Node != null && a && this.Node.Visible == false) {
+    return null
+  }
+  var h = new CL3D.Box3d;
+  h.MinEdge = e.clone();
+  h.MaxEdge = e.clone();
+  h.addInternalPointByVector(d);
+  var l = new Array;
+  this.getTrianglesInBox(h, null, l);
+  var c = d.substract(e);
+  c.normalize();
+  var g;
+  var b = 9.999999999E8;
+  var k = d.substract(e).getLengthSQ();
+  var v = Math.min(e.X, d.X);
+  var t = Math.max(e.X, d.X);
+  var s = Math.min(e.Y, d.Y);
+  var r = Math.max(e.Y, d.Y);
+  var q = Math.min(e.Z, d.Z);
+  var p = Math.max(e.Z, d.Z);
+  var w = null;
+  for(var o = 0;o < l.length;++o) {
+    var n = l[o];
+    if(f && !n.getPlane().isFrontFacing(c)) {
       continue
     }
-    if(u > m.pointA.X && u > m.pointB.X && u > m.pointC.X) {
+    if(v > n.pointA.X && v > n.pointB.X && v > n.pointC.X) {
       continue
     }
-    if(s < m.pointA.X && s < m.pointB.X && s < m.pointC.X) {
+    if(t < n.pointA.X && t < n.pointB.X && t < n.pointC.X) {
       continue
     }
-    if(r > m.pointA.Y && r > m.pointB.Y && r > m.pointC.Y) {
+    if(s > n.pointA.Y && s > n.pointB.Y && s > n.pointC.Y) {
       continue
     }
-    if(q < m.pointA.Y && q < m.pointB.Y && q < m.pointC.Y) {
+    if(r < n.pointA.Y && r < n.pointB.Y && r < n.pointC.Y) {
       continue
     }
-    if(p > m.pointA.Z && p > m.pointB.Z && p > m.pointC.Z) {
+    if(q > n.pointA.Z && q > n.pointB.Z && q > n.pointC.Z) {
       continue
     }
-    if(o < m.pointA.Z && o < m.pointB.Z && o < m.pointC.Z) {
+    if(p < n.pointA.Z && p < n.pointB.Z && p < n.pointC.Z) {
       continue
     }
-    if(d.getDistanceFromSQ(m.pointA) >= a && d.getDistanceFromSQ(m.pointB) >= a && d.getDistanceFromSQ(m.pointC) >= a) {
+    if(e.getDistanceFromSQ(n.pointA) >= b && e.getDistanceFromSQ(n.pointB) >= b && e.getDistanceFromSQ(n.pointC) >= b) {
       continue
     }
-    f = m.getIntersectionWithLine(d, b);
-    if(f) {
-      var t = f.getDistanceFromSQ(d);
-      var h = f.getDistanceFromSQ(c);
-      if(t < j && h < j && t < a) {
-        a = t;
-        if(l) {
-          m.copyTo(l)
+    g = n.getIntersectionWithLine(e, c);
+    if(g) {
+      var u = g.getDistanceFromSQ(e);
+      var j = g.getDistanceFromSQ(d);
+      if(u < k && j < k && u < b) {
+        b = u;
+        if(m) {
+          n.copyTo(m)
         }
-        v = f
+        w = g
       }
     }
   }
-  if(v) {
-    return v.clone()
+  if(w) {
+    return w.clone()
   }
   return null
 };
-CL3D.MeshTriangleSelector = function(l, k) {
-  if(!l) {
+CL3D.MeshTriangleSelector = function(k, i) {
+  if(!k) {
     return
   }
-  this.Node = k;
+  this.Node = i;
   this.Triangles = new Array;
-  for(var g = 0;g < l.MeshBuffers.length;++g) {
-    var h = l.MeshBuffers[g];
+  for(var g = 0;g < k.MeshBuffers.length;++g) {
+    var h = k.MeshBuffers[g];
     if(h) {
       var c = h.Indices.length;
       for(var a = 0;a < c;a += 3) {
@@ -9265,12 +9280,34 @@ CL3D.MetaTriangleSelector.prototype.addSelector = function(a) {
 CL3D.MetaTriangleSelector.prototype.clear = function() {
   this.Selectors = new Array
 };
+CL3D.MetaTriangleSelector.prototype.getCollisionPointWithLine = function(a, d, e, j, h) {
+  var c = 9.999999999E8;
+  var b = null;
+  var k = null;
+  if(j) {
+    k = new CL3D.Triangle3d
+  }
+  for(var g = 0;g < this.Selectors.length;++g) {
+    var l = this.Selectors[g].getCollisionPointWithLine(a, d, e, k, h);
+    if(l != null) {
+      var f = l.getDistanceFromSQ(a);
+      if(f < c) {
+        b = l.clone();
+        c = f;
+        if(j) {
+          k.copyTo(j)
+        }
+      }
+    }
+  }
+  return b
+};
 CL3D.SOctTreeNode = function() {
   this.Triangles = new Array;
   this.Box = new CL3D.Box3d;
   this.Child = new Array
 };
-CL3D.OctTreeTriangleSelector = function(n, l, g) {
+CL3D.OctTreeTriangleSelector = function(m, k, g) {
   this.DebugNodeCount = 0;
   this.DebugPolyCount = 0;
   if(g == null) {
@@ -9278,23 +9315,23 @@ CL3D.OctTreeTriangleSelector = function(n, l, g) {
   }else {
     this.MinimalPolysPerNode = g
   }
-  if(!n) {
+  if(!m) {
     return
   }
-  this.Node = l;
+  this.Node = k;
   this.Root = new CL3D.SOctTreeNode;
   this.Triangles = new Array;
-  for(var h = 0;h < n.MeshBuffers.length;++h) {
-    var k = n.MeshBuffers[h];
-    if(k) {
-      var c = k.Indices.length;
+  for(var h = 0;h < m.MeshBuffers.length;++h) {
+    var i = m.MeshBuffers[h];
+    if(i) {
+      var c = i.Indices.length;
       for(var a = 0;a < c;a += 3) {
-        var f = k.Vertices[k.Indices[a]];
-        var e = k.Vertices[k.Indices[a + 1]];
-        var d = k.Vertices[k.Indices[a + 2]];
-        var m = new CL3D.Triangle3d(f.Pos, e.Pos, d.Pos);
-        this.Root.Triangles.push(m);
-        this.Triangles.push(m)
+        var f = i.Vertices[i.Indices[a]];
+        var e = i.Vertices[i.Indices[a + 1]];
+        var d = i.Vertices[i.Indices[a + 2]];
+        var l = new CL3D.Triangle3d(f.Pos, e.Pos, d.Pos);
+        this.Root.Triangles.push(l);
+        this.Triangles.push(l)
       }
     }
   }
