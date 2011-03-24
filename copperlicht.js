@@ -1,12 +1,12 @@
-/*
+/**
+  * CopperLicht 3D Engine, Copyright by Nikolaus Gebhardt, Ambiera e.U.
+  * For license details, see www.ambiera.com/copperlicht
+  * For the full source, see http://www.ambiera.com/copperlicht/license.html#commercial
+  *
+  * Note: This library can be further minificated to less then 100 KB from the full source,
+  * but it isn't here to make debugging easier.
+  */
 
- CopperLicht 3D Engine, Copyright by Nikolaus Gebhardt, Ambiera e.U.
- For license details, see www.ambiera.com/copperlicht
- For the full source, see http://www.ambiera.com/copperlicht/license.html#commercial
-
- Note: This library can be further minificated to less then 100 KB from the full source,
- but it isn't here to make debugging easier.
-*/
 var CL3D = {};
 CL3D.DebugOutput = function(b) {
   this.DebugRoot = null;
