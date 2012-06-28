@@ -7,6 +7,7 @@
   * but it isn't here to make debugging easier.
   */
 
+
 var CL3D = {};
 CL3D.DebugOutput = function(d, a) {
   this.DebugRoot = null;
@@ -244,11 +245,7 @@ CL3D.CLTimer.getTime = function() {
   return a.getTime()
 };
 CL3D.Vect3d = function(a, c, b) {
-  if(a == null) {
-    this.X = 0;
-    this.Y = 0;
-    this.Z = 0
-  }else {
+  if(a != null) {
     this.X = a;
     this.Y = c;
     this.Z = b
@@ -1457,7 +1454,7 @@ CL3D.Action.SetOverlayText.prototype.execute = function(a, h) {
           if(d != -1) {
             k = true;
             var b = c.substr(g + 1, d - (g + 1));
-            var i = CL3D.CopperCubeVariable.getVariable(b);
+            var i = CL3D.CopperCubeVariable.getVariable(b, false, h);
             if(i) {
               var f = c.substr(0, g);
               f += i.getValueAsString();
@@ -1680,7 +1677,52 @@ CL3D.Action.OpenWebpage.prototype.execute = function(b, a) {
 CL3D.Action.SetSceneNodeAnimation = function() {
   this.Type = "SetSceneNodeAnimation"
 };
-CL3D.Action.SetSceneNodeAnimation.prototype.execute = function(b, a) {
+CL3D.Action.SetSceneNodeAnimation.prototype.execute = function(e, d) {
+  if(!e || !d) {
+    return
+  }
+  var a = null;
+  if(this.ChangeCurrentSceneNode) {
+    a = e
+  }else {
+    if(this.SceneNodeToChangeAnim != -1) {
+      a = d.getSceneNodeFromId(this.SceneNodeToChangeAnim)
+    }
+  }
+  if(a) {
+    var c = a;
+    if(c.getType() != "animatedmesh") {
+      return
+    }
+    var g = c.Mesh;
+    if(!g) {
+      return
+    }
+    var b = g.getNamedAnimationRangeByName(this.AnimName);
+    if(b) {
+      c.setFrameLoop(b.Begin, b.End);
+      if(b.FPS != 0) {
+        c.setAnimationSpeed(b.FPS)
+      }
+      c.setLoopMode(this.Loop)
+    }else {
+      if(this.AnimName) {
+        var f = this.AnimName.toLowerCase();
+        if(f == "all") {
+          c.setFrameLoop(0, g.getFrameCount());
+          if(g.DefaultFPS != 0) {
+            c.setAnimationSpeed(g.DefaultFPS)
+          }
+          c.setLoopMode(this.Loop)
+        }else {
+          if(f == "none") {
+            c.setFrameLoop(0, 0);
+            c.setLoopMode(this.Loop)
+          }
+        }
+      }
+    }
+  }
 };
 CL3D.Action.SwitchToScene = function(a) {
   this.Engine = a;
@@ -1825,6 +1867,7 @@ CL3D.Action.Shoot.prototype.execute = function(e, b) {
     }
   }else {
     if(e != null) {
+      j = e;
       var r = e.getAnimatorOfType("gameai");
       if(r && r.isCurrentlyShooting()) {
         k = r.getCurrentlyShootingLine();
@@ -1835,6 +1878,7 @@ CL3D.Action.Shoot.prototype.execute = function(e, b) {
   if(!s) {
     i = b.getActiveCamera();
     if(i) {
+      j = i;
       k.Start = i.getAbsolutePosition();
       k.End = i.getTarget();
       s = true
@@ -1951,13 +1995,13 @@ CL3D.Action.SetOrChangeAVariable.prototype.execute = function(d, c) {
   if(this.VariableName == null) {
     return
   }
-  var f = CL3D.CopperCubeVariable.getVariable(this.VariableName, true);
+  var f = CL3D.CopperCubeVariable.getVariable(this.VariableName, true, c);
   if(f == null) {
     return
   }
   var e = null;
   if(this.ValueType == 1) {
-    e = CL3D.CopperCubeVariable.getVariable(this.Value);
+    e = CL3D.CopperCubeVariable.getVariable(this.Value, false, c);
     if(e == null) {
       return
     }
@@ -1991,6 +2035,7 @@ CL3D.Action.SetOrChangeAVariable.prototype.execute = function(d, c) {
       f.setValueAsInt(Math.floor(f.getValueAsFloat() * e.getValueAsFloat()));
       break
   }
+  CL3D.CopperCubeVariable.saveContentOfPotentialTemporaryVariableIntoSource(f, c)
 };
 CL3D.Action.IfVariable = function() {
   this.Type = "IfVariable"
@@ -2002,13 +2047,13 @@ CL3D.Action.IfVariable.prototype.execute = function(b, a) {
   if(this.VariableName == null) {
     return
   }
-  var e = CL3D.CopperCubeVariable.getVariable(this.VariableName, true);
+  var e = CL3D.CopperCubeVariable.getVariable(this.VariableName, true, a);
   if(e == null) {
     return
   }
   var d = null;
   if(this.ValueType == 1) {
-    d = CL3D.CopperCubeVariable.getVariable(this.Value);
+    d = CL3D.CopperCubeVariable.getVariable(this.Value, false, a);
     if(d == null) {
       return
     }
@@ -2112,7 +2157,7 @@ CL3D.Action.ActionStoreLoadVariable.prototype.execute = function(b, a) {
   if(this.VariableName == null || this.VariableName == "") {
     return
   }
-  var d = CL3D.CopperCubeVariable.getVariable(this.VariableName, this.Load);
+  var d = CL3D.CopperCubeVariable.getVariable(this.VariableName, this.Load, a);
   if(d != null) {
     try {
       if(this.Load) {
@@ -2147,6 +2192,15 @@ CL3D.ActionHandler.prototype.findAction = function(d) {
     }
   }
   return null
+};
+CL3D.Action.ActionRestartScene = function(a) {
+  this.Engine = a;
+  this.Type = "RestartScene"
+};
+CL3D.Action.ActionRestartScene.prototype.execute = function(b, a) {
+  if(this.Engine) {
+    this.Engine.reloadScene(this.SceneName)
+  }
 };
 CL3D.Material = function() {
   this.Type = 0;
@@ -2191,6 +2245,7 @@ CL3D.Material.prototype.ZWriteEnabled = true;
 CL3D.Material.prototype.ZReadEnabled = true;
 CL3D.Material.prototype.ClampTexture1 = false;
 CL3D.Material.prototype.BackfaceCulling = true;
+CL3D.Material.prototype.Lighting = false;
 CL3D.Material.EMT_SOLID = 0;
 CL3D.Material.EMT_LIGHTMAP = 2;
 CL3D.Material.EMT_REFLECTION_2_LAYER = 11;
@@ -3715,10 +3770,10 @@ CL3D.Renderer.prototype.createMaterialTypeInternal = function(a, d, g, c, e) {
 };
 CL3D.Renderer.prototype.initWebGL = function() {
   var e = this.gl;
-  var i = this.createMaterialTypeInternal(this.vs_shader_normaltransform, this.fs_shader_onlyfirsttexture);
+  var i = this.createMaterialTypeInternal(this.vs_shader_normaltransform, this.fs_shader_onlyfirsttexture_gouraud);
   var b = this.createMaterialTypeInternal(this.vs_shader_normaltransform, this.fs_shader_lightmapcombine);
   var g = this.createMaterialTypeInternal(this.vs_shader_normaltransform, this.fs_shader_lightmapcombine_m4);
-  var a = this.createMaterialTypeInternal(this.vs_shader_normaltransform, this.fs_shader_onlyfirsttexture, true, e.SRC_ALPHA, e.ONE_MINUS_SRC_ALPHA);
+  var a = this.createMaterialTypeInternal(this.vs_shader_normaltransform, this.fs_shader_onlyfirsttexture_gouraud, true, e.SRC_ALPHA, e.ONE_MINUS_SRC_ALPHA);
   var h = this.createMaterialTypeInternal(this.vs_shader_normaltransform, this.fs_shader_onlyfirsttexture, true, e.ONE, e.ONE_MINUS_SRC_COLOR);
   var c = this.createMaterialTypeInternal(this.vs_shader_reflectiontransform, this.fs_shader_lightmapcombine);
   var f = this.createMaterialTypeInternal(this.vs_shader_reflectiontransform, this.fs_shader_lightmapcombine, true, e.SRC_ALPHA, e.ONE_MINUS_SRC_ALPHA);
@@ -3933,11 +3988,11 @@ CL3D.Renderer.prototype.vs_shader_2ddrawing_coloronly = "\t\t\t\t#ifdef GL_ES\t\
 CL3D.Renderer.prototype.vs_shader_2ddrawing_texture = "\t\t\t\t\t#ifdef GL_ES\t\t\t\t\t\t\t\t\t\t\t\t\n\tprecision highp float;\t\t\t\t\t\t\t\t\t\t\n\t#endif\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tattribute vec4 vPosition;\t\t\t\t\t\t\t\t\t\tattribute vec4 vTexCoord1;\t\t\t\t\t\t\t\t\t\tvarying vec2 v_texCoord1;\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t    void main()\t\t\t\t\t\t\t\t\t\t\t\t\t    {\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t        gl_Position = vPosition;\t\t\t\t\t\t\t\t\t\tv_texCoord1 = vTexCoord1.st;\t\t\t\t\t\t\t    }\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
 CL3D.Renderer.prototype.fs_shader_simplecolor = "\t\t\t\t\t\t#ifdef GL_ES\t\t\t\t\t\t\t\t\t\t\t\t\n\tprecision highp float;\t\t\t\t\t\t\t\t\t\t\n\t#endif\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\tuniform vec4 vColor;\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t    void main()\t\t\t\t\t\t\t\t\t\t\t\t\t    {\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t         gl_FragColor = vColor;\t\t\t\t\t\t\t\t\t    }\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
 CL3D.Renderer.prototype.fs_shader_2ddrawing_canvasfont = "\t\t\t\t#ifdef GL_ES\t\t\t\t\t\t\t\t\t\t\t\t\n\tprecision highp float;\t\t\t\t\t\t\t\t\t\t\n\t#endif\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\tuniform vec4 vColor;\t\t\t\t\t\t\t\t\t\t\tuniform sampler2D texture1;\t\t\t\t\t\t\t\t\t\tuniform sampler2D texture2;\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t    varying vec2 v_texCoord1;\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t    void main()\t\t\t\t\t\t\t\t\t\t\t\t\t    {\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t    vec2 texCoord = vec2(v_texCoord1.s, v_texCoord1.t);\t\t        float alpha = texture2D(texture1, texCoord).r;\t\t        gl_FragColor = vec4(vColor.rgb, alpha);\t\t\t\t\t\t    }\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
-CL3D.Renderer.prototype.vs_shader_normaltransform = "\t\t\t\t\t#ifdef GL_ES\t\t\t\t\t\t\t\t\t\t\t\t\n\tprecision highp float;\t\t\t\t\t\t\t\t\t\t\n\t#endif\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\tuniform mat4 worldviewproj;\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tattribute vec4 vPosition;\t\t\t\t\t\t\t\t\t    attribute vec4 vNormal;\t\t\t\t\t\t\t\t\t\t    attribute vec2 vTexCoord1;\t\t\t\t\t\t\t\t\t\tattribute vec2 vTexCoord2;\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t    varying vec2 v_texCoord1;\t\t\t\t\t\t\t\t\t\tvarying vec2 v_texCoord2;\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t    void main()\t\t\t\t\t\t\t\t\t\t\t\t\t    {\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t        gl_Position = worldviewproj * vPosition;\t\t\t\t        v_texCoord1 = vTexCoord1.st;\t\t\t\t\t\t\t\t\tv_texCoord2 = vTexCoord2.st;\t\t\t\t\t\t\t    }\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
-CL3D.Renderer.prototype.vs_shader_normaltransform_with_light = "\t\t\t\t\t#ifdef GL_ES\t\t\t\t\t\t\t\t\t\t\t\t\n\tprecision highp float;\t\t\t\t\t\t\t\t\t\t\n\t#endif\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tuniform mat4 worldviewproj;\t\t\t\t\t\t\t\t\t\n\tuniform vec4 arrLightPositions[4];\t\t\t\t\t\t\t\n\tuniform vec4 arrLightColors[5]; \t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tattribute vec4 vPosition;\t\t\t\t\t\t\t\t\t    attribute vec4 vNormal;\t\t\t\t\t\t\t\t\t\t    attribute vec2 vTexCoord1;\t\t\t\t\t\t\t\t\t\tattribute vec2 vTexCoord2;\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t    varying vec2 v_texCoord1;\t\t\t\t\t\t\t\t\t\tvarying vec2 v_texCoord2;\t\t\t\t\t\t\t\t\t\tvarying vec4 v_color;\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t    void main()\t\t\t\t\t\t\t\t\t\t\t\t\t    {\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t        gl_Position = worldviewproj * vPosition;\t\t\t\t        v_texCoord1 = vTexCoord1.st;\t\t\t\t\t\t\t\t\tv_texCoord2 = vTexCoord2.st;\t\t\t\t\t\t\t\t\tvec3 n = normalize(vec3(vNormal.xyz));\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tvec4 currentLight = vec4(0.0, 0.0, 0.0, 1.0);\t \t\t\t\tfor(int i=0; i<4; ++i)\t\t\t\t\t\t\t\t\t\t\t{\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tvec3 lPos = vec3(arrLightPositions[i].xyz);\t\t\t\t\t\tvec3 vertexToLight = lPos - vec3(vPosition.xyz);\t\t\t\tfloat distance = length( vertexToLight );\t\t\t\t\t\tfloat distanceFact = 1.0 / (arrLightPositions[i].w * distance); \t\t\tvertexToLight = normalize(vertexToLight); \t\t\t\t\t\tfloat angle = sin( dot(n, vertexToLight) );\t\t\t\t\t\tfloat intensity = angle * distanceFact;\t\t\t\t\t\t\tcurrentLight = currentLight + vec4(arrLightColors[i].x*intensity, arrLightColors[i].y*intensity, arrLightColors[i].z*intensity, 1.0);\t\t\t\t\tcurrentLight = max(currentLight, vec4(0.0,0.0,0.0,0.0));\t\t\t\t}\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tcurrentLight = currentLight + arrLightColors[4];\t\t\t\tv_color = min(currentLight, vec4(1.0,1.0,1.0,1.0));\t\t    }\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
+CL3D.Renderer.prototype.vs_shader_normaltransform = "\t\t\t\t\t#ifdef GL_ES\t\t\t\t\t\t\t\t\t\t\t\t\n\tprecision highp float;\t\t\t\t\t\t\t\t\t\t\n\t#endif\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\tuniform mat4 worldviewproj;\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tattribute vec4 vPosition;\t\t\t\t\t\t\t\t\t    attribute vec4 vNormal;\t\t\t\t\t\t\t\t\t\t\tattribute vec4 vColor;\t\t\t\t\t\t\t\t\t\t    attribute vec2 vTexCoord1;\t\t\t\t\t\t\t\t\t\tattribute vec2 vTexCoord2;\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t    varying vec2 v_texCoord1;\t\t\t\t\t\t\t\t\t\tvarying vec2 v_texCoord2;\t\t\t\t\t\t\t\t\t\tvarying vec4 v_color;\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t    void main()\t\t\t\t\t\t\t\t\t\t\t\t\t    {\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t        gl_Position = worldviewproj * vPosition;\t\t\t\t        v_texCoord1 = vTexCoord1.st;\t\t\t\t\t\t\t\t\tv_texCoord2 = vTexCoord2.st;\t\t\t\t\t\t\t\t\tv_color = vColor;\t\t\t\t\t\t\t\t\t\t    }\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
+CL3D.Renderer.prototype.vs_shader_normaltransform_with_light = "\t\t\t\t\t#ifdef GL_ES\t\t\t\t\t\t\t\t\t\t\t\t\n\tprecision highp float;\t\t\t\t\t\t\t\t\t\t\n\t#endif\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tuniform mat4 worldviewproj;\t\t\t\t\t\t\t\t\t\n\tuniform vec4 arrLightPositions[4];\t\t\t\t\t\t\t\n\tuniform vec4 arrLightColors[5]; \t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tattribute vec4 vPosition;\t\t\t\t\t\t\t\t\t    attribute vec4 vNormal;\t\t\t\t\t\t\t\t\t\t\tattribute vec4 vColor;\t\t\t\t\t\t\t\t\t\t    attribute vec2 vTexCoord1;\t\t\t\t\t\t\t\t\t\tattribute vec2 vTexCoord2;\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t    varying vec2 v_texCoord1;\t\t\t\t\t\t\t\t\t\tvarying vec2 v_texCoord2;\t\t\t\t\t\t\t\t\t\tvarying vec4 v_color;\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t    void main()\t\t\t\t\t\t\t\t\t\t\t\t\t    {\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t        gl_Position = worldviewproj * vPosition;\t\t\t\t        v_texCoord1 = vTexCoord1.st;\t\t\t\t\t\t\t\t\tv_texCoord2 = vTexCoord2.st;\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\t\tvec3 n = normalize(vec3(vNormal.xyz));\t\t\t\t\t\t\tvec4 currentLight = vec4(0, 0, 0, 1.0);\t\t\t\t\t\t\tfor(int i=0; i<4; ++i)\t\t\t\t\t\t\t\t\t\t\t{\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tvec3 lPos = vec3(arrLightPositions[i].xyz);\t\t\t\t\t\tvec3 vertexToLight = lPos - vec3(vPosition.xyz);\t\t\t\tfloat distance = length( vertexToLight );\t\t\t\t\t\tfloat distanceFact = 1.0 / (arrLightPositions[i].w * distance); \t\t\tvertexToLight = normalize(vertexToLight); \t\t\t\t\t\tfloat angle = max(0.0, dot(n, vertexToLight));\t\t\t\t\tfloat intensity = angle * distanceFact;\t\t\t\t\t\t\tcurrentLight = currentLight + vec4(arrLightColors[i].x*intensity, arrLightColors[i].y*intensity, arrLightColors[i].z*intensity, 1.0);\t\t\t\t}\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tcurrentLight = currentLight + arrLightColors[4];\t\t\t\tcurrentLight = max(currentLight, vec4(0.0,0.0,0.0,0.0));\t\t\tcurrentLight = currentLight * vec4(vColor.x, vColor.y, vColor.z, 1.0);\t\t\tv_color = min(currentLight, vec4(1.0,1.0,1.0,1.0));\t\t    }\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
 CL3D.Renderer.prototype.vs_shader_normaltransform_gouraud = "\t\t\t\t\t#ifdef GL_ES\t\t\t\t\t\t\t\t\t\t\t\t\n\tprecision highp float;\t\t\t\t\t\t\t\t\t\t\n\t#endif\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\tuniform mat4 worldviewproj;\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tattribute vec4 vPosition;\t\t\t\t\t\t\t\t\t    attribute vec2 vTexCoord1;\t\t\t\t\t\t\t\t\t\tattribute vec2 vTexCoord2;\t\t\t\t\t\t\t\t\t\tattribute vec4 vNormal;\t\t\t\t\t\t\t\t\t\t\tattribute vec4 vColor;\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t    varying vec2 v_texCoord1;\t\t\t\t\t\t\t\t\t\tvarying vec2 v_texCoord2;\t\t\t\t\t\t\t\t\t\tvarying vec4 v_color;\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t    void main()\t\t\t\t\t\t\t\t\t\t\t\t\t    {\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t        gl_Position = worldviewproj * vPosition;\t\t\t\t        v_texCoord1 = vTexCoord1.st;\t\t\t\t\t\t\t\t\tv_texCoord2 = vTexCoord2.st;\t\t\t\t\t\t\t\t\tv_color = vColor;\t\t\t\t\t\t\t\t\t\t    }\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
 CL3D.Renderer.prototype.vs_shader_reflectiontransform = "\t\t\t#ifdef GL_ES\t\t\t\t\t\t\t\t\t\t\t\t\n\tprecision highp float;\t\t\t\t\t\t\t\t\t\t\n\t#endif\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\tuniform mat4 worldviewproj;\t\t\t\t\t\t\t\t\t\n\tuniform mat4 normaltransform;\t\t\t\t\t\t\t\t\n\tuniform mat4 modelviewtransform;\t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tattribute vec4 vPosition;\t\t\t\t\t\t\t\t\t    attribute vec3 vNormal;\t\t\t\t\t\t\t\t\t\t    attribute vec2 vTexCoord1;\t\t\t\t\t\t\t\t\t\tattribute vec2 vTexCoord2;\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t    varying vec2 v_texCoord1;\t\t\t\t\t\t\t\t\t\tvarying vec2 v_texCoord2;\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t    void main()\t\t\t\t\t\t\t\t\t\t\t\t\t    {\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t        gl_Position = worldviewproj * vPosition;\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\t\t//\tuse reflection\t\t\t\t\t\t\t\t\t\t\t\n\t\tvec4 pos = modelviewtransform * vPosition;\t\t\t\t\t\n\t\tvec4 n = normalize(normaltransform * vec4(vNormal, 1));\t\t\n\t\tvec3 r = reflect( pos.xyz, n.xyz );\t\t\t\t\t\t\t\n\t\tfloat m = sqrt( r.x*r.x + r.y*r.y + (r.z+1.0)*(r.z+1.0) ); \n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\t\t//\ttexture coordinates\t\t\t\t\t\t\t\t\n\t\tv_texCoord1 = vTexCoord1.st;\t\t\t\t\t\t\n\t\tv_texCoord2.x = r.x / m  + 0.5;\t\t\t\t\t\t\n\t\tv_texCoord2.y = r.y / m  + 0.5;\t\t\t\t\t\t\n    }\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\t";
-CL3D.Renderer.prototype.vs_shader_reflectiontransform_with_light = "\t\t\t#ifdef GL_ES\t\t\t\t\t\t\t\t\t\t\t\t\n\tprecision highp float;\t\t\t\t\t\t\t\t\t\t\n\t#endif\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\tuniform mat4 worldviewproj;\t\t\t\t\t\t\t\t\t\n\tuniform mat4 normaltransform;\t\t\t\t\t\t\t\t\n\tuniform mat4 modelviewtransform;\t\t\t\t\t\t\t\n\tuniform vec4 arrLightPositions[4];\t\t\t\t\t\t\t\n\tuniform vec4 arrLightColors[5]; \t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tattribute vec4 vPosition;\t\t\t\t\t\t\t\t\t    attribute vec3 vNormal;\t\t\t\t\t\t\t\t\t\t    attribute vec2 vTexCoord1;\t\t\t\t\t\t\t\t\t\tattribute vec2 vTexCoord2;\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t    varying vec2 v_texCoord1;\t\t\t\t\t\t\t\t\t\tvarying vec2 v_texCoord2;\t\t\t\t\t\t\t\t\t\tvarying vec4 v_color;\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t    void main()\t\t\t\t\t\t\t\t\t\t\t\t\t    {\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t        gl_Position = worldviewproj * vPosition;\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\t\t//\tuse reflection\t\t\t\t\t\t\t\t\t\t\t\n\t\tvec4 pos = modelviewtransform * vPosition;\t\t\t\t\t\n\t\tvec4 nt = normalize(normaltransform * vec4(vNormal, 1));\t\t\n\t\tvec3 r = reflect( pos.xyz, nt.xyz );\t\t\t\t\t\t\t\n\t\tfloat m = sqrt( r.x*r.x + r.y*r.y + (r.z+1.0)*(r.z+1.0) ); \n\t\t//\ttexture coordinates\t\t\t\t\t\t\t\t\n\t\tv_texCoord1 = vTexCoord1.st;\t\t\t\t\t\t\n\t\tv_texCoord2.x = r.x / m  + 0.5;\t\t\t\t\t\t\n\t\tv_texCoord2.y = r.y / m  + 0.5;\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\t\tvec3 n = normalize(vec3(vNormal.xyz));\t\t\t\t\t\t\tvec4 currentLight = vec4(0.0, 0.0, 0.0, 1.0);\t \t\t\t\tfor(int i=0; i<4; ++i)\t\t\t\t\t\t\t\t\t\t\t{\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tvec3 lPos = vec3(arrLightPositions[i].xyz);\t\t\t\t\t\tvec3 vertexToLight = lPos - vec3(vPosition.xyz);\t\t\t\tfloat distance = length( vertexToLight );\t\t\t\t\t\tfloat distanceFact = 1.0 / (arrLightPositions[i].w * distance); \t\t\tvertexToLight = normalize(vertexToLight); \t\t\t\t\t\tfloat angle = sin( dot(vec3(n.xyz), vertexToLight) );\t\t\t\t\t\tfloat intensity = angle * distanceFact;\t\t\t\t\t\t\tcurrentLight = currentLight + vec4(arrLightColors[i].x*intensity, arrLightColors[i].y*intensity, arrLightColors[i].z*intensity, 1.0);\t\t\t\t}\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tcurrentLight = currentLight + arrLightColors[4];\t\t\t\t//v_color = currentLight;\t\t\t\t\t\t\t\t\n\t\tv_color = min(currentLight, vec4(1.0,1.0,1.0,1.0));\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t    }\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\t";
+CL3D.Renderer.prototype.vs_shader_reflectiontransform_with_light = "\t\t\t#ifdef GL_ES\t\t\t\t\t\t\t\t\t\t\t\t\n\tprecision highp float;\t\t\t\t\t\t\t\t\t\t\n\t#endif\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\tuniform mat4 worldviewproj;\t\t\t\t\t\t\t\t\t\n\tuniform mat4 normaltransform;\t\t\t\t\t\t\t\t\n\tuniform mat4 modelviewtransform;\t\t\t\t\t\t\t\n\tuniform vec4 arrLightPositions[4];\t\t\t\t\t\t\t\n\tuniform vec4 arrLightColors[5]; \t\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tattribute vec4 vPosition;\t\t\t\t\t\t\t\t\t    attribute vec3 vNormal;\t\t\t\t\t\t\t\t\t\t    attribute vec2 vTexCoord1;\t\t\t\t\t\t\t\t\t\tattribute vec2 vTexCoord2;\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t    varying vec2 v_texCoord1;\t\t\t\t\t\t\t\t\t\tvarying vec2 v_texCoord2;\t\t\t\t\t\t\t\t\t\tvarying vec4 v_color;\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t    void main()\t\t\t\t\t\t\t\t\t\t\t\t\t    {\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t        gl_Position = worldviewproj * vPosition;\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\t\t//\tuse reflection\t\t\t\t\t\t\t\t\t\t\t\n\t\tvec4 pos = modelviewtransform * vPosition;\t\t\t\t\t\n\t\tvec4 nt = normalize(normaltransform * vec4(vNormal, 1));\t\t\n\t\tvec3 r = reflect( pos.xyz, nt.xyz );\t\t\t\t\t\t\t\n\t\tfloat m = sqrt( r.x*r.x + r.y*r.y + (r.z+1.0)*(r.z+1.0) ); \n\t\t//\ttexture coordinates\t\t\t\t\t\t\t\t\n\t\tv_texCoord1 = vTexCoord1.st;\t\t\t\t\t\t\n\t\tv_texCoord2.x = r.x / m  + 0.5;\t\t\t\t\t\t\n\t\tv_texCoord2.y = r.y / m  + 0.5;\t\t\t\t\t\t\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\t\tvec3 n = normalize(vec3(vNormal.xyz));\t\t\t\t\t\t\tvec4 currentLight = vec4(0.0, 0.0, 0.0, 1.0);\t \t\t\t\tfor(int i=0; i<4; ++i)\t\t\t\t\t\t\t\t\t\t\t{\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tvec3 lPos = vec3(arrLightPositions[i].xyz);\t\t\t\t\t\tvec3 vertexToLight = lPos - vec3(vPosition.xyz);\t\t\t\tfloat distance = length( vertexToLight );\t\t\t\t\t\tfloat distanceFact = 1.0 / (arrLightPositions[i].w * distance); \t\t\tvertexToLight = normalize(vertexToLight); \t\t\t\t\t\tfloat angle = max(0.0, dot(n, vertexToLight));\t\t\t\t\tfloat intensity = angle * distanceFact;\t\t\t\t\t\t\tcurrentLight = currentLight + vec4(arrLightColors[i].x*intensity, arrLightColors[i].y*intensity, arrLightColors[i].z*intensity, 1.0);\t\t\t\t}\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tcurrentLight = currentLight + arrLightColors[4];\t\t\t\tcurrentLight = max(currentLight, vec4(0.0,0.0,0.0,0.0));\t\t\t//v_color = currentLight;\t\t\t\t\t\t\t\t\n\t\tv_color = min(currentLight, vec4(1.0,1.0,1.0,1.0));\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t    }\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\t";
 CL3D.Renderer.prototype.fs_shader_onlyfirsttexture = "\t\t\t\t\t#ifdef GL_ES\t\t\t\t\t\t\t\t\t\t\t\t\n\tprecision highp float;\t\t\t\t\t\t\t\t\t\t\n\t#endif\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\tuniform sampler2D texture1;\t\t\t\t\t\t\t\t\t\tuniform sampler2D texture2;\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t    varying vec2 v_texCoord1;\t\t\t\t\t\t\t\t\t\tvarying vec2 v_texCoord2;\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t    void main()\t\t\t\t\t\t\t\t\t\t\t\t\t    {\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t        vec2 texCoord = vec2(v_texCoord1.s, v_texCoord1.t);\t\t        gl_FragColor = texture2D(texture1, texCoord);\t\t\t    }\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
 CL3D.Renderer.prototype.fs_shader_onlyfirsttexture_gouraud = "\t\t#ifdef GL_ES\t\t\t\t\t\t\t\t\t\t\t\t\n\tprecision highp float;\t\t\t\t\t\t\t\t\t\t\n\t#endif\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\tuniform sampler2D texture1;\t\t\t\t\t\t\t\t\t\tuniform sampler2D texture2;\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t    varying vec2 v_texCoord1;\t\t\t\t\t\t\t\t\t\tvarying vec2 v_texCoord2;\t\t\t\t\t\t\t\t\t\tvarying vec4 v_color;\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t    void main()\t\t\t\t\t\t\t\t\t\t\t\t\t    {\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t        vec2 texCoord = vec2(v_texCoord1.s, v_texCoord1.t);\t\t        gl_FragColor = texture2D(texture1, texCoord) * v_color;\t    }\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
 CL3D.Renderer.prototype.fs_shader_lightmapcombine = "\t\t\t\t\t#ifdef GL_ES\t\t\t\t\t\t\t\t\t\t\t\t\n\tprecision highp float;\t\t\t\t\t\t\t\t\t\t\n\t#endif\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\tuniform sampler2D texture1;\t\t\t\t\t\t\t\t\t\tuniform sampler2D texture2;\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t    varying vec2 v_texCoord1;\t\t\t\t\t\t\t\t\t\tvarying vec2 v_texCoord2;\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t    void main()\t\t\t\t\t\t\t\t\t\t\t\t\t    {\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t        vec2 texCoord1 = vec2(v_texCoord1.s, v_texCoord1.t);\t\t\tvec2 texCoord2 = vec2(v_texCoord2.s, v_texCoord2.t);\t        vec4 col1 = texture2D(texture1, texCoord1);\t\t\t\t\t\tvec4 col2 = texture2D(texture2, texCoord2);\t\t\t\t\t\tgl_FragColor = col1 * col2;\t\t\t\t\t\t\t\t    }\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
@@ -4015,7 +4070,7 @@ CL3D.SceneNode.prototype.cloneMembers = function(a, e) {
   if(e) {
     e.addChild(a)
   }
-  for(var d = 0;d < this.Children.lenght;++d) {
+  for(var d = 0;d < this.Children.length;++d) {
     var g = this.Children[d];
     if(g) {
       var f = g.createClone(a);
@@ -4145,6 +4200,7 @@ CL3D.CameraSceneNode = function() {
   this.Aspect = 4 / 3;
   this.ZNear = 0.1;
   this.ZFar = 3E3;
+  this.TargetAndRotationAreBound = true;
   this.Projection.buildProjectionMatrixPerspectiveFovLH(this.Fovy, this.Aspect, this.ZNear, this.ZFar)
 };
 CL3D.CameraSceneNode.prototype = new CL3D.SceneNode;
@@ -4174,7 +4230,11 @@ CL3D.CameraSceneNode.prototype.setFov = function(a) {
 };
 CL3D.CameraSceneNode.prototype.setTarget = function(a) {
   if(a) {
-    this.Target = a.clone()
+    this.Target = a.clone();
+    if(this.TargetAndRotationAreBound) {
+      this.updateAbsolutePosition();
+      this.Rot = a.substract(this.getAbsolutePosition()).getHorizontalAngle()
+    }
   }
 };
 CL3D.CameraSceneNode.prototype.getTarget = function() {
@@ -5265,7 +5325,8 @@ CL3D.HotspotSceneNode = function() {
 CL3D.HotspotSceneNode.prototype = new CL3D.SceneNode;
 CL3D.DummyTransformationSceneNode = function() {
   this.init();
-  this.Box = new CL3D.Box3d
+  this.Box = new CL3D.Box3d;
+  this.RelativeTransformationMatrix = new CL3D.Matrix4
 };
 CL3D.DummyTransformationSceneNode.prototype = new CL3D.SceneNode;
 CL3D.DummyTransformationSceneNode.prototype.createClone = function(a) {
@@ -5274,7 +5335,13 @@ CL3D.DummyTransformationSceneNode.prototype.createClone = function(a) {
   if(this.Box) {
     b.Box = this.Box.clone()
   }
+  if(this.RelativeTransformationMatrix) {
+    b.RelativeTransformationMatrix = this.RelativeTransformationMatrix
+  }
   return b
+};
+CL3D.DummyTransformationSceneNode.prototype.getRelativeTransformation = function() {
+  return this.RelativeTransformationMatrix
 };
 CL3D.AnimatedMeshSceneNode = function() {
   this.init();
@@ -5397,19 +5464,23 @@ CL3D.AnimatedMeshSceneNode.prototype.setAnimationSpeed = function(a) {
 CL3D.AnimatedMeshSceneNode.prototype.setLoopMode = function(a) {
   this.Looping = a
 };
-CL3D.AnimatedMeshSceneNode.prototype.setFrameLoop = function(c, a) {
+CL3D.AnimatedMeshSceneNode.prototype.setFrameLoop = function(d, a) {
   if(!this.Mesh) {
     return false
   }
   var b = this.Mesh.getFrameCount() - 1;
-  if(a < c) {
+  var e = this.StartFrame;
+  var c = this.EndFrame;
+  if(a < d) {
     this.StartFrame = CL3D.clamp(a, 0, b);
-    this.EndFrame = CL3D.clamp(c, this.StartFrame, b)
+    this.EndFrame = CL3D.clamp(d, this.StartFrame, b)
   }else {
-    this.StartFrame = CL3D.clamp(c, 0, b);
+    this.StartFrame = CL3D.clamp(d, 0, b);
     this.EndFrame = CL3D.clamp(a, this.StartFrame, b)
   }
-  this.setCurrentFrame(this.StartFrame);
+  if(e != this.StartFrame || c != this.EndFrame) {
+    this.setCurrentFrame(this.StartFrame)
+  }
   return true
 };
 CL3D.AnimatedMeshSceneNode.prototype.setCurrentFrame = function(a) {
@@ -5554,7 +5625,6 @@ CL3D.AnimatorCameraFPS = function(b, a) {
   this.minZoom = 20;
   this.maxZoom = 100;
   this.zoomSpeed = (this.maxZoom - this.minZoom) / 50;
-  this.startZoomValue = this.minZoom;
   this.targetZoomValue = 90;
   this.lastAnimTime = CL3D.CLTimer.getTime();
   this.Camera = b;
@@ -5813,7 +5883,7 @@ CL3D.AnimatorCameraFPS.prototype.getAdditionalZoomDiff = function() {
 };
 CL3D.AnimatorCameraModelViewer = function(b, a) {
   this.Type = -1;
-  this.RotateSpeed = 0.06;
+  this.RotateSpeed = 1E4;
   this.Radius = 100;
   this.NoVerticalMovement = false;
   this.lastAnimTime = CL3D.CLTimer.getTime();
@@ -5996,7 +6066,7 @@ CL3D.AnimatorFollowPath.prototype.animateNode = function(d, c) {
   f = !l.equals(d.Pos);
   d.Pos = l;
   if(this.LookIntoMovementDirection && this.PathNodeToFollow.Nodes.length) {
-    var g = o + 0.0010;
+    var g = o + 0.001;
     var h;
     if(this.PathNodeToFollow.IsClosedCircle) {
       h = this.PathNodeToFollow.getPointOnPath(g)
@@ -6134,7 +6204,7 @@ CL3D.AnimatorFlyStraight.prototype.animateNode = function(f, e) {
     }else {
       f.Pos = d
     }
-    if(this.TestShootCollisionWithBullet) {
+    if(this.TestShootCollisionWithBullet && this.StartTime != e) {
       c = this.doShootCollisionTest(f) || c
     }
     if(c) {
@@ -6619,6 +6689,9 @@ CL3D.AnimatorOnProximity.prototype.animateNode = function(g, f) {
   return e
 };
 CL3D.AnimatorOnProximity.prototype.invokeAction = function(a) {
+  if(this.FunctionToCall) {
+    this.FunctionToCall.call(a)
+  }
   if(this.TheActionHandler) {
     this.TheActionHandler.execute(a)
   }
@@ -6689,7 +6762,7 @@ CL3D.AnimatorCollisionResponse.prototype.animateNode = function(f, e) {
   var r = f.Pos.substract(this.LastPosition);
   var g = this.Gravity.multiplyWithScal(m);
   if(!this.Falling) {
-    g.multiplyThisWithScal(0.0010)
+    g.multiplyThisWithScal(0.001)
   }else {
     var t = (e - this.FallStartTime) / 1E3;
     if(t > 5) {
@@ -6698,7 +6771,7 @@ CL3D.AnimatorCollisionResponse.prototype.animateNode = function(f, e) {
     g.multiplyThisWithScal(t)
   }
   if(this.JumpForce > 0) {
-    var k = this.Gravity.multiplyWithScal(m * this.JumpForce * 0.0010);
+    var k = this.Gravity.multiplyWithScal(m * this.JumpForce * 0.001);
     g.substractFromThis(k);
     this.JumpForce -= m;
     if(this.JumpForce < 0) {
@@ -7466,25 +7539,89 @@ CL3D.CopperCubeVariable = function() {
   this.IntValue = 0;
   this.FloatValue = 0
 };
-CL3D.CopperCubeVariable.getVariable = function(g, f) {
-  if(g == null) {
+CL3D.CopperCubeVariable.getVariable = function(b, a, e) {
+  if(b == null) {
     return null
   }
-  var e = g.toLowerCase();
+  var h = b.toLowerCase();
   var c = CL3D.CopperCubeVariables;
   for(var d = 0;d < c.length;++d) {
-    var b = c[d];
-    if(b != null && b.getName().toLowerCase() == e) {
-      return b
+    var j = c[d];
+    if(j != null && j.getName().toLowerCase() == h) {
+      return j
     }
   }
-  if(f == true) {
-    var a = new CL3D.CopperCubeVariable;
-    a.setName(g);
-    c.push(a);
-    return a
+  var g = CL3D.CopperCubeVariable.createTemporaryVariableIfPossible(b, e);
+  if(g) {
+    return g
+  }
+  if(a == true) {
+    var f = new CL3D.CopperCubeVariable;
+    f.setName(b);
+    c.push(f);
+    return f
   }
   return null
+};
+CL3D.CopperCubeVariable.createTemporaryVariableIfPossible = function(b, e) {
+  var d = CL3D.CopperCubeVariable.getSceneNodeAndAttributeNameFromTemporaryVariableName(b, e);
+  if(d == null) {
+    return null
+  }
+  var a = new CL3D.CopperCubeVariable;
+  a.setName(b);
+  a.setValueAsInt(0);
+  if(d.attrname == "health") {
+    var c = d.node.getAnimatorOfType("gameai");
+    if(c != null) {
+      a.setValueAsInt(c.Health)
+    }
+  }
+  return a
+};
+CL3D.CopperCubeVariable.saveContentOfPotentialTemporaryVariableIntoSource = function(a, g) {
+  var d = CL3D.CopperCubeVariable.getSceneNodeAndAttributeNameFromTemporaryVariableName(a.Name, g);
+  if(d == null) {
+    return null
+  }
+  if(d.attrname == "health") {
+    var c = d.node.getAnimatorOfType("gameai");
+    if(c != null) {
+      var b = c.Health;
+      var f = a.getValueAsInt();
+      var e = b - f;
+      if(e > 0) {
+        c.OnHit(e, d.node)
+      }else {
+        c.Health = f
+      }
+    }
+  }
+};
+CL3D.CopperCubeVariable.getSceneNodeAndAttributeNameFromTemporaryVariableName = function(b, e) {
+  if(b.length == 0 || e == null) {
+    return null
+  }
+  if(b[0] != "#") {
+    return null
+  }
+  var g = b.indexOf(".");
+  if(g == -1) {
+    return null
+  }
+  var d = b.substr(g + 1, b.length - g);
+  if(d.length == 0) {
+    return null
+  }
+  var f = b.substr(1, g - 1);
+  var c = e.getSceneNodeFromName(f);
+  if(c == null) {
+    return null
+  }
+  var a = new Object;
+  a.node = c;
+  a.attrname = d;
+  return a
 };
 CL3D.CopperCubeVariable.prototype.isString = function() {
   return this.ActiveValueType == 0
@@ -7580,6 +7717,7 @@ CL3D.AnimatorKeyboardControlled = function(b, a) {
   this.downKeyDown = false;
   this.jumpKeyDown = false;
   this.firstUpdate = true;
+  this.DisableWithoutActiveCamera = false;
   a.registerAnimatorForKeyUp(this);
   a.registerAnimatorForKeyDown(this)
 };
@@ -7630,66 +7768,79 @@ CL3D.AnimatorKeyboardControlled.prototype.onKeyUp = function(a) {
   this.ShiftIsDown = a.shiftKey == 1;
   return this.setKeyBool(false, a.keyCode)
 };
-CL3D.AnimatorKeyboardControlled.prototype.animateNode = function(f, d) {
-  var c = d - this.lastAnimTime;
-  if(c > 250) {
-    c = 250
+CL3D.AnimatorKeyboardControlled.prototype.animateNode = function(p, s) {
+  var m = s - this.lastAnimTime;
+  if(m > 250) {
+    m = 250
   }
-  this.lastAnimTime = d;
-  var g = false;
-  this.LastAnimationTime = d;
-  var q = f.Rot;
+  this.lastAnimTime = s;
+  var e = false;
+  this.LastAnimationTime = s;
+  if(this.DisableWithoutActiveCamera) {
+    var j = p.scene.getActiveCamera();
+    if(j != null) {
+      var o = j.getAnimatorOfType("3rdpersoncamera");
+      if(o != null) {
+        if(!(o.NodeToFollow === p)) {
+          return false
+        }
+      }else {
+        return false
+      }
+    }
+  }
+  var c = p.Rot;
   if(this.leftKeyDown) {
-    q.Y -= c * this.RotateSpeed * 0.0010;
-    g = true
+    c.Y -= m * this.RotateSpeed * 0.001;
+    e = true
   }
   if(this.rightKeyDown) {
-    q.Y += c * this.RotateSpeed * 0.0010;
-    g = true
+    c.Y += m * this.RotateSpeed * 0.001;
+    e = true
   }
-  var l = f.Pos;
-  var o = new CL3D.Matrix4;
-  o.setRotationDegrees(q);
-  var r = new CL3D.Vect3d(0, 0, 1);
-  var j = new CL3D.Matrix4;
-  j.setRotationDegrees(this.AdditionalRotationForLooking);
-  o = o.multiply(j);
-  o.rotateVect(r);
-  var n = this.ShiftIsDown;
-  r.setLength((n ? this.RunSpeed : this.MoveSpeed) * c);
-  var e = this.downKeyDown;
-  var h = this.upKeyDown;
-  if(h || e) {
-    var p = r.clone();
-    if(e) {
-      p.multiplyThisWithScal(-1)
+  var d = p.Pos;
+  var q = new CL3D.Matrix4;
+  q.setRotationDegrees(c);
+  var g = new CL3D.Vect3d(0, 0, 1);
+  var n = new CL3D.Matrix4;
+  n.setRotationDegrees(this.AdditionalRotationForLooking);
+  q = q.multiply(n);
+  q.rotateVect(g);
+  var h = this.ShiftIsDown;
+  g.setLength((h ? this.RunSpeed : this.MoveSpeed) * m);
+  var k = this.downKeyDown;
+  var i = this.upKeyDown;
+  if(i || k) {
+    var l = g.clone();
+    if(k) {
+      l.multiplyThisWithScal(-1)
     }
-    f.Pos.addToThis(p);
-    this.setAnimation(f, n ? 3 : 1, e);
+    p.Pos.addToThis(l);
+    this.setAnimation(p, h ? 3 : 1, k);
     this.WasMovingLastFrame = true;
-    g = true
+    e = true
   }else {
     if(this.WasMovingLastFrame) {
-      var i = false;
-      var m = f.getAnimatorOfType("collisionresponse");
-      if(m) {
-        i = m.isFalling()
+      var f = false;
+      var t = p.getAnimatorOfType("collisionresponse");
+      if(t) {
+        f = t.isFalling()
       }
-      if(!i) {
-        this.setAnimation(f, 0, false)
+      if(!f) {
+        this.setAnimation(p, 0, false)
       }
       this.WasMovingLastFrame = false
     }
   }
   if(this.jumpKeyDown) {
-    var k = f.getAnimatorOfType("collisionresponse");
-    if(k && !k.isFalling()) {
-      k.jump(this.JumpSpeed);
-      this.setAnimation(f, 2, false);
-      g = true
+    var r = p.getAnimatorOfType("collisionresponse");
+    if(r && !r.isFalling()) {
+      r.jump(this.JumpSpeed);
+      this.setAnimation(p, 2, false);
+      e = true
     }
   }
-  return g
+  return e
 };
 CL3D.AnimatorKeyboardControlled.prototype.getAnimationNameFromType = function(a) {
   switch(a) {
@@ -7877,6 +8028,27 @@ CL3D.Animator3rdPersonCamera.prototype.linkWithNode = function(a) {
   }
   this.TriedToLinkWithNode = true
 };
+CL3D.AnimatorOnFirstFrame = function(a) {
+  this.RunAlready = false;
+  this.AlsoOnReload = false;
+  this.SMGr = a;
+  this.TheActionHandler = null
+};
+CL3D.AnimatorOnFirstFrame.prototype = new CL3D.Animator;
+CL3D.AnimatorOnFirstFrame.prototype.getType = function() {
+  return"onfirstframe"
+};
+CL3D.AnimatorOnFirstFrame.prototype.animateNode = function(b, a) {
+  if(this.RunAlready) {
+    return false
+  }
+  this.RunAlready = true;
+  if(this.TheActionHandler) {
+    this.TheActionHandler.execute(b);
+    return true
+  }
+  return false
+};
 CL3D.SoundManager = function() {
   this.Sounds = new Array;
   this.PlayingSounds = new Array
@@ -7966,7 +8138,7 @@ CL3D.SoundManager.prototype.stop = function(a) {
   if(!a) {
     return
   }
-  a.src.audioElm.pause();
+  a.src.audioElem.pause();
   a.hasStopped = true;
   this.clearFinishedPlayingSounds()
 };
@@ -7983,7 +8155,7 @@ CL3D.SoundManager.prototype.stopAll = function() {
   for(var a = 0;a < this.PlayingSounds.length;++a) {
     var b = this.PlayingSounds[a];
     b.hasStopped = true;
-    b.src.audioElm.pause()
+    b.src.audioElem.pause()
   }
   this.PlayingSounds = new Array
 };
@@ -8045,6 +8217,7 @@ CL3D.CopperLicht = function(d, e, c, a) {
   this.IsPaused = false;
   this.NextCameraToSetActive = null;
   this.TheTextureManager = new CL3D.TextureManager;
+  this.TheMeshCache = new CL3D.MeshCache;
   this.LoadingAFile = false;
   this.LoadingAnimationCounter = 0;
   this.FPS = 60;
@@ -8196,9 +8369,13 @@ CL3D.CopperLicht.prototype.isLoading = function(a, b) {
 CL3D.CopperLicht.prototype.parseFile = function(b, c) {
   this.LoadingAFile = false;
   var a = new CL3D.FlaceLoader;
-  var d = a.loadFile(b, c, this.TheTextureManager, this);
+  var d = a.loadFile(b, c, this.TheTextureManager, this.TheMeshCache, this);
   if(d != null) {
     this.Document = d;
+    if(a.LoadedAReloadAction) {
+      this.LastLoadedFileContent = a.StoredFileContent;
+      this.LastLoadedFilename = c
+    }
     this.gotoScene(d.getCurrentScene());
     this.draw3dScene();
     if(this.OnLoadingComplete != null) {
@@ -8605,6 +8782,36 @@ CL3D.CopperLicht.prototype.setCollisionWorldForAllSceneNodes = function(g, e) {
     }
   }
 };
+CL3D.CopperLicht.prototype.reloadScene = function(e) {
+  if(!e || !this.Document) {
+    return false
+  }
+  if(this.LastLoadedFileContent == null) {
+    return false
+  }
+  var f = null;
+  var g = -1;
+  for(var c = 0;c < this.Document.Scenes.length;++c) {
+    if(e == this.Document.Scenes[c].Name) {
+      g = c;
+      f = this.Document.Scenes[c];
+      break
+    }
+  }
+  if(g == -1) {
+    return
+  }
+  var a = new CL3D.FlaceLoader;
+  var b = a.reloadScene(this.LastLoadedFileContent, f, g, this.LastLoadedFilename, this.TheTextureManager, this.TheMeshCache, this);
+  if(b != null) {
+    var d = this.Document.getCurrentScene() == f;
+    this.Document.Scenes[g] = b;
+    if(d) {
+      this.gotoScene(b)
+    }
+  }
+  return true
+};
 CL3D.Scene = function() {
   this.RootNode = new CL3D.SceneNode;
   this.RootNode.scene = this;
@@ -8643,7 +8850,7 @@ CL3D.Scene.prototype.getSceneType = function() {
 };
 CL3D.Scene.prototype.doAnimate = function(b) {
   this.LastUsedRenderer = b;
-  if(this.StartTime = 0) {
+  if(this.StartTime == 0) {
     this.StartTime = CL3D.CLTimer.getTime()
   }
   this.TheSkyBoxSceneNode = null;
@@ -8718,7 +8925,7 @@ CL3D.Scene.prototype.drawAll = function(f) {
     }
   }
   this.CurrentRenderMode = CL3D.Scene.RENDER_MODE_TRANSPARENT;
-  if(b != null && this.SceneNodesToRenderTransparent > 0) {
+  if(b != null && this.SceneNodesToRenderTransparent.length > 0) {
     this.SceneNodesToRenderTransparent.sort(function(l, i) {
       var m = b.getDistanceFromSQ(l.getAbsolutePosition());
       var k = b.getDistanceFromSQ(i.getAbsolutePosition());
@@ -8997,35 +9204,41 @@ CL3D.FlaceLoader = function() {
   this.CursorControl = null;
   this.PathRoot = "";
   this.TheMeshCache = null;
-  this.loadFile = function(c, e, g, h) {
-    this.Filename = e;
-    this.TheTextureManager = g;
-    this.CursorControl = h;
-    this.TheMeshCache = new CL3D.MeshCache;
-    if(c.length == 0) {
-      CL3D.gCCDebugOutput.printError("Error: Could not load file '" + e + "'");
-      var f = navigator.appVersion;
-      if(f != null && f.indexOf("Chrome") != -1) {
+  this.StoredFileContent = null;
+  this.LoadedAReloadAction = false;
+  this.loadFile = function(b, c, f, e, g) {
+    this.Filename = c;
+    this.TheTextureManager = f;
+    this.CursorControl = g;
+    this.TheMeshCache = e;
+    if(b.length == 0) {
+      CL3D.gCCDebugOutput.printError("Error: Could not load file '" + c + "'");
+      var d = navigator.appVersion;
+      if(d != null && d.indexOf("Chrome") != -1) {
         CL3D.gCCDebugOutput.printError("<i>For using local files with Chrome, add the parameter '--allow-file-access-from-files' when starting the browser.</i>", true)
       }
       return null
     }
-    if(e.indexOf(".ccbjs")) {
-      c = CL3D.base64decode(c)
+    if(c.indexOf(".ccbjs")) {
+      b = CL3D.base64decode(b)
     }
-    var b = new CL3D.CCDocument;
-    this.Document = b;
-    var d = this.Filename;
-    var a = d.lastIndexOf("/");
-    if(a != -1) {
-      d = d.substring(0, a + 1)
-    }
-    this.PathRoot = d;
-    this.Data = new CL3D.BinaryStream(c);
+    var a = new CL3D.CCDocument;
+    this.Document = a;
+    this.setRootPath();
+    this.Data = new CL3D.BinaryStream(b);
     if(!this.parseFile()) {
       return null
     }
-    return b
+    this.StoredFileContent = b;
+    return a
+  };
+  this.setRootPath = function() {
+    var b = this.Filename;
+    var a = b.lastIndexOf("/");
+    if(a != -1) {
+      b = b.substring(0, a + 1)
+    }
+    this.PathRoot = b
   };
   this.parseFile = function() {
     var e = this.Data.readSI32();
@@ -9133,6 +9346,53 @@ CL3D.FlaceLoader = function() {
           this.SkipToNextTag()
       }
     }
+  };
+  this.reloadScene = function(i, h, a, b, j, g, k) {
+    this.Filename = b;
+    this.TheTextureManager = j;
+    this.CursorControl = k;
+    this.TheMeshCache = g;
+    this.Data = new CL3D.BinaryStream(i);
+    this.setRootPath();
+    this.Data.readSI32();
+    this.Data.readSI32();
+    this.Data.readUI32();
+    var f = -1;
+    var l = this.readTag();
+    if(l != 1) {
+      return null
+    }
+    var c = this.NextTagPos;
+    while(this.Data.bytesAvailable() > 0 && this.Data.getPosition() < c) {
+      var l = this.readTag();
+      switch(l) {
+        case 2:
+          var e = this.Data.readInt();
+          ++f;
+          if(f == a) {
+            var d = null;
+            switch(e) {
+              case 0:
+                d = new CL3D.Free3dScene;
+                this.readFreeScene(d);
+                break;
+              case 1:
+                d = new CL3D.PanoramaScene;
+                this.readPanoramaScene(d);
+                break;
+              default:
+                this.SkipToNextTag()
+            }
+            return d
+          }else {
+            this.SkipToNextTag()
+          }
+        ;
+        default:
+          this.SkipToNextTag()
+      }
+    }
+    return null
   };
   this.readPublishSettings = function() {
     this.Data.readInt();
@@ -9249,230 +9509,234 @@ CL3D.FlaceLoader = function() {
       }
     }
   };
-  this.ReadSceneNode = function(w, r, x) {
-    if(r == null) {
+  this.ReadSceneNode = function(x, s, y) {
+    if(s == null) {
       return
     }
-    var e = this.NextTagPos;
-    var c = this.Data.readInt();
-    var k = this.Data.readInt();
-    var B = this.ReadString();
-    var d = this.Read3DVectF();
-    var i = this.Read3DVectF();
-    var y = this.Read3DVectF();
-    var h = this.Data.readBoolean();
-    var m = this.Data.readInt();
-    var f = null;
-    var p = 0;
-    if(x == 0) {
-      r.Visible = h;
-      r.Name = B;
-      r.Culling = m
+    var f = this.NextTagPos;
+    var d = this.Data.readInt();
+    var l = this.Data.readInt();
+    var C = this.ReadString();
+    var e = this.Read3DVectF();
+    var j = this.Read3DVectF();
+    var z = this.Read3DVectF();
+    var i = this.Data.readBoolean();
+    var n = this.Data.readInt();
+    var g = null;
+    var q = 0;
+    if(y == 0) {
+      s.Visible = i;
+      s.Name = C;
+      s.Culling = n
     }
-    while(this.Data.bytesAvailable() > 0 && this.Data.getPosition() < e) {
-      var A = this.readTag();
-      switch(A) {
+    while(this.Data.bytesAvailable() > 0 && this.Data.getPosition() < f) {
+      var B = this.readTag();
+      switch(B) {
         case 9:
-          this.ReadSceneNode(w, f ? f : r, x + 1);
+          this.ReadSceneNode(x, g ? g : s, y + 1);
           break;
         case 10:
-          switch(c) {
+          switch(d) {
             case 2037085030:
-              var u = new CL3D.SkyBoxSceneNode;
-              u.Type = c;
-              u.Pos = d;
-              u.Rot = i;
-              u.Scale = y;
-              u.Visible = h;
-              u.Name = B;
-              u.Culling = m;
-              u.Id = k;
-              u.scene = w;
-              this.readFlaceMeshNode(u);
-              r.addChild(u);
-              f = u;
-              f.updateAbsolutePosition();
+              var v = new CL3D.SkyBoxSceneNode;
+              v.Type = d;
+              v.Pos = e;
+              v.Rot = j;
+              v.Scale = z;
+              v.Visible = i;
+              v.Name = C;
+              v.Culling = n;
+              v.Id = l;
+              v.scene = x;
+              this.readFlaceMeshNode(v);
+              s.addChild(v);
+              g = v;
+              g.updateAbsolutePosition();
               break;
             case 1752395110:
-              var n = new CL3D.MeshSceneNode;
-              n.Type = c;
-              n.Pos = d;
-              n.Rot = i;
-              n.Scale = y;
-              n.Visible = h;
-              n.Name = B;
-              n.Culling = m;
-              n.Id = k;
-              n.scene = w;
-              this.readFlaceMeshNode(n);
-              r.addChild(n);
-              f = n;
-              f.updateAbsolutePosition();
+              var o = new CL3D.MeshSceneNode;
+              o.Type = d;
+              o.Pos = e;
+              o.Rot = j;
+              o.Scale = z;
+              o.Visible = i;
+              o.Name = C;
+              o.Culling = n;
+              o.Id = l;
+              o.scene = x;
+              this.readFlaceMeshNode(o);
+              s.addChild(o);
+              g = o;
+              g.updateAbsolutePosition();
               break;
             case 1835950438:
-              var v = new CL3D.AnimatedMeshSceneNode;
-              v.Type = c;
-              v.Pos = d;
-              v.Rot = i;
-              v.Scale = y;
-              v.Visible = h;
-              v.Name = B;
-              v.Culling = m;
-              v.Id = k;
-              v.scene = w;
-              this.readFlaceAnimatedMeshNode(v);
-              r.addChild(v);
-              f = v;
-              f.updateAbsolutePosition();
+              var w = new CL3D.AnimatedMeshSceneNode;
+              w.Type = d;
+              w.Pos = e;
+              w.Rot = j;
+              w.Scale = z;
+              w.Visible = i;
+              w.Name = C;
+              w.Culling = n;
+              w.Id = l;
+              w.scene = x;
+              this.readFlaceAnimatedMeshNode(w);
+              s.addChild(w);
+              g = w;
+              g.updateAbsolutePosition();
               break;
             case 1953526632:
-              var s = new CL3D.HotspotSceneNode(this.CursorControl, null);
-              s.Type = c;
-              s.Pos = d;
-              s.Rot = i;
-              s.Scale = y;
-              s.Visible = h;
-              s.Name = B;
-              s.Culling = m;
-              s.Id = k;
-              s.scene = w;
-              this.readFlaceHotspotNode(s);
-              r.addChild(s);
-              f = s;
-              f.updateAbsolutePosition();
+              var t = new CL3D.HotspotSceneNode(this.CursorControl, null);
+              t.Type = d;
+              t.Pos = e;
+              t.Rot = j;
+              t.Scale = z;
+              t.Visible = i;
+              t.Name = C;
+              t.Culling = n;
+              t.Id = l;
+              t.scene = x;
+              this.readFlaceHotspotNode(t);
+              s.addChild(t);
+              g = t;
+              g.updateAbsolutePosition();
               break;
             case 1819042406:
               var a = new CL3D.BillboardSceneNode;
-              a.Type = c;
-              a.Pos = d;
-              a.Rot = i;
-              a.Scale = y;
-              a.Visible = h;
-              a.Name = B;
-              a.Culling = m;
-              a.Id = k;
-              a.scene = w;
+              a.Type = d;
+              a.Pos = e;
+              a.Rot = j;
+              a.Scale = z;
+              a.Visible = i;
+              a.Name = C;
+              a.Culling = n;
+              a.Id = l;
+              a.scene = x;
               this.readFlaceBillBoardNode(a);
-              r.addChild(a);
-              f = a;
-              f.updateAbsolutePosition();
+              s.addChild(a);
+              g = a;
+              g.updateAbsolutePosition();
               break;
             case 1835098982:
-              var t = new CL3D.CameraSceneNode;
-              t.Type = c;
-              t.Pos = d;
-              t.Rot = i;
-              t.Scale = y;
-              t.Visible = h;
-              t.Name = B;
-              t.Culling = m;
-              t.scene = w;
-              t.Id = k;
-              this.readFlaceCameraNode(t);
-              r.addChild(t);
-              f = t;
-              f.updateAbsolutePosition();
+              var u = new CL3D.CameraSceneNode;
+              u.Type = d;
+              u.Pos = e;
+              u.Rot = j;
+              u.Scale = z;
+              u.Visible = i;
+              u.Name = C;
+              u.Culling = n;
+              u.scene = x;
+              u.Id = l;
+              this.readFlaceCameraNode(u);
+              s.addChild(u);
+              g = u;
+              g.updateAbsolutePosition();
               break;
             case 1751608422:
-              var j = new CL3D.LightSceneNode;
-              j.Type = c;
-              j.Pos = d;
-              j.Rot = i;
-              j.Scale = y;
-              j.Visible = h;
-              j.Name = B;
-              j.Culling = m;
-              j.Id = k;
-              j.scene = w;
-              this.readFlaceLightNode(j);
-              r.addChild(j);
-              f = j;
-              f.updateAbsolutePosition();
+              var k = new CL3D.LightSceneNode;
+              k.Type = d;
+              k.Pos = e;
+              k.Rot = j;
+              k.Scale = z;
+              k.Visible = i;
+              k.Name = C;
+              k.Culling = n;
+              k.Id = l;
+              k.scene = x;
+              this.readFlaceLightNode(k);
+              s.addChild(k);
+              g = k;
+              g.updateAbsolutePosition();
               break;
             case 1935946598:
-              var l = new CL3D.SoundSceneNode;
-              l.Type = c;
-              l.Pos = d;
-              l.Rot = i;
-              l.Scale = y;
-              l.Visible = h;
-              l.Name = B;
-              l.Culling = m;
-              l.Id = k;
-              l.scene = w;
-              this.readFlace3DSoundNode(l);
-              r.addChild(l);
-              f = l;
-              f.updateAbsolutePosition();
+              var m = new CL3D.SoundSceneNode;
+              m.Type = d;
+              m.Pos = e;
+              m.Rot = j;
+              m.Scale = z;
+              m.Visible = i;
+              m.Name = C;
+              m.Culling = n;
+              m.Id = l;
+              m.scene = x;
+              this.readFlace3DSoundNode(m);
+              s.addChild(m);
+              g = m;
+              g.updateAbsolutePosition();
               break;
             case 1752461414:
-              var z = new CL3D.PathSceneNode;
-              z.Type = c;
-              z.Pos = d;
-              z.Rot = i;
-              z.Scale = y;
-              z.Visible = h;
-              z.Name = B;
-              z.Culling = m;
-              z.Id = k;
-              z.scene = w;
-              this.readFlacePathNode(z);
-              r.addChild(z);
-              f = z;
-              f.updateAbsolutePosition();
+              var A = new CL3D.PathSceneNode;
+              A.Type = d;
+              A.Pos = e;
+              A.Rot = j;
+              A.Scale = z;
+              A.Visible = i;
+              A.Name = C;
+              A.Culling = n;
+              A.Id = l;
+              A.scene = x;
+              this.readFlacePathNode(A);
+              s.addChild(A);
+              g = A;
+              g.updateAbsolutePosition();
               break;
             case 1954112614:
               var b = new CL3D.DummyTransformationSceneNode;
-              b.Type = c;
-              b.Pos = d;
-              b.Rot = i;
-              b.Scale = y;
-              b.Visible = h;
-              b.Name = B;
-              b.Culling = m;
-              b.Id = k;
-              b.scene = w;
+              b.Type = d;
+              b.Pos = e;
+              b.Rot = j;
+              b.Scale = z;
+              b.Visible = i;
+              b.Name = C;
+              b.Culling = n;
+              b.Id = l;
+              b.scene = x;
               b.Box = this.Read3DBoxF();
-              for(var o = 0;o < 16;++o) {
-                this.Data.readFloat()
+              for(var p = 0;p < 16;++p) {
+                b.RelativeTransformationMatrix.setByIndex(p, this.Data.readFloat())
               }
-              r.addChild(b);
-              f = b;
-              f.updateAbsolutePosition();
+              s.addChild(b);
+              g = b;
+              g.updateAbsolutePosition();
               break;
             case 1868837478:
-              var q = new CL3D.Overlay2DSceneNode(this.CursorControl);
-              q.Type = c;
-              q.Pos = d;
-              q.Rot = i;
-              q.Scale = y;
-              q.Visible = h;
-              q.Name = B;
-              q.Culling = m;
-              q.Id = k;
-              q.scene = w;
-              this.readFlace2DOverlay(q);
-              r.addChild(q);
-              f = q;
-              f.updateAbsolutePosition();
+              var r = new CL3D.Overlay2DSceneNode(this.CursorControl);
+              r.Type = d;
+              r.Pos = e;
+              r.Rot = j;
+              r.Scale = z;
+              r.Visible = i;
+              r.Name = C;
+              r.Culling = n;
+              r.Id = l;
+              r.scene = x;
+              this.readFlace2DOverlay(r);
+              s.addChild(r);
+              g = r;
+              g.updateAbsolutePosition();
               break;
             default:
-              if(x == 0) {
-                w.AmbientLight = this.ReadColorF()
+              if(y == 0) {
+                x.AmbientLight = this.ReadColorF()
               }
               this.SkipToNextTag();
               break
           }
           break;
         case 11:
-          var g = this.ReadMaterial();
-          if(f && f.getMaterial(p)) {
-            f.getMaterial(p).setFrom(g)
+          var h = this.ReadMaterial();
+          if(g && g.getMaterial(q)) {
+            g.getMaterial(q).setFrom(h)
           }
-          ++p;
+          ++q;
           break;
         case 25:
-          this.ReadAnimator(f, w);
+          var c = g;
+          if(c == null && y == 0) {
+            c = x.getRootSceneNode()
+          }
+          this.ReadAnimator(c, x);
           break;
         default:
           this.SkipToNextTag()
@@ -9769,29 +10033,29 @@ CL3D.FlaceLoader = function() {
     a.HoverBackgroundColor = this.Data.readInt();
     a.OnHoverDrawTexture = this.Data.readBoolean()
   };
-  this.ReadAnimator = function(s, x) {
-    if(!s) {
+  this.ReadAnimator = function(t, z) {
+    if(!t) {
       this.SkipToNextTag();
       return
     }
-    var u;
-    var p;
+    var v;
+    var q;
     var d = this.Data.readInt();
-    var y = null;
+    var A = null;
     switch(d) {
       case 100:
         var a = new CL3D.AnimatorRotation;
         a.Rotation = this.Read3DVectF();
-        y = a;
+        A = a;
         break;
       case 101:
-        var o = new CL3D.AnimatorFlyStraight;
-        o.Start = this.Read3DVectF();
-        o.End = this.Read3DVectF();
-        o.TimeForWay = this.Data.readInt();
-        o.Loop = this.Data.readBoolean();
-        o.recalculateImidiateValues();
-        y = o;
+        var p = new CL3D.AnimatorFlyStraight;
+        p.Start = this.Read3DVectF();
+        p.End = this.Read3DVectF();
+        p.TimeForWay = this.Data.readInt();
+        p.Loop = this.Data.readBoolean();
+        p.recalculateImidiateValues();
+        A = p;
         break;
       case 102:
         var l = new CL3D.AnimatorFlyCircle;
@@ -9800,19 +10064,20 @@ CL3D.FlaceLoader = function() {
         l.Radius = this.Data.readFloat();
         l.Speed = this.Data.readFloat();
         l.init();
-        y = l;
+        A = l;
         break;
       case 103:
-        var r = new CL3D.AnimatorCollisionResponse;
-        r.Radius = this.Read3DVectF();
-        r.Gravity = this.Read3DVectF();
-        r.Translation = this.Read3DVectF();
+        var s = new CL3D.AnimatorCollisionResponse;
+        s.Radius = this.Read3DVectF();
+        s.Gravity = this.Read3DVectF();
+        s.Translation = this.Read3DVectF();
         this.Read3DVectF();
-        r.SlidingSpeed = this.Data.readFloat();
-        y = r;
+        s.SlidingSpeed = this.Data.readFloat();
+        A = s;
         break;
       case 104:
-        var b = new CL3D.AnimatorCameraFPS(s, this.CursorControl);
+        var o = t;
+        var b = new CL3D.AnimatorCameraFPS(t, this.CursorControl);
         b.MaxVerticalAngle = this.Data.readFloat();
         b.MoveSpeed = this.Data.readFloat();
         b.RotateSpeed = this.Data.readFloat();
@@ -9826,10 +10091,18 @@ CL3D.FlaceLoader = function() {
           b.moveByMouseMove = true;
           b.moveByMouseDown = false
         }
-        y = b;
+        if(o) {
+          b.targetZoomValue = CL3D.radToDeg(o.Fovy);
+          b.maxZoom = b.targetZoomValue + 10;
+          b.zoomSpeed = (b.maxZoom - b.minZoom) / 50;
+          if(b.mayZoom) {
+            o.setFov(CL3D.degToRad(b.minZoom))
+          }
+        }
+        A = b;
         break;
       case 105:
-        var c = new CL3D.AnimatorCameraModelViewer(s, this.CursorControl);
+        var c = new CL3D.AnimatorCameraModelViewer(t, this.CursorControl);
         c.Radius = this.Data.readFloat();
         c.RotateSpeed = this.Data.readFloat();
         c.NoVerticalMovement = this.Data.readBoolean();
@@ -9838,10 +10111,10 @@ CL3D.FlaceLoader = function() {
           c.SlideAfterMovementEnd = true;
           c.SlidingSpeed = this.Data.readFloat()
         }
-        y = c;
+        A = c;
         break;
       case 106:
-        var k = new CL3D.AnimatorFollowPath(x);
+        var k = new CL3D.AnimatorFollowPath(z);
         k.TimeNeeded = this.Data.readInt();
         k.LookIntoMovementDirection = this.Data.readBoolean();
         k.PathToFollow = this.ReadString();
@@ -9853,25 +10126,25 @@ CL3D.FlaceLoader = function() {
         if(g & 1) {
           k.TimeDisplacement = this.Data.readInt()
         }
-        y = k;
+        A = k;
         break;
       case 107:
-        var j = new CL3D.AnimatorOnClick(x, this.CursorControl);
+        var j = new CL3D.AnimatorOnClick(z, this.CursorControl);
         j.BoundingBoxTestOnly = this.Data.readBoolean();
         j.CollidesWithWorld = this.Data.readBoolean();
         this.Data.readInt();
-        j.TheActionHandler = this.ReadActionHandlerSection(x);
-        y = j;
+        j.TheActionHandler = this.ReadActionHandlerSection(z);
+        A = j;
         break;
       case 108:
-        var e = new CL3D.AnimatorOnProximity(x);
+        var e = new CL3D.AnimatorOnProximity(z);
         e.EnterType = this.Data.readInt();
         e.ProximityType = this.Data.readInt();
         e.Range = this.Data.readFloat();
         e.SceneNodeToTest = this.Data.readInt();
         this.Data.readInt();
-        e.TheActionHandler = this.ReadActionHandlerSection(x);
-        y = e;
+        e.TheActionHandler = this.ReadActionHandlerSection(z);
+        A = e;
         break;
       case 109:
         var f = new CL3D.AnimatorAnimateTexture;
@@ -9881,38 +10154,38 @@ CL3D.FlaceLoader = function() {
         f.Loop = this.Data.readBoolean();
         var n = this.Data.readInt();
         f.Textures = new Array;
-        for(var t = 0;t < n;++t) {
+        for(var u = 0;u < n;++u) {
           f.Textures.push(this.ReadTextureRef())
         }
-        y = f;
+        A = f;
         break;
       case 110:
-        var j = new CL3D.AnimatorOnMove(x, this.CursorControl);
+        var j = new CL3D.AnimatorOnMove(z, this.CursorControl);
         j.BoundingBoxTestOnly = this.Data.readBoolean();
         j.CollidesWithWorld = this.Data.readBoolean();
         this.Data.readInt();
-        j.ActionHandlerOnLeave = this.ReadActionHandlerSection(x);
-        j.ActionHandlerOnEnter = this.ReadActionHandlerSection(x);
-        y = j;
+        j.ActionHandlerOnLeave = this.ReadActionHandlerSection(z);
+        j.ActionHandlerOnEnter = this.ReadActionHandlerSection(z);
+        A = j;
         break;
       case 111:
-        var q = new CL3D.AnimatorTimer(x);
-        q.TickEverySeconds = this.Data.readInt();
+        var r = new CL3D.AnimatorTimer(z);
+        r.TickEverySeconds = this.Data.readInt();
         this.Data.readInt();
-        q.TheActionHandler = this.ReadActionHandlerSection(x);
-        y = q;
+        r.TheActionHandler = this.ReadActionHandlerSection(z);
+        A = r;
         break;
       case 112:
-        var w = new CL3D.AnimatorOnKeyPress(x, this.CursorControl);
-        w.KeyPressType = this.Data.readInt();
-        w.KeyCode = this.Data.readInt();
-        w.IfCameraOnlyDoIfActive = this.Data.readBoolean();
+        var y = new CL3D.AnimatorOnKeyPress(z, this.CursorControl);
+        y.KeyPressType = this.Data.readInt();
+        y.KeyCode = this.Data.readInt();
+        y.IfCameraOnlyDoIfActive = this.Data.readBoolean();
         this.Data.readInt();
-        w.TheActionHandler = this.ReadActionHandlerSection(x);
-        y = w;
+        y.TheActionHandler = this.ReadActionHandlerSection(z);
+        A = y;
         break;
       case 113:
-        var h = new CL3D.AnimatorGameAI(x);
+        var h = new CL3D.AnimatorGameAI(z);
         h.AIType = this.Data.readInt();
         h.MovementSpeed = this.Data.readFloat();
         h.ActivationRadius = this.Data.readFloat();
@@ -9928,29 +10201,29 @@ CL3D.FlaceLoader = function() {
         h.DieAnimation = this.ReadString();
         h.AttackAnimation = this.ReadString();
         this.Data.readInt();
-        h.ActionHandlerOnAttack = this.ReadActionHandlerSection(x);
-        h.ActionHandlerOnActivate = this.ReadActionHandlerSection(x);
-        h.ActionHandlerOnHit = this.ReadActionHandlerSection(x);
-        h.ActionHandlerOnDie = this.ReadActionHandlerSection(x);
-        y = h;
+        h.ActionHandlerOnAttack = this.ReadActionHandlerSection(z);
+        h.ActionHandlerOnActivate = this.ReadActionHandlerSection(z);
+        h.ActionHandlerOnHit = this.ReadActionHandlerSection(z);
+        h.ActionHandlerOnDie = this.ReadActionHandlerSection(z);
+        A = h;
         break;
       case 114:
-        var v = new CL3D.Animator3rdPersonCamera;
-        v.SceneNodeIDToFollow = this.Data.readInt();
-        v.AdditionalRotationForLooking = this.Read3DVectF();
-        v.FollowMode = this.Data.readInt();
-        v.FollowSmoothingSpeed = this.Data.readFloat();
-        v.TargetHeight = this.Data.readFloat();
+        var x = new CL3D.Animator3rdPersonCamera;
+        x.SceneNodeIDToFollow = this.Data.readInt();
+        x.AdditionalRotationForLooking = this.Read3DVectF();
+        x.FollowMode = this.Data.readInt();
+        x.FollowSmoothingSpeed = this.Data.readFloat();
+        x.TargetHeight = this.Data.readFloat();
         var g = this.Data.readInt();
         if(g & 1) {
-          v.CollidesWithWorld = true
+          x.CollidesWithWorld = true
         }else {
-          v.CollidesWithWorld = false
+          x.CollidesWithWorld = false
         }
-        y = v;
+        A = x;
         break;
       case 115:
-        var m = new CL3D.AnimatorKeyboardControlled(x, this.CursorControl);
+        var m = new CL3D.AnimatorKeyboardControlled(z, this.CursorControl);
         this.Data.readInt();
         m.RunSpeed = this.Data.readFloat();
         m.MoveSpeed = this.Data.readFloat();
@@ -9961,15 +10234,25 @@ CL3D.FlaceLoader = function() {
         m.WalkAnimation = this.ReadString();
         m.JumpAnimation = this.ReadString();
         m.RunAnimation = this.ReadString();
+        var g = this.Data.readInt();
+        if(g & 1) {
+          m.DisableWithoutActiveCamera = true
+        }
+        A = m;
+        break;
+      case 116:
+        var w = new CL3D.AnimatorOnFirstFrame(z);
+        w.AlsoOnReload = this.Data.readBoolean();
         this.Data.readInt();
-        y = m;
+        w.TheActionHandler = this.ReadActionHandlerSection(z);
+        A = w;
         break;
       default:
         this.SkipToNextTag();
         return
     }
-    if(y) {
-      s.addAnimator(y)
+    if(A) {
+      t.addAnimator(A)
     }
   };
   this.ReadActionHandlerSection = function(b) {
@@ -10216,7 +10499,7 @@ CL3D.FlaceLoader = function() {
         return p;
       case 6:
         var r = new CL3D.Action.ActionStopSound;
-        r.SoundChangeType = Data.readInt();
+        r.SoundChangeType = this.Data.readInt();
         return r;
       case 7:
         var t = new CL3D.Action.ExecuteJavaScript;
@@ -10224,19 +10507,19 @@ CL3D.FlaceLoader = function() {
         t.JScript = this.ReadString();
         return t;
       case 8:
-        var u = new CL3D.Action.OpenWebpage;
+        var v = new CL3D.Action.OpenWebpage;
         this.Data.readInt();
-        u.Webpage = this.ReadString();
-        u.Target = this.ReadString();
-        return u;
-      case 9:
-        var v = new CL3D.Action.SetSceneNodeAnimation;
-        v.SceneNodeToChangeAnim = this.Data.readInt();
-        v.ChangeCurrentSceneNode = this.Data.readBoolean();
-        v.Loop = this.Data.readBoolean();
-        v.AnimName = this.ReadString();
-        this.Data.readInt();
+        v.Webpage = this.ReadString();
+        v.Target = this.ReadString();
         return v;
+      case 9:
+        var w = new CL3D.Action.SetSceneNodeAnimation;
+        w.SceneNodeToChangeAnim = this.Data.readInt();
+        w.ChangeCurrentSceneNode = this.Data.readBoolean();
+        w.Loop = this.Data.readBoolean();
+        w.AnimName = this.ReadString();
+        this.Data.readInt();
+        return w;
       case 10:
         var d = new CL3D.Action.SwitchToScene(this.CursorControl);
         d.SceneName = this.ReadString();
@@ -10317,6 +10600,12 @@ CL3D.FlaceLoader = function() {
         a.VariableName = this.ReadString();
         a.Load = this.Data.readBoolean();
         return a;
+      case 20:
+        var u = new CL3D.Action.ActionRestartScene(this.CursorControl);
+        this.Data.readInt();
+        u.SceneName = this.ReadString();
+        this.LoadedAReloadAction = true;
+        return u;
       default:
         this.SkipToNextTag()
     }
