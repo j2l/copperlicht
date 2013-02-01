@@ -9641,7 +9641,7 @@ CL3D.PlayingSound.prototype.hasPlayingCompleted = function() {
   var b = this.src.duration;
   return b > 0 && a > this.startTime + b
 };
-startCopperLichtFromFile = function(d, a, b) {
+var startCopperLichtFromFile = function(d, a, b) {
   var e = new CL3D.CopperLicht(d, true, null, false, b);
   e.load(a);
   return e
