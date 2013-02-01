@@ -490,6 +490,9 @@ CL3D.Vect2d.prototype.set = function(a, b) {
   this.X = a;
   this.Y = b
 };
+/**
+ * @constructor
+ */
 CL3D.Box3d = function() {
   this.MinEdge = new CL3D.Vect3d;
   this.MaxEdge = new CL3D.Vect3d
@@ -584,6 +587,9 @@ CL3D.Box3d.prototype.reset = function(a, c, b) {
   this.MaxEdge.set(a, c, b);
   this.MinEdge.set(a, c, b)
 };
+/**
+ * @constructor
+ */
 CL3D.Plane3d = function() {
   this.Normal = new CL3D.Vect3d(0, 1, 0);
   this.recalculateD(new CL3D.Vect3d(0, 0, 0))
@@ -670,6 +676,9 @@ CL3D.Plane3d.prototype.isFrontFacing = function(b) {
   var a = this.Normal.dotProduct(b);
   return a <= 0
 };
+/**
+ * @constructor
+ */
 CL3D.Triangle3d = function(e, d, f) {
   if(e) {
     this.pointA = e
@@ -754,6 +763,9 @@ CL3D.Triangle3d.prototype.copyTo = function(a) {
   this.pointB.copyTo(a.pointB);
   this.pointC.copyTo(a.pointC)
 };
+/**
+ * @constructor
+ */
 CL3D.Matrix4 = function(a) {
   if(a == null) {
     a = true
@@ -1230,6 +1242,9 @@ CL3D.Matrix4.prototype.transformBoxEx2 = function(h) {
 CL3D.Matrix4.prototype.toString = function() {
   return this.m00 + " " + this.m01 + " " + this.m02 + " " + this.m03 + "\n" + this.m04 + " " + this.m05 + " " + this.m06 + " " + this.m07 + "\n" + this.m08 + " " + this.m09 + " " + this.m10 + " " + this.m11 + "\n" + this.m12 + " " + this.m13 + " " + this.m14 + " " + this.m15
 };
+/**
+ * @constructor
+ */
 CL3D.Quaternion = function(a, d, c, b) {
   this.X = 0;
   this.Y = 0;
@@ -1379,6 +1394,9 @@ CL3D.Quaternion.prototype.normalize = function() {
 CL3D.Quaternion.prototype.toString = function() {
   return"(x: " + this.X + " y:" + this.Y + " z:" + this.Z + " w:" + this.W + ")"
 };
+/**
+ * @constructor
+ */
 CL3D.ViewFrustrum = function() {
   this.planes = new Array;
   for(var a = 0;a < CL3D.ViewFrustrum.VF_PLANE_COUNT;++a) {
@@ -1462,6 +1480,9 @@ CL3D.ViewFrustrum.prototype.getBoundingBox = function(c) {
   a.addInternalPointByVector(this.getFarRightDown());
   return a
 };
+/**
+ * @constructor
+ */
 CL3D.Vertex3D = function(a) {
   if(a) {
     this.Pos = new CL3D.Vect3d;
@@ -1476,6 +1497,9 @@ CL3D.Vertex3D.prototype.Normal = null;
 CL3D.Vertex3D.prototype.Color = 0;
 CL3D.Vertex3D.prototype.TCoords = null;
 CL3D.Vertex3D.prototype.TCoords2 = null;
+/**
+ * @constructor
+ */
 CL3D.Texture = function() {
   this.Name = "";
   this.Loaded = false;
@@ -1516,6 +1540,9 @@ CL3D.Texture.prototype.getURL = function() {
 CL3D.Texture.prototype.isLoaded = function() {
   return this.Loaded
 };
+/**
+ * @constructor
+ */
 CL3D.Action = function() {
 };
 CL3D.Action.prototype.execute = function(a, b) {
@@ -1523,6 +1550,9 @@ CL3D.Action.prototype.execute = function(a, b) {
 CL3D.Action.prototype.createClone = function() {
   return null
 };
+/**
+ * @constructor
+ */
 CL3D.Action.SetOverlayText = function() {
   this.Text = "";
   this.SceneNodeToChange = null;
@@ -1580,6 +1610,9 @@ CL3D.Action.SetOverlayText.prototype.execute = function(a, h) {
     }
   }
 };
+/**
+ * @constructor
+ */
 CL3D.Action.MakeSceneNodeInvisible = function() {
   this.InvisibleMakeType = 0;
   this.SceneNodeToMakeInvisible = null;
@@ -1619,6 +1652,9 @@ CL3D.Action.MakeSceneNodeInvisible.prototype.execute = function(c, b) {
     }
   }
 };
+/**
+ * @constructor
+ */
 CL3D.Action.ChangeSceneNodePosition = function() {
   this.UseAnimatedMovement = false;
   this.TimeNeededForMovementMs = false;
@@ -1710,6 +1746,9 @@ CL3D.Action.ChangeSceneNodePosition.prototype.execute = function(a, g) {
     }
   }
 };
+/**
+ * @constructor
+ */
 CL3D.Action.ChangeSceneNodeRotation = function() {
   this.Type = "ChangeSceneNodeRotation"
 };
@@ -1756,6 +1795,9 @@ CL3D.Action.ChangeSceneNodeRotation.prototype.execute = function(c, b) {
     }
   }
 };
+/**
+ * @constructor
+ */
 CL3D.Action.ChangeSceneNodeScale = function() {
   this.Type = "ChangeSceneNodeScale"
 };
@@ -1790,6 +1832,9 @@ CL3D.Action.ChangeSceneNodeScale.prototype.execute = function(c, b) {
     }
   }
 };
+/**
+ * @constructor
+ */
 CL3D.Action.ChangeSceneNodeTexture = function() {
   this.Type = "ChangeSceneNodeTexture"
 };
@@ -1833,6 +1878,9 @@ CL3D.Action.ChangeSceneNodeTexture.prototype.execute = function(e, d) {
     }
   }
 };
+/**
+ * @constructor
+ */
 CL3D.Action.ExecuteJavaScript = function() {
   this.Type = "ExecuteJavaScript"
 };
@@ -1844,6 +1892,9 @@ CL3D.Action.ExecuteJavaScript.prototype.createClone = function() {
 CL3D.Action.ExecuteJavaScript.prototype.execute = function(currentNode, sceneManager) {
   eval(this.JScript)
 };
+/**
+ * @constructor
+ */
 CL3D.Action.OpenWebpage = function() {
   this.Type = "OpenWebpage"
 };
@@ -1856,6 +1907,9 @@ CL3D.Action.OpenWebpage.prototype.createClone = function() {
 CL3D.Action.OpenWebpage.prototype.execute = function(b, a) {
   window.open(this.Webpage, this.Target)
 };
+/**
+ * @constructor
+ */
 CL3D.Action.SetSceneNodeAnimation = function() {
   this.Type = "SetSceneNodeAnimation"
 };
@@ -1914,6 +1968,9 @@ CL3D.Action.SetSceneNodeAnimation.prototype.execute = function(e, d) {
     }
   }
 };
+/**
+ * @constructor
+ */
 CL3D.Action.SwitchToScene = function(a) {
   this.Engine = a;
   this.Type = "SwitchToScene"
@@ -1928,6 +1985,9 @@ CL3D.Action.SwitchToScene.prototype.execute = function(b, a) {
     this.Engine.gotoSceneByName(this.SceneName, true)
   }
 };
+/**
+ * @constructor
+ */
 CL3D.Action.SetActiveCamera = function(a) {
   this.Engine = a;
   this.Type = "SetActiveCamera"
@@ -1953,6 +2013,9 @@ CL3D.Action.SetActiveCamera.prototype.execute = function(c, b) {
     }
   }
 };
+/**
+ * @constructor
+ */
 CL3D.Action.SetCameraTarget = function() {
   this.UseAnimatedMovement = false;
   this.TimeNeededForMovementMs = 0;
@@ -2027,6 +2090,9 @@ CL3D.Action.SetCameraTarget.prototype.execute = function(f, e) {
     }
   }
 };
+/**
+ * @constructor
+ */
 CL3D.Action.Shoot = function() {
   this.ShootType = 0;
   this.Damage = 0;
@@ -2211,6 +2277,9 @@ CL3D.Action.Shoot.prototype.shortenRayToClosestCollisionPointWithAIAnimator = fu
 CL3D.Action.Shoot.prototype.getWeaponRange = function() {
   return this.WeaponRange
 };
+/**
+ * @constructor
+ */
 CL3D.Action.SetOrChangeAVariable = function() {
   this.Type = "SetOrChangeAVariable"
 };
@@ -2271,6 +2340,9 @@ CL3D.Action.SetOrChangeAVariable.prototype.execute = function(d, c) {
   }
   CL3D.CopperCubeVariable.saveContentOfPotentialTemporaryVariableIntoSource(f, c)
 };
+/**
+ * @constructor
+ */
 CL3D.Action.IfVariable = function() {
   this.Type = "IfVariable"
 };
@@ -2332,6 +2404,9 @@ CL3D.Action.IfVariable.prototype.execute = function(b, a) {
     }
   }
 };
+/**
+ * @constructor
+ */
 CL3D.Action.RestartBehaviors = function() {
   this.SceneNodeToRestart = null;
   this.ChangeCurrentSceneNode = false;
@@ -2364,6 +2439,9 @@ CL3D.Action.RestartBehaviors.prototype.execute = function(f, e) {
     }
   }
 };
+/**
+ * @constructor
+ */
 CL3D.Action.ActionPlaySound = function() {
   this.Type = "PlaySound"
 };
@@ -2388,6 +2466,9 @@ CL3D.Action.ActionPlaySound.prototype.execute = function(b, a) {
     this.PlayingSound = CL3D.gSoundManager.play2D(this.TheSound)
   }
 };
+/**
+ * @constructor
+ */
 CL3D.Action.ActionStopSound = function() {
   this.Type = "StopSound"
 };
@@ -2400,6 +2481,9 @@ CL3D.Action.ActionStopSound.prototype.createClone = function() {
 CL3D.Action.ActionStopSound.prototype.execute = function(b, a) {
   CL3D.gSoundManager.stopAll()
 };
+/**
+ * @constructor
+ */
 CL3D.Action.ActionStoreLoadVariable = function() {
   this.Type = "StoreLoadVariable"
 };
@@ -2443,6 +2527,9 @@ CL3D.Action.ActionStoreLoadVariable.prototype.execute = function(b, a) {
     }
   }
 };
+/**
+ * @constructor
+ */
 CL3D.ActionHandler = function(a) {
   this.Actions = new Array;
   this.SMGr = a
@@ -2477,6 +2564,9 @@ CL3D.ActionHandler.prototype.createClone = function() {
   }
   return e
 };
+/**
+ * @constructor
+ */
 CL3D.Action.ActionRestartScene = function(a) {
   this.Engine = a;
   this.Type = "RestartScene"
@@ -2491,6 +2581,9 @@ CL3D.Action.ActionRestartScene.prototype.execute = function(b, a) {
     this.Engine.reloadScene(this.SceneName)
   }
 };
+/**
+ * @constructor
+ */
 CL3D.Action.ActionDeleteSceneNode = function() {
   this.Type = "ActionDeleteSceneNode"
 };
@@ -2517,6 +2610,9 @@ CL3D.Action.ActionDeleteSceneNode.prototype.execute = function(c, b) {
     b.addToDeletionQueue(a, this.TimeAfterDelete)
   }
 };
+/**
+ * @constructor
+ */
 CL3D.Action.ActionCloneSceneNode = function() {
   this.Type = "ActionCloneSceneNode"
 };
@@ -2547,6 +2643,9 @@ CL3D.Action.ActionCloneSceneNode.prototype.execute = function(d, c) {
     }
   }
 };
+/**
+ * @constructor
+ */
 CL3D.Material = function() {
   this.Type = 0;
   this.Tex1 = null;
@@ -2597,6 +2696,9 @@ CL3D.Material.EMT_REFLECTION_2_LAYER = 11;
 CL3D.Material.EMT_TRANSPARENT_ADD_COLOR = 12;
 CL3D.Material.EMT_TRANSPARENT_ALPHA_CHANNEL = 13;
 CL3D.Material.EMT_TRANSPARENT_REFLECTION_2_LAYER = 16;
+/**
+ * @constructor
+ */
 CL3D.MeshBuffer = function() {
   this.Box = new CL3D.Box3d;
   this.Mat = new CL3D.Material;
@@ -2678,6 +2780,9 @@ CL3D.MeshBuffer.prototype.createClone = function() {
   }
   return a
 };
+/**
+ * @constructor
+ */
 CL3D.Mesh = function() {
   this.Box = new CL3D.Box3d;
   this.MeshBuffers = new Array
@@ -2711,6 +2816,9 @@ CL3D.Mesh.prototype.createClone = function() {
   }
   return a
 };
+/**
+ * @constructor
+ */
 CL3D.MeshCache = function() {
   this.Meshes = new Array
 };
@@ -2728,6 +2836,9 @@ CL3D.MeshCache.prototype.addMesh = function(a) {
     this.Meshes.push(a)
   }
 };
+/**
+ * @constructor
+ */
 CL3D.SkinnedMeshJoint = function() {
   this.Name = "";
   this.LocalMatrix = new CL3D.Matrix4;
@@ -2749,6 +2860,9 @@ CL3D.SkinnedMeshJoint = function() {
   this.scaleHint = -1;
   this.rotationHint = -1
 };
+/**
+ * @constructor
+ */
 CL3D.SkinnedMeshWeight = function() {
   this.buffer_id = 0;
   this.vertex_id = 0;
@@ -2756,18 +2870,30 @@ CL3D.SkinnedMeshWeight = function() {
   this.StaticPos = new CL3D.Vect3d;
   this.StaticNormal = new CL3D.Vect3d
 };
+/**
+ * @constructor
+ */
 CL3D.SkinnedMeshScaleKey = function() {
   this.frame = 0;
   this.scale = new CL3D.Vect3d
 };
+/**
+ * @constructor
+ */
 CL3D.SkinnedMeshPositionKey = function() {
   this.frame = 0;
   this.position = new CL3D.Vect3d
 };
+/**
+ * @constructor
+ */
 CL3D.SkinnedMeshRotationKey = function() {
   this.frame = 0;
   this.rotation = new CL3D.Quaternion
 };
+/**
+ * @constructor
+ */
 CL3D.NamedAnimationRange = function() {
   this.Name = "";
   this.Begin = 0;
@@ -2778,6 +2904,9 @@ CL3D.NamedAnimationRange.prototype.Name = "";
 CL3D.NamedAnimationRange.prototype.Begin = 0;
 CL3D.NamedAnimationRange.prototype.End = 0;
 CL3D.NamedAnimationRange.prototype.FPS = 0;
+/**
+ * @constructor
+ */
 CL3D.SkinnedMesh = function() {
   this.Name = "";
   this.AnimatedMeshesToLink = new Array;
@@ -3218,6 +3347,9 @@ CL3D.SkinnedMesh.prototype.getNamedAnimationRangeByName = function(e) {
 CL3D.SkinnedMesh.prototype.addNamedAnimationRange = function(a) {
   this.NamedAnimationRanges.push(a)
 };
+/**
+ * @constructor
+ */
 CL3D.TextureManager = function() {
   this.Textures = new Array;
   this.TheRenderer = null;
@@ -3283,6 +3415,9 @@ CL3D.TextureManager.prototype.addTexture = function(a) {
     this.Textures.push(a)
   }
 };
+/**
+ * @constructor
+ */
 CL3D.BinaryStream = function(a) {
   this._buffer = a;
   this._length = a.length;
@@ -3479,6 +3614,9 @@ CL3D.BinaryStream.prototype.reset = function() {
   this._offset = 0;
   return this
 };
+/**
+ * @constructor
+ */
 CL3D.Renderer = function() {
   this.canvas = null;
   this.gl = null;
@@ -4406,6 +4544,9 @@ CL3D.Renderer.prototype.fs_shader_onlyfirsttexture_gouraud = "\t\t#ifdef GL_ES\t
 CL3D.Renderer.prototype.fs_shader_lightmapcombine = "\t\t\t\t\t#ifdef GL_ES\t\t\t\t\t\t\t\t\t\t\t\t\n\tprecision highp float;\t\t\t\t\t\t\t\t\t\t\n\t#endif\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\tuniform sampler2D texture1;\t\t\t\t\t\t\t\t\t\tuniform sampler2D texture2;\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t    varying vec2 v_texCoord1;\t\t\t\t\t\t\t\t\t\tvarying vec2 v_texCoord2;\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t    void main()\t\t\t\t\t\t\t\t\t\t\t\t\t    {\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t        vec2 texCoord1 = vec2(v_texCoord1.s, v_texCoord1.t);\t\t\tvec2 texCoord2 = vec2(v_texCoord2.s, v_texCoord2.t);\t        vec4 col1 = texture2D(texture1, texCoord1);\t\t\t\t\t\tvec4 col2 = texture2D(texture2, texCoord2);\t\t\t\t\t\tgl_FragColor = col1 * col2;\t\t\t\t\t\t\t\t    }\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
 CL3D.Renderer.prototype.fs_shader_lightmapcombine_m4 = "\t\t\t#ifdef GL_ES\t\t\t\t\t\t\t\t\t\t\t\t\n\tprecision highp float;\t\t\t\t\t\t\t\t\t\t\n\t#endif\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\tuniform sampler2D texture1;\t\t\t\t\t\t\t\t\t\tuniform sampler2D texture2;\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t    varying vec2 v_texCoord1;\t\t\t\t\t\t\t\t\t\tvarying vec2 v_texCoord2;\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t    void main()\t\t\t\t\t\t\t\t\t\t\t\t\t    {\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t        vec2 texCoord1 = vec2(v_texCoord1.s, v_texCoord1.t);\t\t\tvec2 texCoord2 = vec2(v_texCoord2.s, v_texCoord2.t);\t        vec4 col1 = texture2D(texture1, texCoord1);\t\t\t\t\t\tvec4 col2 = texture2D(texture2, texCoord2);\t\t\t\t\t\tgl_FragColor = col1 * col2 * 3.0;\t\t\t\t\t\t    }\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
 CL3D.Renderer.prototype.fs_shader_lightmapcombine_gouraud = "\t\t#ifdef GL_ES\t\t\t\t\t\t\t\t\t\t\t\t\n\tprecision highp float;\t\t\t\t\t\t\t\t\t\t\n\t#endif\t\t\t\t\t\t\t\t\t\t\t\t\t\t\n\tuniform sampler2D texture1;\t\t\t\t\t\t\t\t\t\tuniform sampler2D texture2;\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t    varying vec2 v_texCoord1;\t\t\t\t\t\t\t\t\t\tvarying vec2 v_texCoord2;\t\t\t\t\t\t\t\t\t\tvarying vec4 v_color;\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t    void main()\t\t\t\t\t\t\t\t\t\t\t\t\t    {\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t        vec2 texCoord1 = vec2(v_texCoord1.s, v_texCoord1.t);\t\t\tvec2 texCoord2 = vec2(v_texCoord2.s, v_texCoord2.t);\t        vec4 col1 = texture2D(texture1, texCoord1);\t\t\t\t\t\tvec4 col2 = texture2D(texture2, texCoord2);\t\t\t\t\t\tvec4 final = col1 * col2 * v_color;\t\t\t\t\t\t\t\tgl_FragColor = vec4(final.x, final.y, final.z, col1.w);\t    }\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t";
+/**
+ * @constructor
+ */
 CL3D.SceneNode = function() {
   this.Type = -1;
   this.Pos = new CL3D.Vect3d;
@@ -4608,6 +4749,9 @@ CL3D.SceneNode.prototype.getMaterialCount = function() {
 CL3D.SceneNode.prototype.getMaterial = function(a) {
   return null
 };
+/**
+ * @constructor
+ */
 CL3D.CameraSceneNode = function() {
   this.init();
   this.Box = new CL3D.Box3d;
@@ -4793,6 +4937,9 @@ CL3D.CameraSceneNode.prototype.setAutoAspectIfNoFixedSet = function(a, d) {
   var b = a / d;
   this.setAspectRatio(b)
 };
+/**
+ * @constructor
+ */
 CL3D.MeshSceneNode = function() {
   this.init();
   this.Box = new CL3D.Box3d;
@@ -4869,6 +5016,9 @@ CL3D.MeshSceneNode.prototype.createClone = function(a) {
   }
   return b
 };
+/**
+ * @constructor
+ */
 CL3D.SkyBoxSceneNode = function() {
   this.OwnedMesh = new CL3D.Mesh;
   var a = [0, 1, 2, 0, 2, 3];
@@ -4967,6 +5117,9 @@ CL3D.SkyBoxSceneNode.prototype.createClone = function(a) {
   }
   return b
 };
+/**
+ * @constructor
+ */
 CL3D.CubeSceneNode = function(e) {
   if(e == null) {
     e = 10
@@ -5023,6 +5176,9 @@ CL3D.CubeSceneNode.prototype.createClone = function(a) {
   }
   return b
 };
+/**
+ * @constructor
+ */
 CL3D.BillboardSceneNode = function() {
   this.init();
   this.Box = new CL3D.Box3d;
@@ -5155,6 +5311,9 @@ CL3D.BillboardSceneNode.prototype.setSize = function(a, b) {
   this.SizeX = a;
   this.SizeY = b
 };
+/**
+ * @constructor
+ */
 CL3D.ParticleSystemSceneNode = function() {
   this.init();
   this.Box = new CL3D.Box3d;
@@ -5488,6 +5647,9 @@ CL3D.ParticleSystemSceneNode.prototype.reallocateBuffers = function() {
     }
   }
 };
+/**
+ * @constructor
+ */
 CL3D.Particle = function(a) {
   this.pos = null;
   this.vector = null;
@@ -5501,6 +5663,9 @@ CL3D.Particle = function(a) {
   this.startSizeX = 0;
   this.startSizeY = 0
 };
+/**
+ * @constructor
+ */
 CL3D.Light = function() {
   this.Position = new CL3D.Vect3d(0, 0, 0);
   this.Color = new CL3D.ColorF;
@@ -5519,6 +5684,9 @@ CL3D.Light.prototype.Position = null;
 CL3D.Light.prototype.Color = null;
 CL3D.Light.prototype.Attenuation = null;
 CL3D.Light.prototype.Radius = null;
+/**
+ * @constructor
+ */
 CL3D.LightSceneNode = function(a) {
   this.LightData = new CL3D.Light;
   this.Box = new CL3D.Box3d;
@@ -5546,6 +5714,9 @@ CL3D.LightSceneNode.prototype.getBoundingBox = function() {
 CL3D.LightSceneNode.prototype.render = function(a) {
   a.addDynamicLight(this.LightData)
 };
+/**
+ * @constructor
+ */
 CL3D.PathSceneNode = function() {
   this.init();
   this.Box = new CL3D.Box3d;
@@ -5638,6 +5809,9 @@ CL3D.PathSceneNode.prototype.getPointOnPath = function(p, a) {
   }
   return e
 };
+/**
+ * @constructor
+ */
 CL3D.SoundSceneNode = function() {
   this.init();
   this.Box = new CL3D.Box3d;
@@ -5810,6 +5984,9 @@ CL3D.SoundSceneNode.prototype.createClone = function(a) {
   }
   return b
 };
+/**
+ * @constructor
+ */
 CL3D.Overlay2DSceneNode = function(a) {
   this.init();
   this.engine = a;
@@ -6177,6 +6354,9 @@ CL3D.Overlay2DSceneNode.prototype.parseCopperCubeFontString = function(c) {
   h += f;
   return h
 };
+/**
+ * @constructor
+ */
 CL3D.Mobile2DInputSceneNode = function(a, b) {
   CL3D.Overlay2DSceneNode.call(this, a);
   this.CursorTex = null;
@@ -6267,12 +6447,18 @@ CL3D.Mobile2DInputSceneNode.prototype.render = function(n) {
     n.draw2DImage(i, l, e, q, this.CursorTex, true)
   }
 };
+/**
+ * @constructor
+ */
 CL3D.HotspotSceneNode = function() {
   this.Box = new CL3D.Box3d;
   this.Width = 0;
   this.Height = 0
 };
 CL3D.HotspotSceneNode.prototype = new CL3D.SceneNode;
+/**
+ * @constructor
+ */
 CL3D.DummyTransformationSceneNode = function() {
   this.init();
   this.Box = new CL3D.Box3d;
@@ -6293,6 +6479,9 @@ CL3D.DummyTransformationSceneNode.prototype.createClone = function(a) {
 CL3D.DummyTransformationSceneNode.prototype.getRelativeTransformation = function() {
   return this.RelativeTransformationMatrix
 };
+/**
+ * @constructor
+ */
 CL3D.AnimatedMeshSceneNode = function() {
   this.init();
   this.Box = new CL3D.Box3d;
@@ -6546,6 +6735,9 @@ CL3D.AnimatedMeshSceneNode.prototype.render = function(c) {
     }
   }
 };
+/**
+ * @constructor
+ */
 CL3D.Animator = function() {
   this.Type = -1
 };
@@ -6577,6 +6769,9 @@ CL3D.Animator.prototype.findActionByType = function(a) {
 CL3D.Animator.prototype.createClone = function(a, b) {
   return null
 };
+/**
+ * @constructor
+ */
 CL3D.AnimatorCameraFPS = function(b, a) {
   this.Type = -1;
   this.lastAnimTime = 0;
@@ -6857,6 +7052,9 @@ CL3D.AnimatorCameraFPS.prototype.getAdditionalYLookDiff = function() {
 CL3D.AnimatorCameraFPS.prototype.getAdditionalZoomDiff = function() {
   return 0
 };
+/**
+ * @constructor
+ */
 CL3D.AnimatorCameraModelViewer = function(b, a) {
   this.Type = -1;
   this.RotateSpeed = 1E4;
@@ -6993,6 +7191,9 @@ CL3D.AnimatorCameraModelViewer.prototype.onMouseWheel = function(a) {
     this.TargetZoomValue = this.MaxZoom
   }
 };
+/**
+ * @constructor
+ */
 CL3D.AnimatorFollowPath = function(a) {
   this.TimeNeeded = 5E3;
   this.TriedToLinkWithPath = false;
@@ -7174,6 +7375,9 @@ CL3D.AnimatorFollowPath.prototype.switchToNextCamera = function() {
     this.Manager.setActiveCamera(a)
   }
 };
+/**
+ * @constructor
+ */
 CL3D.AnimatorFlyStraight = function(f, c, e, b, d, a) {
   this.Start = new CL3D.Vect3d(0, 0, 0);
   this.End = new CL3D.Vect3d(40, 40, 40);
@@ -7298,6 +7502,9 @@ CL3D.AnimatorFlyStraight.prototype.recalculateImidiateValues = function() {
   this.Vector.normalize();
   this.TimeFactor = this.WayLength / this.TimeForWay
 };
+/**
+ * @constructor
+ */
 CL3D.AnimatorFlyCircle = function(b, a, d, c) {
   this.Center = new CL3D.Vect3d;
   this.Direction = new CL3D.Vect3d(0, 1, 0);
@@ -7359,6 +7566,9 @@ CL3D.AnimatorFlyCircle.prototype.init = function() {
   this.VecU = this.VecV.crossProduct(this.Direction);
   this.VecU.normalize()
 };
+/**
+ * @constructor
+ */
 CL3D.AnimatorRotation = function(a) {
   this.Rotation = new CL3D.Vect3d;
   if(a) {
@@ -7417,6 +7627,9 @@ CL3D.AnimatorRotation.prototype.setRotateToTargetAndStop = function(b, a, c) {
   this.BeginRotation = a.clone();
   this.RotateToTargetEndTime = this.StartTime + c
 };
+/**
+ * @constructor
+ */
 CL3D.AnimatorAnimateTexture = function(a, c, b) {
   this.Textures = new Array;
   this.Loop = true;
@@ -7493,6 +7706,9 @@ CL3D.AnimatorAnimateTexture.prototype.animateNode = function(c, a) {
 CL3D.AnimatorAnimateTexture.prototype.reset = function() {
   this.MyStartTime = CL3D.CLTimer.getTime()
 };
+/**
+ * @constructor
+ */
 CL3D.AnimatorOnClick = function(d, c, a, b) {
   this.engine = c;
   this.TimeLastClicked = 0;
@@ -7675,6 +7891,9 @@ CL3D.AnimatorOnClick.prototype.findActionByType = function(a) {
   }
   return null
 };
+/**
+ * @constructor
+ */
 CL3D.AnimatorOnMove = function(b, a) {
   this.engine = a;
   this.SMGr = b;
@@ -7737,6 +7956,9 @@ CL3D.AnimatorOnMove.prototype.findActionByType = function(b) {
   }
   return null
 };
+/**
+ * @constructor
+ */
 CL3D.AnimatorOnProximity = function(e, c, b, d, a) {
   this.TimeLastClicked = 0;
   this.sceneManager = e;
@@ -7822,6 +8044,9 @@ CL3D.AnimatorOnProximity.prototype.findActionByType = function(a) {
   }
   return null
 };
+/**
+ * @constructor
+ */
 CL3D.AnimatorCollisionResponse = function(a, e, d, c, b) {
   this.Radius = a;
   this.Gravity = e;
@@ -8252,6 +8477,9 @@ CL3D.AnimatorCollisionResponse.prototype.jump = function(a) {
     this.JumpForce = a * 100
   }
 };
+/**
+ * @constructor
+ */
 CL3D.AnimatorTimer = function(a) {
   this.TimeLastTimed = 0;
   this.SMGr = a;
@@ -8286,6 +8514,9 @@ CL3D.AnimatorTimer.prototype.animateNode = function(c, b) {
   }
   return false
 };
+/**
+ * @constructor
+ */
 CL3D.AnimatorOnKeyPress = function(b, a) {
   this.SMGr = b;
   this.Engine = a;
@@ -8366,6 +8597,9 @@ CL3D.AnimatorOnKeyPress.prototype.findActionByType = function(a) {
   }
   return null
 };
+/**
+ * @constructor
+ */
 CL3D.AnimatorGameAI = function(b, a) {
   this.AIType = 0;
   this.MovementSpeed = 0;
@@ -8772,6 +9006,9 @@ CL3D.AnimatorGameAI.prototype.findActionByType = function(b) {
   return null
 };
 CL3D.CopperCubeVariables = new Array;
+/**
+ * @constructor
+ */
 CL3D.CopperCubeVariable = function() {
   this.Name = "";
   this.StringValue = "";
@@ -8982,6 +9219,9 @@ CL3D.CopperCubeVariable.prototype.setValueAsFloat = function(a) {
   this.ActiveValueType = 2;
   this.FloatValue = a
 };
+/**
+ * @constructor
+ */
 CL3D.AnimatorKeyboardControlled = function(b, a) {
   this.lastAnimTime = 0;
   this.SMGr = b;
@@ -9231,6 +9471,9 @@ CL3D.AnimatorKeyboardControlled.prototype.setAnimation = function(g, f, a) {
   }
   return 0
 };
+/**
+ * @constructor
+ */
 CL3D.Animator3rdPersonCamera = function(a) {
   this.lastAnimTime = 0;
   this.SMGr = a;
@@ -9389,6 +9632,9 @@ CL3D.Animator3rdPersonCamera.prototype.linkWithNode = function(a) {
   }
   this.TriedToLinkWithNode = true
 };
+/**
+ * @constructor
+ */
 CL3D.AnimatorOnFirstFrame = function(a) {
   this.RunAlready = false;
   this.AlsoOnReload = false;
@@ -9410,6 +9656,9 @@ CL3D.AnimatorOnFirstFrame.prototype.animateNode = function(b, a) {
   }
   return false
 };
+/**
+ * @constructor
+ */
 CL3D.AnimatorMobileInput = function(b, d, c) {
   this.SMGr = d;
   this.Obj = c;
@@ -9489,6 +9738,9 @@ CL3D.AnimatorMobileInput.prototype.onMouseMove = function(b) {
     this.Obj.CursorPosY = this.Obj.CursorPosY * 2 - 1
   }
 };
+/**
+ * @constructor
+ */
 CL3D.SoundManager = function() {
   this.Sounds = new Array;
   this.PlayingSounds = new Array
@@ -9609,6 +9861,9 @@ CL3D.SoundManager.prototype.clearFinishedPlayingSounds = function() {
   }
 };
 CL3D.gSoundManager = new CL3D.SoundManager;
+/**
+ * @constructor
+ */
 CL3D.SoundSource = function(c) {
   this.Name = c;
   var b = null;
@@ -9622,6 +9877,9 @@ CL3D.SoundSource = function(c) {
 };
 CL3D.SoundSource.prototype.onAudioLoaded = function() {
 };
+/**
+ * @constructor
+ */
 CL3D.PlayingSound = function(a) {
   this.src = a;
   this.hasStopped = false;
@@ -9646,6 +9904,9 @@ var startCopperLichtFromFile = function(d, a, b) {
   e.load(a);
   return e
 };
+/**
+ * @constructor
+ */
 CL3D.CopperLicht = function(e, f, d, b, a) {
   if((f == null || f == true) && CL3D.gCCDebugOutput == null) {
     CL3D.gCCDebugOutput = new CL3D.DebugOutput(e, b)
@@ -10315,6 +10576,9 @@ CL3D.CopperLicht.prototype.createLoadingDialog = function(d) {
   c.innerHTML = '<p style="margin:0; padding-left:30px; padding-bottom:5px;">' + d + '</p> <img style="position:absolute; left:5px; top:3px;" src="copperlichtdata/loading.gif" />';
   this.LoadingDialog.appendChild(c)
 };
+/**
+ * @constructor
+ */
 CL3D.Scene = function() {
   this.RootNode = new CL3D.SceneNode;
   this.RootNode.scene = this;
@@ -10746,6 +11010,9 @@ CL3D.Scene.RENDER_MODE_LIGHTS = 2;
 CL3D.Scene.RENDER_MODE_CAMERA = 3;
 CL3D.Scene.RENDER_MODE_TRANSPARENT = 4;
 CL3D.Scene.RENDER_MODE_2DOVERLAY = 5;
+/**
+ * @constructor
+ */
 CL3D.PanoramaScene = function() {
   this.init()
 };
@@ -10753,6 +11020,9 @@ CL3D.PanoramaScene.prototype = new CL3D.Scene;
 CL3D.PanoramaScene.prototype.getSceneType = function() {
   return"panorama"
 };
+/**
+ * @constructor
+ */
 CL3D.Free3dScene = function() {
   this.init();
   this.DefaultCameraPos = new CL3D.Vect3d;
@@ -10762,6 +11032,9 @@ CL3D.Free3dScene.prototype = new CL3D.Scene;
 CL3D.Free3dScene.prototype.getSceneType = function() {
   return"free"
 };
+/**
+ * @constructor
+ */
 CL3D.FlaceLoader = function() {
   this.Document = null;
   this.Data = null;
@@ -12345,6 +12618,9 @@ CL3D.FlaceLoader = function() {
     return null
   }
 };
+/**
+ * @constructor
+ */
 CL3D.CCDocument = function() {
   this.CurrentScene = -1;
   this.ApplicationTitle = "";
@@ -12418,6 +12694,9 @@ CL3D.base64decode = function(j) {
   }
   return e
 };
+/**
+ * @constructor
+ */
 CL3D.TriangleSelector = function() {
 };
 CL3D.TriangleSelector.prototype.getAllTriangles = function(a, b) {
@@ -12499,6 +12778,9 @@ CL3D.TriangleSelector.prototype.getRelatedSceneNode = function() {
 };
 CL3D.TriangleSelector.prototype.setNodeToIgnore = function(a) {
 };
+/**
+ * @constructor
+ */
 CL3D.MeshTriangleSelector = function(k, i) {
   if(!k) {
     return
@@ -12552,6 +12834,9 @@ CL3D.MeshTriangleSelector.prototype.getTrianglesInBox = function(c, a, b) {
 CL3D.MeshTriangleSelector.prototype.getRelatedSceneNode = function() {
   return this.Node
 };
+/**
+ * @constructor
+ */
 CL3D.MetaTriangleSelector = function() {
   this.Selectors = new Array;
   this.NodeToIgnore = null
@@ -12608,11 +12893,17 @@ CL3D.MetaTriangleSelector.prototype.getCollisionPointWithLine = function(a, d, e
 CL3D.MetaTriangleSelector.prototype.setNodeToIgnore = function(a) {
   this.NodeToIgnore = a
 };
+/**
+ * @constructor
+ */
 CL3D.SOctTreeNode = function() {
   this.Triangles = new Array;
   this.Box = new CL3D.Box3d;
   this.Child = new Array
 };
+/**
+ * @constructor
+ */
 CL3D.OctTreeTriangleSelector = function(m, k, g) {
   this.DebugNodeCount = 0;
   this.DebugPolyCount = 0;
