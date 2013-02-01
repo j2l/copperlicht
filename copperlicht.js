@@ -1,13 +1,23 @@
 /**
-  * CopperLicht 3D Engine, Copyright by Nikolaus Gebhardt, Ambiera e.U.
-  * For license details, see www.ambiera.com/copperlicht
-  * For the full source, see http://www.ambiera.com/copperlicht/license.html#commercial
-  *
-  * Note: This library can be further minificated to less then 100 KB from the full source,
-  * but it isn't here to make debugging easier.
-  */
+ * @preserve
+ * CopperLicht 3D Engine, Copyright by Nikolaus Gebhardt, Ambiera e.U.
+ * For license details, see www.ambiera.com/copperlicht
+ * For the full source, see http://www.ambiera.com/copperlicht/license.html#commercial
+ *
+ * Note: This library can be further minificated to less then 100 KB from the full source,
+ * but it isn't here to make debugging easier.
+ *
+
+/**
+ * @fileoverview The copperlicht 3D engine, used to render 3d graphics with webgl
+ */
 
 var CL3D = {};
+/**
+ * @constructor
+ * @param {string} d the id of the element to write the debug text to
+ * @param {boolean} a also draw the fps?
+ */
 CL3D.DebugOutput = function(d, a) {
   this.DebugRoot = null;
   this.FPSRoot = null;
@@ -94,6 +104,9 @@ CL3D.DebugOutput.prototype.printInternal = function(e, d, b) {
 };
 CL3D.gCCDebugInfoEnabled = true;
 CL3D.gCCDebugOutput = null;
+/**
+ * @constructor
+ */
 CL3D.CCFileLoader = function(a) {
   this.FileToLoad = a;
   this.xmlhttp = false;
@@ -223,6 +236,9 @@ CL3D.getInterpolatedColor = function(d, c, b) {
   var a = 1 - b;
   return CL3D.createColor(CL3D.getAlpha(d) * b + CL3D.getAlpha(c) * a, CL3D.getRed(d) * b + CL3D.getRed(c) * a, CL3D.getGreen(d) * b + CL3D.getGreen(c) * a, CL3D.getBlue(d) * b + CL3D.getBlue(c) * a)
 };
+/**
+ * @constructor
+ */
 CL3D.ColorF = function() {
   this.A = 1;
   this.R = 1;
@@ -247,6 +263,9 @@ CL3D.CLTimer.getTime = function() {
   var a = new Date;
   return a.getTime()
 };
+/**
+ * @constructor
+ */
 CL3D.Vect3d = function(a, c, b) {
   if(a != null) {
     this.X = a;
@@ -438,6 +457,9 @@ CL3D.Vect3d.prototype.getInterpolated = function(b, c) {
 CL3D.Vect3d.prototype.toString = function() {
   return"(x: " + this.X + " y:" + this.Y + " z:" + this.Z + ")"
 };
+/**
+ * @constructor
+ */
 CL3D.Line3d = function() {
   this.Start = new CL3D.Vect3d;
   this.End = new CL3D.Vect3d
@@ -450,6 +472,9 @@ CL3D.Line3d.prototype.getVector = function() {
 CL3D.Line3d.prototype.getLength = function() {
   return this.getVector().getLength()
 };
+/**
+ * @constructor
+ */
 CL3D.Vect2d = function(a, b) {
   if(a == null) {
     this.X = 0;
