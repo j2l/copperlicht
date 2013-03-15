@@ -1495,7 +1495,7 @@ CL3D.Action = function() {
 };
 CL3D.Action.prototype.execute = function(a, b) {
 };
-CL3D.Action.prototype.createClone = function() {
+CL3D.Action.prototype.createClone = function(a, b) {
   return null
 };
 CL3D.Action.SetOverlayText = function() {
@@ -1504,11 +1504,14 @@ CL3D.Action.SetOverlayText = function() {
   this.ChangeCurrentSceneNode = false;
   this.Type = "SetOverlayText"
 };
-CL3D.Action.SetOverlayText.prototype.createClone = function() {
+CL3D.Action.SetOverlayText.prototype.createClone = function(c, d) {
   var b = new CL3D.Action.SetOverlayText;
   b.Text = this.Text;
   b.SceneNodeToChange = this.SceneNodeToChange;
   b.ChangeCurrentSceneNode = this.ChangeCurrentSceneNode;
+  if(b.SceneNodeToChange == c) {
+    b.SceneNodeToChange = d
+  }
   return b
 };
 CL3D.Action.SetOverlayText.prototype.execute = function(a, h) {
@@ -1561,11 +1564,14 @@ CL3D.Action.MakeSceneNodeInvisible = function() {
   this.ChangeCurrentSceneNode = false;
   this.Type = "MakeSceneNodeInvisible"
 };
-CL3D.Action.MakeSceneNodeInvisible.prototype.createClone = function() {
+CL3D.Action.MakeSceneNodeInvisible.prototype.createClone = function(c, d) {
   var b = new CL3D.Action.MakeSceneNodeInvisible;
   b.InvisibleMakeType = this.InvisibleMakeType;
   b.SceneNodeToMakeInvisible = this.SceneNodeToMakeInvisible;
   b.ChangeCurrentSceneNode = this.ChangeCurrentSceneNode;
+  if(b.SceneNodeToMakeInvisible == c) {
+    b.SceneNodeToMakeInvisible = d
+  }
   return b
 };
 CL3D.Action.MakeSceneNodeInvisible.prototype.execute = function(c, b) {
@@ -1599,7 +1605,7 @@ CL3D.Action.ChangeSceneNodePosition = function() {
   this.TimeNeededForMovementMs = false;
   this.Type = "ChangeSceneNodePosition"
 };
-CL3D.Action.ChangeSceneNodePosition.prototype.createClone = function() {
+CL3D.Action.ChangeSceneNodePosition.prototype.createClone = function(c, d) {
   var b = new CL3D.Action.ChangeSceneNodePosition;
   b.PositionChangeType = this.PositionChangeType;
   b.SceneNodeToChangePosition = this.SceneNodeToChangePosition;
@@ -1610,6 +1616,12 @@ CL3D.Action.ChangeSceneNodePosition.prototype.createClone = function() {
   b.Area3DEnd = this.Area3DEnd ? this.Area3DEnd.clone() : null;
   b.UseAnimatedMovement = this.UseAnimatedMovement;
   b.TimeNeededForMovementMs = this.TimeNeededForMovementMs;
+  if(b.SceneNodeToChangePosition == c) {
+    b.SceneNodeToChangePosition = d
+  }
+  if(b.SceneNodeRelativeTo == c) {
+    b.SceneNodeRelativeTo = d
+  }
   return b
 };
 CL3D.Action.ChangeSceneNodePosition.prototype.execute = function(a, g) {
@@ -1688,7 +1700,7 @@ CL3D.Action.ChangeSceneNodePosition.prototype.execute = function(a, g) {
 CL3D.Action.ChangeSceneNodeRotation = function() {
   this.Type = "ChangeSceneNodeRotation"
 };
-CL3D.Action.ChangeSceneNodeRotation.prototype.createClone = function() {
+CL3D.Action.ChangeSceneNodeRotation.prototype.createClone = function(c, d) {
   var b = new CL3D.Action.ChangeSceneNodeRotation;
   b.RotationChangeType = this.RotationChangeType;
   b.SceneNodeToChangeRotation = this.SceneNodeToChangeRotation;
@@ -1696,6 +1708,9 @@ CL3D.Action.ChangeSceneNodeRotation.prototype.createClone = function() {
   b.Vector = this.Vector ? this.Vector.clone() : null;
   b.RotateAnimated = this.RotateAnimated;
   b.TimeNeededForRotationMs = this.TimeNeededForRotationMs;
+  if(b.SceneNodeToChangeRotation == c) {
+    b.SceneNodeToChangeRotation = d
+  }
   return b
 };
 CL3D.Action.ChangeSceneNodeRotation.prototype.execute = function(c, b) {
@@ -1734,12 +1749,15 @@ CL3D.Action.ChangeSceneNodeRotation.prototype.execute = function(c, b) {
 CL3D.Action.ChangeSceneNodeScale = function() {
   this.Type = "ChangeSceneNodeScale"
 };
-CL3D.Action.ChangeSceneNodeScale.prototype.createClone = function() {
+CL3D.Action.ChangeSceneNodeScale.prototype.createClone = function(c, d) {
   var b = new CL3D.Action.ChangeSceneNodeScale;
   b.ScaleChangeType = this.ScaleChangeType;
   b.SceneNodeToChangeScale = this.SceneNodeToChangeScale;
   b.ChangeCurrentSceneNode = this.ChangeCurrentSceneNode;
   b.Vector = this.Vector ? this.Vector.clone() : null;
+  if(b.SceneNodeToChangeScale == c) {
+    b.SceneNodeToChangeScale = d
+  }
   return b
 };
 CL3D.Action.ChangeSceneNodeScale.prototype.execute = function(c, b) {
@@ -1768,13 +1786,16 @@ CL3D.Action.ChangeSceneNodeScale.prototype.execute = function(c, b) {
 CL3D.Action.ChangeSceneNodeTexture = function() {
   this.Type = "ChangeSceneNodeTexture"
 };
-CL3D.Action.ChangeSceneNodeTexture.prototype.createClone = function() {
+CL3D.Action.ChangeSceneNodeTexture.prototype.createClone = function(c, d) {
   var b = new CL3D.Action.ChangeSceneNodeTexture;
   b.TextureChangeType = this.TextureChangeType;
   b.SceneNodeToChange = this.SceneNodeToChange;
   b.ChangeCurrentSceneNode = this.ChangeCurrentSceneNode;
   b.TheTexture = this.TheTexture;
   b.IndexToChange = this.IndexToChange;
+  if(b.SceneNodeToChange == c) {
+    b.SceneNodeToChange = d
+  }
   return b
 };
 CL3D.Action.ChangeSceneNodeTexture.prototype.execute = function(e, d) {
@@ -1811,7 +1832,7 @@ CL3D.Action.ChangeSceneNodeTexture.prototype.execute = function(e, d) {
 CL3D.Action.ExecuteJavaScript = function() {
   this.Type = "ExecuteJavaScript"
 };
-CL3D.Action.ExecuteJavaScript.prototype.createClone = function() {
+CL3D.Action.ExecuteJavaScript.prototype.createClone = function(c, d) {
   var b = new CL3D.Action.ExecuteJavaScript;
   b.JScript = this.JScript;
   return b
@@ -1822,7 +1843,7 @@ CL3D.Action.ExecuteJavaScript.prototype.execute = function(currentNode, sceneMan
 CL3D.Action.OpenWebpage = function() {
   this.Type = "OpenWebpage"
 };
-CL3D.Action.OpenWebpage.prototype.createClone = function() {
+CL3D.Action.OpenWebpage.prototype.createClone = function(c, d) {
   var b = new CL3D.Action.OpenWebpage;
   b.Webpage = this.Webpage;
   b.Target = this.Target;
@@ -1834,12 +1855,15 @@ CL3D.Action.OpenWebpage.prototype.execute = function(b, a) {
 CL3D.Action.SetSceneNodeAnimation = function() {
   this.Type = "SetSceneNodeAnimation"
 };
-CL3D.Action.SetSceneNodeAnimation.prototype.createClone = function() {
+CL3D.Action.SetSceneNodeAnimation.prototype.createClone = function(c, d) {
   var b = new CL3D.Action.SetSceneNodeAnimation;
   b.SceneNodeToChangeAnim = this.SceneNodeToChangeAnim;
   b.ChangeCurrentSceneNode = this.ChangeCurrentSceneNode;
   b.Loop = this.Loop;
   b.AnimName = this.AnimName;
+  if(b.SceneNodeToChangeAnim == c) {
+    b.SceneNodeToChangeAnim = d
+  }
   return b
 };
 CL3D.Action.SetSceneNodeAnimation.prototype.execute = function(e, d) {
@@ -1893,7 +1917,7 @@ CL3D.Action.SwitchToScene = function(a) {
   this.Engine = a;
   this.Type = "SwitchToScene"
 };
-CL3D.Action.SwitchToScene.prototype.createClone = function() {
+CL3D.Action.SwitchToScene.prototype.createClone = function(c, d) {
   var b = new CL3D.Action.SwitchToScene;
   b.SceneName = this.SceneName;
   return b
@@ -1907,9 +1931,12 @@ CL3D.Action.SetActiveCamera = function(a) {
   this.Engine = a;
   this.Type = "SetActiveCamera"
 };
-CL3D.Action.SetActiveCamera.prototype.createClone = function() {
+CL3D.Action.SetActiveCamera.prototype.createClone = function(c, d) {
   var b = new CL3D.Action.SetActiveCamera;
   b.CameraToSetActive = this.CameraToSetActive;
+  if(b.CameraToSetActive == c) {
+    b.CameraToSetActive = d
+  }
   return b
 };
 CL3D.Action.SetActiveCamera.prototype.execute = function(c, b) {
@@ -1933,7 +1960,7 @@ CL3D.Action.SetCameraTarget = function() {
   this.TimeNeededForMovementMs = 0;
   this.Type = "SetCameraTarget"
 };
-CL3D.Action.SetCameraTarget.prototype.createClone = function() {
+CL3D.Action.SetCameraTarget.prototype.createClone = function(c, d) {
   var b = new CL3D.Action.SetCameraTarget;
   b.PositionChangeType = this.PositionChangeType;
   b.SceneNodeToChangePosition = this.SceneNodeToChangePosition;
@@ -2012,9 +2039,10 @@ CL3D.Action.Shoot = function() {
   this.SceneNodeToShootFrom = -1;
   this.ShootToCameraTarget = false;
   this.AdditionalDirectionRotation = null;
-  this.ActionHandlerOnImpact = null
+  this.ActionHandlerOnImpact = null;
+  this.ShootDisplacement = new CL3D.Vect3d
 };
-CL3D.Action.Shoot.prototype.createClone = function() {
+CL3D.Action.Shoot.prototype.createClone = function(c, d) {
   var b = new CL3D.Action.Shoot;
   b.ShootType = this.ShootType;
   b.Damage = this.Damage;
@@ -2024,7 +2052,14 @@ CL3D.Action.Shoot.prototype.createClone = function() {
   b.SceneNodeToShootFrom = this.SceneNodeToShootFrom;
   b.ShootToCameraTarget = this.ShootToCameraTarget;
   b.AdditionalDirectionRotation = this.AdditionalDirectionRotation;
-  b.ActionHandlerOnImpact = this.ActionHandlerOnImpact ? this.ActionHandlerOnImpact.createClone() : null;
+  b.ActionHandlerOnImpact = this.ActionHandlerOnImpact ? this.ActionHandlerOnImpact.createClone(c, d) : null;
+  b.ShootDisplacement = this.ShootDisplacement.clone();
+  if(b.SceneNodeToUseAsBullet == c) {
+    b.SceneNodeToUseAsBullet = d
+  }
+  if(b.SceneNodeToShootFrom == c) {
+    b.SceneNodeToShootFrom = d
+  }
   return b
 };
 CL3D.Action.Shoot.prototype.execute = function(e, b) {
@@ -2041,7 +2076,9 @@ CL3D.Action.Shoot.prototype.execute = function(e, b) {
     if(l != null) {
       s = true;
       j = l;
-      k.Start = l.getTransformedBoundingBox().getCenter();
+      k.Start = l.getBoundingBox().getCenter();
+      k.Start.addToThis(this.ShootDisplacement);
+      l.AbsoluteTransformation.transformVect(k.Start);
       i = b.getActiveCamera();
       if(this.ShootToCameraTarget && i) {
         var d = new CL3D.Line3d;
@@ -2097,7 +2134,7 @@ CL3D.Action.Shoot.prototype.execute = function(e, b) {
       t = b.getSceneNodeFromId(this.SceneNodeToUseAsBullet)
     }
     if(t) {
-      var h = t.createClone(b.getRootSceneNode());
+      var h = t.createClone(b.getRootSceneNode(), -1, -1);
       b.getRootSceneNode().addChild(h);
       if(h != null) {
         h.Pos = k.Start;
@@ -2189,7 +2226,7 @@ CL3D.Action.Shoot.prototype.getWeaponRange = function() {
 CL3D.Action.SetOrChangeAVariable = function() {
   this.Type = "SetOrChangeAVariable"
 };
-CL3D.Action.SetOrChangeAVariable.prototype.createClone = function() {
+CL3D.Action.SetOrChangeAVariable.prototype.createClone = function(c, d) {
   var b = new CL3D.Action.SetOrChangeAVariable;
   b.VariableName = this.VariableName;
   b.Operation = this.Operation;
@@ -2249,13 +2286,13 @@ CL3D.Action.SetOrChangeAVariable.prototype.execute = function(d, c) {
 CL3D.Action.IfVariable = function() {
   this.Type = "IfVariable"
 };
-CL3D.Action.IfVariable.prototype.createClone = function() {
+CL3D.Action.IfVariable.prototype.createClone = function(c, d) {
   var b = new CL3D.Action.IfVariable;
   b.VariableName = this.VariableName;
   b.ComparisonType = this.ComparisonType;
   b.ValueType = this.ValueType;
   b.Value = this.Value;
-  b.TheActionHandler = this.TheActionHandler ? this.TheActionHandler.createClone() : null;
+  b.TheActionHandler = this.TheActionHandler ? this.TheActionHandler.createClone(c, d) : null;
   return b
 };
 CL3D.Action.IfVariable.prototype.execute = function(b, a) {
@@ -2312,10 +2349,13 @@ CL3D.Action.RestartBehaviors = function() {
   this.ChangeCurrentSceneNode = false;
   this.Type = "RestartBehaviors"
 };
-CL3D.Action.RestartBehaviors.prototype.createClone = function() {
+CL3D.Action.RestartBehaviors.prototype.createClone = function(c, d) {
   var b = new CL3D.Action.RestartBehaviors;
   b.SceneNodeToRestart = this.SceneNodeToRestart;
   b.ChangeCurrentSceneNode = this.ChangeCurrentSceneNode;
+  if(b.ChangeCurrentSceneNode == c) {
+    b.ChangeCurrentSceneNode = d
+  }
   return b
 };
 CL3D.Action.RestartBehaviors.prototype.execute = function(f, e) {
@@ -2342,7 +2382,7 @@ CL3D.Action.RestartBehaviors.prototype.execute = function(f, e) {
 CL3D.Action.ActionPlaySound = function() {
   this.Type = "PlaySound"
 };
-CL3D.Action.ActionPlaySound.prototype.createClone = function() {
+CL3D.Action.ActionPlaySound.prototype.createClone = function(c, d) {
   var b = new CL3D.Action.ActionPlaySound;
   b.SceneNodeToPlayAt = this.SceneNodeToPlayAt;
   b.PlayAtCurrentSceneNode = this.PlayAtCurrentSceneNode;
@@ -2353,6 +2393,9 @@ CL3D.Action.ActionPlaySound.prototype.createClone = function() {
   b.Volume = this.Volume;
   b.PlayAs2D = this.PlayAs2D;
   b.TheSound = this.TheSound;
+  if(b.SceneNodeToPlayAt == c) {
+    b.SceneNodeToPlayAt = d
+  }
   return b
 };
 CL3D.Action.ActionPlaySound.prototype.execute = function(b, a) {
@@ -2366,7 +2409,7 @@ CL3D.Action.ActionPlaySound.prototype.execute = function(b, a) {
 CL3D.Action.ActionStopSound = function() {
   this.Type = "StopSound"
 };
-CL3D.Action.ActionStopSound.prototype.createClone = function() {
+CL3D.Action.ActionStopSound.prototype.createClone = function(c, d) {
   var b = new CL3D.Action.ActionStopSound;
   b.SoundChangeType = this.SoundChangeType;
   b.SoundFileName = this.SoundFileName;
@@ -2378,7 +2421,7 @@ CL3D.Action.ActionStopSound.prototype.execute = function(b, a) {
 CL3D.Action.ActionStoreLoadVariable = function() {
   this.Type = "StoreLoadVariable"
 };
-CL3D.Action.ActionStoreLoadVariable.prototype.createClone = function() {
+CL3D.Action.ActionStoreLoadVariable.prototype.createClone = function(c, d) {
   var b = new CL3D.Action.ActionStoreLoadVariable;
   b.Load = this.Load;
   b.VariableName = this.VariableName;
@@ -2442,21 +2485,21 @@ CL3D.ActionHandler.prototype.findAction = function(d) {
   }
   return null
 };
-CL3D.ActionHandler.prototype.createClone = function() {
-  var e = new CL3D.ActionHandler(this.SMGr);
+CL3D.ActionHandler.prototype.createClone = function(e, g) {
+  var f = new CL3D.ActionHandler(this.SMGr);
   for(var d = 0;d < this.Actions.length;++d) {
     var b = this.Actions[d];
     if(b.createClone != null) {
-      e.addAction(b.createClone())
+      f.addAction(b.createClone(e, g))
     }
   }
-  return e
+  return f
 };
 CL3D.Action.ActionRestartScene = function(a) {
   this.Engine = a;
   this.Type = "RestartScene"
 };
-CL3D.Action.ActionRestartScene.prototype.createClone = function() {
+CL3D.Action.ActionRestartScene.prototype.createClone = function(c, d) {
   var b = new CL3D.Action.ActionRestartScene;
   b.SceneName = this.SceneName;
   return b
@@ -2469,11 +2512,14 @@ CL3D.Action.ActionRestartScene.prototype.execute = function(b, a) {
 CL3D.Action.ActionDeleteSceneNode = function() {
   this.Type = "ActionDeleteSceneNode"
 };
-CL3D.Action.ActionDeleteSceneNode.prototype.createClone = function() {
+CL3D.Action.ActionDeleteSceneNode.prototype.createClone = function(c, d) {
   var b = new CL3D.Action.ActionDeleteSceneNode;
   b.SceneNodeToDelete = this.SceneNodeToDelete;
   b.DeleteCurrentSceneNode = this.DeleteCurrentSceneNode;
   b.TimeAfterDelete = this.TimeAfterDelete;
+  if(b.SceneNodeToDelete == c) {
+    b.SceneNodeToDelete = d
+  }
   return b
 };
 CL3D.Action.ActionDeleteSceneNode.prototype.execute = function(c, b) {
@@ -2495,30 +2541,45 @@ CL3D.Action.ActionDeleteSceneNode.prototype.execute = function(c, b) {
 CL3D.Action.ActionCloneSceneNode = function() {
   this.Type = "ActionCloneSceneNode"
 };
-CL3D.Action.ActionCloneSceneNode.prototype.createClone = function() {
+CL3D.Action.ActionCloneSceneNode.prototype.createClone = function(c, d) {
   var b = new CL3D.Action.ActionCloneSceneNode;
   b.SceneNodeToClone = this.SceneNodeToClone;
   b.CloneCurrentSceneNode = this.CloneCurrentSceneNode;
-  b.TheActionHandler = this.TheActionHandler ? this.TheActionHandler.createClone() : null;
+  b.TheActionHandler = this.TheActionHandler ? this.TheActionHandler.createClone(c, d) : null;
+  if(b.SceneNodeToClone == c) {
+    b.SceneNodeToClone = d
+  }
   return b
 };
-CL3D.Action.ActionCloneSceneNode.prototype.execute = function(d, c) {
-  if(!d || !c) {
+CL3D.Action.ActionCloneSceneNode.prototype.execute = function(f, e) {
+  if(!f || !e) {
     return
   }
   var b = null;
   if(this.CloneCurrentSceneNode) {
-    b = d
+    b = f
   }else {
     if(this.SceneNodeToClone != -1) {
-      b = c.getSceneNodeFromId(this.SceneNodeToClone)
+      b = e.getSceneNodeFromId(this.SceneNodeToClone)
     }
   }
   if(b) {
-    var a = b.createClone(b.Parent);
-    b.Parent.addChild(a);
-    if(this.TheActionHandler && a) {
-      this.TheActionHandler.execute(a)
+    var h = b.Id;
+    var d = -1;
+    for(var g = 0;g < 1E3;++g) {
+      var c = Math.round(Math.random() * 1E4 + 10);
+      if(e.getSceneNodeFromId(c) == null) {
+        d = c;
+        break
+      }
+    }
+    var a = b.createClone(b.Parent, h, d);
+    if(a != null) {
+      a.Id = d;
+      b.Parent.addChild(a);
+      if(this.TheActionHandler) {
+        this.TheActionHandler.execute(a)
+      }
     }
   }
 };
@@ -3634,8 +3695,8 @@ CL3D.Renderer.prototype.updateRendererNativeArray = function(a) {
         h[b + 1] = a.Indices[b + 2];
         h[b + 2] = a.Indices[b + 1]
       }
-      obj.indexBuffer = d.createBuffer();
-      d.bindBuffer(d.ELEMENT_ARRAY_BUFFER, obj.indexBuffer);
+      a.RendererNativeArray.indexBuffer = d.createBuffer();
+      d.bindBuffer(d.ELEMENT_ARRAY_BUFFER, a.RendererNativeArray.indexBuffer);
       d.bufferData(d.ELEMENT_ARRAY_BUFFER, h, d.STATIC_DRAW);
       d.bindBuffer(d.ELEMENT_ARRAY_BUFFER, null)
     }
@@ -4258,8 +4319,8 @@ CL3D.Renderer.prototype.createTextureFrom2DCanvas = function(b, h) {
     f = d.height
   }
   this.fillTextureFromDOMObject(g, b);
-  c.texParameteri(c.TEXTURE_2D, c.TEXTURE_MAG_FILTER, c.LINEAR);
-  c.texParameteri(c.TEXTURE_2D, c.TEXTURE_MIN_FILTER, c.LINEAR_MIPMAP_NEAREST);
+  c.texParameteri(c.TEXTURE_2D, c.TEXTURE_MAG_FILTER, c.NEAREST);
+  c.texParameteri(c.TEXTURE_2D, c.TEXTURE_MIN_FILTER, c.NEAREST);
   c.generateMipmap(c.TEXTURE_2D);
   c.bindTexture(c.TEXTURE_2D, null);
   var j = new CL3D.Texture;
@@ -4452,7 +4513,7 @@ CL3D.SceneNode.prototype.getTransformedBoundingBox = function() {
   this.AbsoluteTransformation.transformBoxEx(a);
   return a
 };
-CL3D.SceneNode.prototype.cloneMembers = function(a, f) {
+CL3D.SceneNode.prototype.cloneMembers = function(a, g, f, k) {
   a.Name = new String(this.Name);
   a.Visible = this.Visible;
   a.Culling = this.Culling;
@@ -4460,28 +4521,28 @@ CL3D.SceneNode.prototype.cloneMembers = function(a, f) {
   a.Rot = this.Rot.clone();
   a.Scale = this.Scale.clone();
   a.Type = this.Type;
-  if(f) {
-    f.addChild(a)
+  if(g) {
+    g.addChild(a)
   }
   for(var e = 0;e < this.Children.length;++e) {
-    var h = this.Children[e];
-    if(h) {
-      var g = h.createClone(a);
-      if(g != null) {
-        a.addChild(g)
+    var j = this.Children[e];
+    if(j) {
+      var h = j.createClone(a, -1, -1);
+      if(h != null) {
+        a.addChild(h)
       }
     }
   }
   for(var e = 0;e < this.Animators.length;++e) {
     var d = this.Animators[e];
-    a.addAnimator(d.createClone(this, this.scene))
+    a.addAnimator(d.createClone(this, this.scene, f, k))
   }
   if(this.AbsoluteTransformation) {
     a.AbsoluteTransformation = this.AbsoluteTransformation.clone()
   }
   a.scene = this.scene
 };
-CL3D.SceneNode.prototype.createClone = function(a) {
+CL3D.SceneNode.prototype.createClone = function(b, a, c) {
   return null
 };
 CL3D.SceneNode.prototype.addAnimator = function(b) {
@@ -4733,29 +4794,29 @@ CL3D.CameraSceneNode.prototype.onKeyUp = function(c) {
   }
   return a
 };
-CL3D.CameraSceneNode.prototype.createClone = function(a) {
-  var b = new CL3D.CameraSceneNode;
-  this.cloneMembers(b, a);
+CL3D.CameraSceneNode.prototype.createClone = function(b, a, e) {
+  var d = new CL3D.CameraSceneNode;
+  this.cloneMembers(d, b, a, e);
   if(this.Target) {
-    b.Target = this.Target.clone()
+    d.Target = this.Target.clone()
   }
   if(this.UpVector) {
-    b.UpVector = this.UpVector.clone()
+    d.UpVector = this.UpVector.clone()
   }
   if(this.Projection) {
-    b.Projection = this.Projection.clone()
+    d.Projection = this.Projection.clone()
   }
   if(this.ViewMatrix) {
-    b.ViewMatrix = this.ViewMatrix.clone()
+    d.ViewMatrix = this.ViewMatrix.clone()
   }
-  b.Fovy = this.Fovy;
-  b.Aspect = this.Aspect;
-  b.ZNear = this.ZNear;
-  b.ZFar = this.ZFar;
+  d.Fovy = this.Fovy;
+  d.Aspect = this.Aspect;
+  d.ZNear = this.ZNear;
+  d.ZFar = this.ZFar;
   if(this.Box) {
-    b.Box = this.Box.clone()
+    d.Box = this.Box.clone()
   }
-  return b
+  return d
 };
 CL3D.CameraSceneNode.prototype.setAutoAspectIfNoFixedSet = function(a, d) {
   if(a == 0 || d == 0) {
@@ -4833,16 +4894,18 @@ CL3D.MeshSceneNode.prototype.getMaterial = function(b) {
   }
   return null
 };
-CL3D.MeshSceneNode.prototype.createClone = function(a) {
-  var b = new CL3D.MeshSceneNode;
-  this.cloneMembers(b, a);
-  b.OwnedMesh = this.OwnedMesh;
-  b.ReadonlyMaterials = this.ReadonlyMaterials;
-  b.DoesCollision = this.DoesCollision;
-  if(this.Box) {
-    b.Box = this.Box.clone()
+CL3D.MeshSceneNode.prototype.createClone = function(b, a, e) {
+  var d = new CL3D.MeshSceneNode;
+  this.cloneMembers(d, b, a, e);
+  if(this.OwnedMesh) {
+    d.OwnedMesh = this.OwnedMesh.createClone()
   }
-  return b
+  d.ReadonlyMaterials = this.ReadonlyMaterials;
+  d.DoesCollision = this.DoesCollision;
+  if(this.Box) {
+    d.Box = this.Box.clone()
+  }
+  return d
 };
 CL3D.SkyBoxSceneNode = function() {
   this.OwnedMesh = new CL3D.Mesh;
@@ -4929,18 +4992,18 @@ CL3D.SkyBoxSceneNode.prototype.render = function(b) {
   b.setWorld(d.multiply(c));
   b.drawMesh(this.OwnedMesh)
 };
-CL3D.SkyBoxSceneNode.prototype.createClone = function(a) {
-  var b = new CL3D.SkyBoxSceneNode;
-  this.cloneMembers(b, a);
+CL3D.SkyBoxSceneNode.prototype.createClone = function(b, a, e) {
+  var d = new CL3D.SkyBoxSceneNode;
+  this.cloneMembers(d, b, a, e);
   if(this.OwnedMesh) {
-    b.OwnedMesh = this.OwnedMesh.clone()
+    d.OwnedMesh = this.OwnedMesh.clone()
   }
-  b.ReadonlyMaterials = this.ReadonlyMaterials;
-  b.DoesCollision = this.DoesCollision;
+  d.ReadonlyMaterials = this.ReadonlyMaterials;
+  d.DoesCollision = this.DoesCollision;
   if(this.Box) {
-    b.Box = this.Box.clone()
+    d.Box = this.Box.clone()
   }
-  return b
+  return d
 };
 CL3D.CubeSceneNode = function(e) {
   if(e == null) {
@@ -4987,16 +5050,16 @@ CL3D.CubeSceneNode.prototype.createVertex = function(g, f, e, d, c, b, j, i, h) 
   a.TCoords.Y = h;
   return a
 };
-CL3D.CubeSceneNode.prototype.createClone = function(a) {
-  var b = new CL3D.CubeSceneNode;
-  this.cloneMembers(b, a);
-  b.OwnedMesh = this.OwnedMesh;
-  b.ReadonlyMaterials = this.ReadonlyMaterials;
-  b.DoesCollision = this.DoesCollision;
+CL3D.CubeSceneNode.prototype.createClone = function(b, a, e) {
+  var d = new CL3D.CubeSceneNode;
+  this.cloneMembers(d, b, a, e);
+  d.OwnedMesh = this.OwnedMesh;
+  d.ReadonlyMaterials = this.ReadonlyMaterials;
+  d.DoesCollision = this.DoesCollision;
   if(this.Box) {
-    b.Box = this.Box.clone()
+    d.Box = this.Box.clone()
   }
-  return b
+  return d
 };
 CL3D.BillboardSceneNode = function() {
   this.init();
@@ -5111,17 +5174,17 @@ CL3D.BillboardSceneNode.prototype.getMaterialCount = function() {
 CL3D.BillboardSceneNode.prototype.getMaterial = function(a) {
   return this.MeshBuffer.Mat
 };
-CL3D.BillboardSceneNode.prototype.createClone = function(a) {
-  var b = new CL3D.BillboardSceneNode;
-  this.cloneMembers(b, a);
+CL3D.BillboardSceneNode.prototype.createClone = function(b, a, e) {
+  var d = new CL3D.BillboardSceneNode;
+  this.cloneMembers(d, b, a, e);
   if(this.Box) {
-    b.Box = this.Box.clone()
+    d.Box = this.Box.clone()
   }
-  b.SizeX = this.SizeX;
-  b.SizeY = this.SizeY;
-  b.IsVertical = this.IsVertical;
-  b.MeshBuffer.Mat = this.MeshBuffer.Mat.clone();
-  return b
+  d.SizeX = this.SizeX;
+  d.SizeY = this.SizeY;
+  d.IsVertical = this.IsVertical;
+  d.MeshBuffer.Mat = this.MeshBuffer.Mat.clone();
+  return d
 };
 CL3D.BillboardSceneNode.prototype.getSize = function() {
   return new CL3D.Vect2d(this.SizeX, this.SizeY)
@@ -5164,37 +5227,37 @@ CL3D.ParticleSystemSceneNode.prototype.Gravity = null;
 CL3D.ParticleSystemSceneNode.prototype.ScaleAffector = false;
 CL3D.ParticleSystemSceneNode.prototype.ScaleToX = 20;
 CL3D.ParticleSystemSceneNode.prototype.ScaleToY = 20;
-CL3D.ParticleSystemSceneNode.prototype.createClone = function(a) {
-  var b = new CL3D.ParticleSystemSceneNode;
-  this.cloneMembers(b, a);
+CL3D.ParticleSystemSceneNode.prototype.createClone = function(b, a, e) {
+  var d = new CL3D.ParticleSystemSceneNode;
+  this.cloneMembers(d, b, a, e);
   if(this.Box) {
-    b.Box = this.Box.clone()
+    d.Box = this.Box.clone()
   }
-  b.Direction = this.Direction.clone();
-  b.MaxAngleDegrees = this.MaxAngleDegrees;
-  b.EmittArea = this.EmittArea.clone();
-  b.MinLifeTime = this.MinLifeTime;
-  b.MaxLifeTime = this.MaxLifeTime;
-  b.MaxParticles = this.MaxParticles;
-  b.MinParticlesPerSecond = this.MinParticlesPerSecond;
-  b.MaxParticlesPerSecond = this.MaxParticlesPerSecond;
-  b.MinStartColor = this.MinStartColor;
-  b.MaxStartColor = this.MaxStartColor;
-  b.MinStartSizeX = this.MinStartSizeX;
-  b.MinStartSizeY = this.MinStartSizeY;
-  b.MaxStartSizeX = this.MaxStartSizeX;
-  b.MaxStartSizeY = this.MaxStartSizeY;
-  b.FadeOutAffector = true;
-  b.FadeOutTime = this.FadeOutTime;
-  b.FadeTargetColor = this.FadeTargetColor;
-  b.GravityAffector = this.GravityAffector;
-  b.GravityAffectingTime = this.GravityAffectingTime;
-  b.Gravity = this.Gravity;
-  b.ScaleAffector = this.ScaleAffector;
-  b.ScaleToX = this.ScaleToX;
-  b.ScaleToY = this.ScaleToY;
-  b.Buffer.Mat = this.Buffer.Mat.clone();
-  return b
+  d.Direction = this.Direction.clone();
+  d.MaxAngleDegrees = this.MaxAngleDegrees;
+  d.EmittArea = this.EmittArea.clone();
+  d.MinLifeTime = this.MinLifeTime;
+  d.MaxLifeTime = this.MaxLifeTime;
+  d.MaxParticles = this.MaxParticles;
+  d.MinParticlesPerSecond = this.MinParticlesPerSecond;
+  d.MaxParticlesPerSecond = this.MaxParticlesPerSecond;
+  d.MinStartColor = this.MinStartColor;
+  d.MaxStartColor = this.MaxStartColor;
+  d.MinStartSizeX = this.MinStartSizeX;
+  d.MinStartSizeY = this.MinStartSizeY;
+  d.MaxStartSizeX = this.MaxStartSizeX;
+  d.MaxStartSizeY = this.MaxStartSizeY;
+  d.FadeOutAffector = true;
+  d.FadeOutTime = this.FadeOutTime;
+  d.FadeTargetColor = this.FadeTargetColor;
+  d.GravityAffector = this.GravityAffector;
+  d.GravityAffectingTime = this.GravityAffectingTime;
+  d.Gravity = this.Gravity;
+  d.ScaleAffector = this.ScaleAffector;
+  d.ScaleToX = this.ScaleToX;
+  d.ScaleToY = this.ScaleToY;
+  d.Buffer.Mat = this.Buffer.Mat.clone();
+  return d
 };
 CL3D.ParticleSystemSceneNode.prototype.getBoundingBox = function() {
   return this.Box
@@ -5501,12 +5564,12 @@ CL3D.LightSceneNode = function(a) {
 };
 CL3D.LightSceneNode.prototype = new CL3D.SceneNode;
 CL3D.LightSceneNode.prototype.LightData = null;
-CL3D.LightSceneNode.prototype.createClone = function(a) {
-  var b = new CL3D.LightSceneNode;
-  this.cloneMembers(b, a);
-  b.LightData = this.LightData.clone();
-  b.Box = this.Box.clone();
-  return b
+CL3D.LightSceneNode.prototype.createClone = function(b, a, e) {
+  var d = new CL3D.LightSceneNode;
+  this.cloneMembers(d, b, a, e);
+  d.LightData = this.LightData.clone();
+  d.Box = this.Box.clone();
+  return d
 };
 CL3D.LightSceneNode.prototype.OnRegisterSceneNode = function(a) {
   if(this.Visible) {
@@ -5538,20 +5601,23 @@ CL3D.PathSceneNode.prototype.getBoundingBox = function() {
 CL3D.PathSceneNode.prototype.getType = function() {
   return"path"
 };
-CL3D.PathSceneNode.prototype.createClone = function(b) {
-  var e = new CL3D.PathSceneNode;
-  this.cloneMembers(e, b);
+CL3D.PathSceneNode.prototype.createClone = function(d, b, g) {
+  var f = new CL3D.PathSceneNode;
+  this.cloneMembers(f, d, b, g);
   if(this.Box) {
-    e.Box = this.Box.clone()
+    f.Box = this.Box.clone()
   }
-  e.Tightness = this.Tightness;
-  e.IsClosedCircle = this.IsClosedCircle;
-  e.Nodes = new Array;
+  f.Tightness = this.Tightness;
+  f.IsClosedCircle = this.IsClosedCircle;
+  f.Nodes = new Array;
   for(var a = 0;a < this.Nodes.length;++a) {
-    var d = this.Nodes[a];
-    e.Nodes.push(d.clone())
+    var e = this.Nodes[a];
+    f.Nodes.push(e.clone())
   }
-  return e
+  return f
+};
+CL3D.PathSceneNode.prototype.getPathNodeCount = function() {
+  return this.Nodes.length
 };
 CL3D.PathSceneNode.prototype.getPathNodePosition = function(a) {
   if(a < 0 || a >= this.Nodes.length) {
@@ -5693,14 +5759,14 @@ CL3D.SoundSceneNode.prototype.updateSoundFor3DSound = function(d, c, i) {
   if(b < this.MinDistance) {
   }else {
     b -= this.MinDistance;
-    var j = this.MaxDistance - this.MinDistance;
-    if(j > 0) {
+    var k = this.MaxDistance - this.MinDistance;
+    if(k > 0) {
       if(false) {
-        interpol = b / j;
-        f = f * (10 - interpol)
+        var j = b / k;
+        f = f * (10 - j)
       }else {
-        if(b > j) {
-          b = j
+        if(b > k) {
+          b = k
         }
         var h = 10;
         if(b != 0) {
@@ -5768,7 +5834,7 @@ CL3D.SoundSceneNode.prototype.OnAnimate = function(b, f) {
         }else {
           if(this.TheSound) {
             this.startSound(true);
-            ++PlayedCount
+            ++this.PlayedCount
           }
         }
         break
@@ -5777,13 +5843,13 @@ CL3D.SoundSceneNode.prototype.OnAnimate = function(b, f) {
   }
   return false
 };
-CL3D.SoundSceneNode.prototype.createClone = function(a) {
-  var b = new CL3D.SoundSceneNode;
-  this.cloneMembers(b, a);
+CL3D.SoundSceneNode.prototype.createClone = function(b, a, e) {
+  var d = new CL3D.SoundSceneNode;
+  this.cloneMembers(d, b, a, e);
   if(this.Box) {
-    b.Box = this.Box.clone()
+    d.Box = this.Box.clone()
   }
-  return b
+  return d
 };
 CL3D.Overlay2DSceneNode = function(a) {
   this.init();
@@ -6077,35 +6143,35 @@ CL3D.Overlay2DSceneNode.prototype.getScreenCoordinatesRect = function(d, e) {
   }
   return a
 };
-CL3D.Overlay2DSceneNode.prototype.createClone = function(a) {
-  var b = new CL3D.Overlay2DSceneNode;
-  this.cloneMembers(b, a);
-  b.PosAbsoluteX = this.PosAbsoluteX;
-  b.PosAbsoluteY = this.PosAbsoluteY;
-  b.SizeAbsoluteWidth = this.SizeAbsoluteWidth;
-  b.SizeAbsoluteHeight = this.SizeAbsoluteHeight;
-  b.PosRelativeX = this.PosRelativeX;
-  b.PosRelativeY = this.PosRelativeY;
-  b.SizeRelativeWidth = this.SizeRelativeWidth;
-  b.SizeRelativeHeight = this.SizeRelativeHeight;
-  b.SizeModeIsAbsolute = this.SizeModeIsAbsolute;
-  b.ShowBackGround = this.ShowBackGround;
-  b.BackGroundColor = this.BackGroundColor;
-  b.Texture = this.Texture;
-  b.TextureHover = this.TextureHover;
-  b.RetainAspectRatio = this.RetainAspectRatio;
-  b.DrawText = this.DrawText;
-  b.TextAlignment = this.TextAlignment;
-  b.Text = this.Text;
-  b.FontName = this.FontName;
-  b.TextColor = this.TextColor;
-  b.AnimateOnHover = this.AnimateOnHover;
-  b.OnHoverSetFontColor = this.OnHoverSetFontColor;
-  b.HoverFontColor = this.HoverFontColor;
-  b.OnHoverSetBackgroundColor = this.OnHoverSetBackgroundColor;
-  b.HoverBackgroundColor = this.HoverBackgroundColor;
-  b.OnHoverDrawTexture = this.OnHoverDrawTexture;
-  return b
+CL3D.Overlay2DSceneNode.prototype.createClone = function(b, a, e) {
+  var d = new CL3D.Overlay2DSceneNode;
+  this.cloneMembers(d, b, a, e);
+  d.PosAbsoluteX = this.PosAbsoluteX;
+  d.PosAbsoluteY = this.PosAbsoluteY;
+  d.SizeAbsoluteWidth = this.SizeAbsoluteWidth;
+  d.SizeAbsoluteHeight = this.SizeAbsoluteHeight;
+  d.PosRelativeX = this.PosRelativeX;
+  d.PosRelativeY = this.PosRelativeY;
+  d.SizeRelativeWidth = this.SizeRelativeWidth;
+  d.SizeRelativeHeight = this.SizeRelativeHeight;
+  d.SizeModeIsAbsolute = this.SizeModeIsAbsolute;
+  d.ShowBackGround = this.ShowBackGround;
+  d.BackGroundColor = this.BackGroundColor;
+  d.Texture = this.Texture;
+  d.TextureHover = this.TextureHover;
+  d.RetainAspectRatio = this.RetainAspectRatio;
+  d.DrawText = this.DrawText;
+  d.TextAlignment = this.TextAlignment;
+  d.Text = this.Text;
+  d.FontName = this.FontName;
+  d.TextColor = this.TextColor;
+  d.AnimateOnHover = this.AnimateOnHover;
+  d.OnHoverSetFontColor = this.OnHoverSetFontColor;
+  d.HoverFontColor = this.HoverFontColor;
+  d.OnHoverSetBackgroundColor = this.OnHoverSetBackgroundColor;
+  d.HoverBackgroundColor = this.HoverBackgroundColor;
+  d.OnHoverDrawTexture = this.OnHoverDrawTexture;
+  return d
 };
 CL3D.Overlay2DSceneNode.prototype.parseCopperCubeFontString = function(c) {
   var d = 12;
@@ -6254,16 +6320,16 @@ CL3D.DummyTransformationSceneNode = function() {
   this.RelativeTransformationMatrix = new CL3D.Matrix4
 };
 CL3D.DummyTransformationSceneNode.prototype = new CL3D.SceneNode;
-CL3D.DummyTransformationSceneNode.prototype.createClone = function(a) {
-  var b = new CL3D.DummyTransformationSceneNode;
-  this.cloneMembers(b, a);
+CL3D.DummyTransformationSceneNode.prototype.createClone = function(b, a, e) {
+  var d = new CL3D.DummyTransformationSceneNode;
+  this.cloneMembers(d, b, a, e);
   if(this.Box) {
-    b.Box = this.Box.clone()
+    d.Box = this.Box.clone()
   }
   if(this.RelativeTransformationMatrix) {
-    b.RelativeTransformationMatrix = this.RelativeTransformationMatrix
+    d.RelativeTransformationMatrix = this.RelativeTransformationMatrix
   }
-  return b
+  return d
 };
 CL3D.DummyTransformationSceneNode.prototype.getRelativeTransformation = function() {
   return this.RelativeTransformationMatrix
@@ -6346,11 +6412,10 @@ CL3D.AnimatedMeshSceneNode.prototype.OnRegisterSceneNode = function(c) {
     CL3D.SceneNode.prototype.OnRegisterSceneNode.call(this, c)
   }
 };
-CL3D.AnimatedMeshSceneNode.prototype.render = function(a) {
-  a.setWorld(this.AbsoluteTransformation);
-  a.drawMesh(this.OwnedMesh)
-};
 CL3D.AnimatedMeshSceneNode.prototype.getMaterialCount = function() {
+  if(this.Materials != null) {
+    return this.Materials.length
+  }
   if(this.OwnedMesh) {
     return this.OwnedMesh.MeshBuffers.length
   }
@@ -6370,31 +6435,31 @@ CL3D.AnimatedMeshSceneNode.prototype.getMaterial = function(a) {
   }
   return null
 };
-CL3D.AnimatedMeshSceneNode.prototype.createClone = function(b) {
-  var d = new CL3D.AnimatedMeshSceneNode;
-  this.cloneMembers(d, b);
-  d.Mesh = this.Mesh;
+CL3D.AnimatedMeshSceneNode.prototype.createClone = function(d, b, f) {
+  var e = new CL3D.AnimatedMeshSceneNode;
+  this.cloneMembers(e, d, b, f);
+  e.Mesh = this.Mesh;
   if(this.Box) {
-    d.Box = this.Box.clone()
+    e.Box = this.Box.clone()
   }
-  d.DoesCollision = this.DoesCollision;
-  d.Selector = this.Selector;
-  d.LastLODSkinnedAnimationTime = this.LastLODSkinnedAnimationTime;
-  d.Transiting = this.Transiting;
-  d.TransitingBlend = this.TransitingBlend;
-  d.Materials = new Array;
+  e.DoesCollision = this.DoesCollision;
+  e.Selector = this.Selector;
+  e.LastLODSkinnedAnimationTime = this.LastLODSkinnedAnimationTime;
+  e.Transiting = this.Transiting;
+  e.TransitingBlend = this.TransitingBlend;
+  e.Materials = new Array;
   for(var a = 0;a < this.Materials.length;++a) {
-    d.Materials.push(this.Materials[a].clone())
+    e.Materials.push(this.Materials[a].clone())
   }
-  d.FramesPerSecond = this.FramesPerSecond;
-  d.BeginFrameTime = this.BeginFrameTime;
-  d.FrameWhenCurrentMeshWasGenerated = this.FrameWhenCurrentMeshWasGenerated;
-  d.StartFrame = this.StartFrame;
-  d.EndFrame = this.EndFrame;
-  d.Looping = this.Looping;
-  d.CurrentFrameNr = this.CurrentFrameNr;
-  d.MinimalUpdateDelay = this.MinimalUpdateDelay;
-  return d
+  e.FramesPerSecond = this.FramesPerSecond;
+  e.BeginFrameTime = this.BeginFrameTime;
+  e.FrameWhenCurrentMeshWasGenerated = this.FrameWhenCurrentMeshWasGenerated;
+  e.StartFrame = this.StartFrame;
+  e.EndFrame = this.EndFrame;
+  e.Looping = this.Looping;
+  e.CurrentFrameNr = this.CurrentFrameNr;
+  e.MinimalUpdateDelay = this.MinimalUpdateDelay;
+  return e
 };
 CL3D.AnimatedMeshSceneNode.prototype.setAnimationSpeed = function(a) {
   this.FramesPerSecond = a
@@ -6549,7 +6614,7 @@ CL3D.Animator.prototype.reset = function(a) {
 CL3D.Animator.prototype.findActionByType = function(a) {
   return null
 };
-CL3D.Animator.prototype.createClone = function(a, b) {
+CL3D.Animator.prototype.createClone = function(a, c, b, d) {
   return null
 };
 CL3D.AnimatorCameraFPS = function(b, a) {
@@ -6987,7 +7052,9 @@ CL3D.AnimatorFollowPath = function(a) {
   this.PathToFollow = null;
   this.TimeDisplacement = 0;
   this.AdditionalRotation = null;
-  this.CameraToSwitchTo = null
+  this.CameraToSwitchTo = null;
+  this.LastPercentageDoneActionFired = 0;
+  this.bActionFired = false
 };
 CL3D.AnimatorFollowPath.prototype = new CL3D.Animator;
 CL3D.AnimatorFollowPath.EFPFEM_START_AGAIN = 0;
@@ -6996,7 +7063,7 @@ CL3D.AnimatorFollowPath.EFPFEM_SWITCH_TO_CAMERA = 2;
 CL3D.AnimatorFollowPath.prototype.getType = function() {
   return"followpath"
 };
-CL3D.AnimatorFollowPath.prototype.createClone = function(c, d) {
+CL3D.AnimatorFollowPath.prototype.createClone = function(c, f, d, e) {
   var b = new CL3D.AnimatorFollowPath;
   b.TimeNeeded = this.TimeNeeded;
   b.LookIntoMovementDirection = this.LookIntoMovementDirection;
@@ -7006,6 +7073,7 @@ CL3D.AnimatorFollowPath.prototype.createClone = function(c, d) {
   b.AdditionalRotation = this.AdditionalRotation ? this.AdditionalRotation.clone() : null;
   b.EndMode = this.EndMode;
   b.CameraToSwitchTo = this.CameraToSwitchTo;
+  b.TheActionHandler = this.TheActionHandler ? this.TheActionHandler.createClone(d, e) : null;
   return b
 };
 CL3D.AnimatorFollowPath.prototype.setOptions = function(b, c, a) {
@@ -7060,6 +7128,20 @@ CL3D.AnimatorFollowPath.prototype.animateNode = function(d, c) {
         if(!this.SwitchedToNextCamera) {
           this.switchToNextCamera();
           this.SwitchedToNextCamera = true
+        }
+        break;
+      case 3:
+        if(o > this.LastPercentageDoneActionFired + 1 && this.TheActionHandler != null) {
+          this.TheActionHandler.execute(d);
+          this.LastPercentageDoneActionFired = o
+        }
+        o = o % 1;
+        break;
+      case 4:
+        o = 1;
+        if(!this.bActionFired && this.TheActionHandler != null) {
+          this.TheActionHandler.execute(d);
+          this.bActionFired = true
         }
         break
     }
@@ -7149,6 +7231,12 @@ CL3D.AnimatorFollowPath.prototype.switchToNextCamera = function() {
     this.Manager.setActiveCamera(a)
   }
 };
+CL3D.AnimatorFollowPath.prototype.findActionByType = function(a) {
+  if(this.TheActionHandler) {
+    return this.TheActionHandler.findAction(a)
+  }
+  return null
+};
 CL3D.AnimatorFlyStraight = function(f, c, e, b, d, a) {
   this.Start = new CL3D.Vect3d(0, 0, 0);
   this.End = new CL3D.Vect3d(40, 40, 40);
@@ -7186,7 +7274,7 @@ CL3D.AnimatorFlyStraight.prototype = new CL3D.Animator;
 CL3D.AnimatorFlyStraight.prototype.getType = function() {
   return"flystraight"
 };
-CL3D.AnimatorFlyStraight.prototype.createClone = function(c, d) {
+CL3D.AnimatorFlyStraight.prototype.createClone = function(c, f, d, e) {
   var b = new CL3D.AnimatorFlyStraight;
   b.Start = this.Start.clone();
   b.End = this.End.clone();
@@ -7197,7 +7285,7 @@ CL3D.AnimatorFlyStraight.prototype.createClone = function(c, d) {
   b.Loop = this.Loop;
   b.AnimateCameraTargetInsteadOfPosition = this.AnimateCameraTargetInsteadOfPosition;
   b.DeleteSceneNodeAfterEndReached = this.DeleteSceneNodeAfterEndReached;
-  b.ActionToExecuteOnEnd = this.ActionToExecuteOnEnd ? this.ActionToExecuteOnEnd.createClone() : null;
+  b.ActionToExecuteOnEnd = this.ActionToExecuteOnEnd ? this.ActionToExecuteOnEnd.createClone(d, e) : null;
   return b
 };
 CL3D.AnimatorFlyStraight.prototype.animateNode = function(f, e) {
@@ -7299,7 +7387,7 @@ CL3D.AnimatorFlyCircle.prototype = new CL3D.Animator;
 CL3D.AnimatorFlyCircle.prototype.getType = function() {
   return"flycircle"
 };
-CL3D.AnimatorFlyCircle.prototype.createClone = function(c, d) {
+CL3D.AnimatorFlyCircle.prototype.createClone = function(c, f, d, e) {
   var b = new CL3D.AnimatorFlyCircle;
   b.Center = this.Center.clone();
   b.Direction = this.Direction.clone();
@@ -7348,7 +7436,7 @@ CL3D.AnimatorRotation.prototype = new CL3D.Animator;
 CL3D.AnimatorRotation.prototype.getType = function() {
   return"rotation"
 };
-CL3D.AnimatorRotation.prototype.createClone = function(c, d) {
+CL3D.AnimatorRotation.prototype.createClone = function(c, f, d, e) {
   var b = new CL3D.AnimatorRotation(this.SMGr, this.engine);
   b.Rotation = this.Rotation.clone();
   b.StartTime = this.StartTime;
@@ -7413,7 +7501,7 @@ CL3D.AnimatorAnimateTexture.prototype = new CL3D.Animator;
 CL3D.AnimatorAnimateTexture.prototype.getType = function() {
   return"animatetexture"
 };
-CL3D.AnimatorAnimateTexture.prototype.createClone = function(c, d) {
+CL3D.AnimatorAnimateTexture.prototype.createClone = function(c, f, d, e) {
   var b = new CL3D.AnimatorAnimateTexture;
   b.Textures = this.Textures;
   b.Loop = this.Loop;
@@ -7489,11 +7577,11 @@ CL3D.AnimatorOnClick.prototype = new CL3D.Animator;
 CL3D.AnimatorOnClick.prototype.getType = function() {
   return"onclick"
 };
-CL3D.AnimatorOnClick.prototype.createClone = function(c, d) {
+CL3D.AnimatorOnClick.prototype.createClone = function(c, f, d, e) {
   var b = new CL3D.AnimatorOnClick(this.SMGr, this.engine);
   b.BoundingBoxTestOnly = this.BoundingBoxTestOnly;
   b.CollidesWithWorld = this.CollidesWithWorld;
-  b.TheActionHandler = this.TheActionHandler ? this.TheActionHandler.createClone() : null;
+  b.TheActionHandler = this.TheActionHandler ? this.TheActionHandler.createClone(d, e) : null;
   b.World = this.World;
   return b
 };
@@ -7662,14 +7750,14 @@ CL3D.AnimatorOnMove.prototype = new CL3D.AnimatorOnClick(null, null, null, true)
 CL3D.AnimatorOnMove.prototype.getType = function() {
   return"onmove"
 };
-CL3D.AnimatorOnMove.prototype.createClone = function(c, d) {
+CL3D.AnimatorOnMove.prototype.createClone = function(c, f, d, e) {
   var b = new CL3D.AnimatorOnMove(this.SMGr, this.engine);
   b.BoundingBoxTestOnly = this.BoundingBoxTestOnly;
   b.CollidesWithWorld = this.CollidesWithWorld;
-  b.TheActionHandler = this.TheActionHandler ? this.TheActionHandler.createClone() : null;
+  b.TheActionHandler = this.TheActionHandler ? this.TheActionHandler.createClone(d, e) : null;
   b.World = this.World;
-  b.ActionHandlerOnEnter = this.ActionHandlerOnEnter ? this.ActionHandlerOnEnter.createClone() : null;
-  b.ActionHandlerOnLeave = this.ActionHandlerOnLeave ? this.ActionHandlerOnLeave.createClone() : null;
+  b.ActionHandlerOnEnter = this.ActionHandlerOnEnter ? this.ActionHandlerOnEnter.createClone(d, e) : null;
+  b.ActionHandlerOnLeave = this.ActionHandlerOnLeave ? this.ActionHandlerOnLeave.createClone(d, e) : null;
   return b
 };
 CL3D.AnimatorOnMove.prototype.animateNode = function(b, e) {
@@ -7736,13 +7824,13 @@ CL3D.AnimatorOnProximity.prototype = new CL3D.Animator;
 CL3D.AnimatorOnProximity.prototype.getType = function() {
   return"oncollide"
 };
-CL3D.AnimatorOnProximity.prototype.createClone = function(c, d) {
+CL3D.AnimatorOnProximity.prototype.createClone = function(c, f, d, e) {
   var b = new CL3D.AnimatorOnProximity(this.sceneManager);
   b.EnterType = this.EnterType;
   b.ProximityType = this.ProximityType;
   b.Range = this.Range;
   b.SceneNodeToTest = this.SceneNodeToTest;
-  b.TheActionHandler = this.TheActionHandler ? this.TheActionHandler.createClone() : null;
+  b.TheActionHandler = this.TheActionHandler ? this.TheActionHandler.createClone(d, e) : null;
   return b
 };
 CL3D.AnimatorOnProximity.prototype.animateNode = function(g, f) {
@@ -7828,7 +7916,7 @@ CL3D.AnimatorCollisionResponse.prototype = new CL3D.Animator;
 CL3D.AnimatorCollisionResponse.prototype.getType = function() {
   return"collisionresponse"
 };
-CL3D.AnimatorCollisionResponse.prototype.createClone = function(c, d) {
+CL3D.AnimatorCollisionResponse.prototype.createClone = function(c, f, d, e) {
   var b = new CL3D.AnimatorCollisionResponse;
   b.Radius = this.Radius.clone();
   b.Gravity = this.Gravity.clone();
@@ -8238,9 +8326,9 @@ CL3D.AnimatorTimer.prototype = new CL3D.Animator;
 CL3D.AnimatorTimer.prototype.getType = function() {
   return"timer"
 };
-CL3D.AnimatorTimer.prototype.createClone = function(c, d) {
+CL3D.AnimatorTimer.prototype.createClone = function(c, f, d, e) {
   var b = new CL3D.AnimatorTimer(this.SMGr);
-  b.TheActionHandler = this.TheActionHandler ? this.TheActionHandler.createClone() : null;
+  b.TheActionHandler = this.TheActionHandler ? this.TheActionHandler.createClone(d, e) : null;
   b.TimeLastTimed = this.TimeLastTimed;
   b.TickEverySeconds = this.TickEverySeconds;
   return b
@@ -8275,11 +8363,11 @@ CL3D.AnimatorOnKeyPress.prototype = new CL3D.Animator;
 CL3D.AnimatorOnKeyPress.prototype.getType = function() {
   return"keypress"
 };
-CL3D.AnimatorOnKeyPress.prototype.createClone = function(c, d) {
+CL3D.AnimatorOnKeyPress.prototype.createClone = function(c, f, d, e) {
   var b = new CL3D.AnimatorOnKeyPress(this.SMGr, this.Engine);
   b.KeyPressType = this.KeyPressType;
   b.KeyCode = this.KeyCode;
-  b.TheActionHandler = this.TheActionHandler ? this.TheActionHandler.createClone() : null;
+  b.TheActionHandler = this.TheActionHandler ? this.TheActionHandler.createClone(d, e) : null;
   return b
 };
 CL3D.AnimatorOnKeyPress.prototype.animateNode = function(d, c) {
@@ -8347,6 +8435,8 @@ CL3D.AnimatorGameAI = function(b, a) {
   this.ActivationRadius = 0;
   this.CanFly = false;
   this.Health = 100;
+  this.PatrolWaitTimeMs = 3E3;
+  this.PathIdToFollow = -1;
   this.Tags = "";
   this.AttacksAIWithTags = "";
   this.PatrolRadius = 100;
@@ -8373,6 +8463,7 @@ CL3D.AnimatorGameAI = function(b, a) {
   this.Activated = false;
   this.CurrentlyShooting = false;
   this.CurrentlyShootingLine = new CL3D.Line3d;
+  this.NextPathPointToGoTo = 0;
   this.World = null;
   this.TheObject = null;
   this.TheSceneManager = b;
@@ -8385,7 +8476,7 @@ CL3D.AnimatorGameAI.prototype = new CL3D.Animator;
 CL3D.AnimatorGameAI.prototype.getType = function() {
   return"gameai"
 };
-CL3D.AnimatorGameAI.prototype.createClone = function(c, d) {
+CL3D.AnimatorGameAI.prototype.createClone = function(c, f, d, e) {
   var b = new CL3D.AnimatorGameAI(this.TheSceneManager);
   b.AIType = this.AIType;
   b.MovementSpeed = this.MovementSpeed;
@@ -8396,63 +8487,66 @@ CL3D.AnimatorGameAI.prototype.createClone = function(c, d) {
   b.AttacksAIWithTags = this.AttacksAIWithTags;
   b.PatrolRadius = this.PatrolRadius;
   b.RotationSpeedMs = this.RotationSpeedMs;
+  b.PathIdToFollow = this.PathIdToFollow;
+  b.PatrolWaitTimeMs = this.PatrolWaitTimeMs;
   b.AdditionalRotationForLooking = this.AdditionalRotationForLooking ? this.AdditionalRotationForLooking.clone() : null;
   b.StandAnimation = this.StandAnimation;
   b.WalkAnimation = this.WalkAnimation;
   b.DieAnimation = this.DieAnimation;
   b.AttackAnimation = this.AttackAnimation;
-  b.ActionHandlerOnAttack = this.ActionHandlerOnAttack ? this.ActionHandlerOnAttack.createClone() : null;
-  b.ActionHandlerOnActivate = this.ActionHandlerOnActivate ? this.ActionHandlerOnActivate.createClone() : null;
-  b.ActionHandlerOnHit = this.ActionHandlerOnHit ? this.ActionHandlerOnHit.createClone() : null;
-  b.ActionHandlerOnDie = this.ActionHandlerOnDie ? this.ActionHandlerOnDie.createClone() : null;
+  b.ActionHandlerOnAttack = this.ActionHandlerOnAttack ? this.ActionHandlerOnAttack.createClone(d, e) : null;
+  b.ActionHandlerOnActivate = this.ActionHandlerOnActivate ? this.ActionHandlerOnActivate.createClone(d, e) : null;
+  b.ActionHandlerOnHit = this.ActionHandlerOnHit ? this.ActionHandlerOnHit.createClone(d, e) : null;
+  b.ActionHandlerOnDie = this.ActionHandlerOnDie ? this.ActionHandlerOnDie.createClone(d, e) : null;
   return b
 };
 CL3D.AnimatorGameAI.prototype.animateNode = function(c, b) {
   if(c == null || this.TheSceneManager == null) {
     return false
   }
-  var l = b - this.LastTime;
-  if(l > 150) {
-    l = 150
+  var k = b - this.LastTime;
+  if(k > 150) {
+    k = 150
   }
   this.LastTime = b;
-  var o = 0;
-  var m = false;
+  var n = 0;
+  var l = false;
   if(!(this.TheObject === c)) {
     this.TheObject = c;
     c.updateAbsolutePosition();
     this.StartPositionOfActor = c.getAbsolutePosition()
   }
-  var i = c.getAbsolutePosition();
+  var h = c.getAbsolutePosition();
   if(this.CurrentCommand == 3) {
   }else {
     if(this.CurrentCommand == 1) {
-      o = this.getCharacterWidth(c);
-      if(this.CurrentCommandTargetPos.substract(i).getLength() < o) {
+      n = this.getCharacterWidth(c);
+      if(this.CurrentCommandTargetPos.substract(h).getLength() < n) {
         this.CurrentCommand = 0;
         this.setAnimation(c, 0);
-        m = true
+        l = true
       }else {
-        var g = false;
+        var f = false;
         if(this.CurrentCommandTicksDone > 2) {
           var a = this.CurrentCommandTicksDone * (this.MovementSpeed / 1E3);
-          var h = this.BeginPositionWhenStartingCurrentCommand.substract(i).getLength();
-          if(h * 2 < a) {
+          var g = this.BeginPositionWhenStartingCurrentCommand.substract(h).getLength();
+          if(g * 1.2 < a) {
             this.CurrentCommand = 0;
-            g = true
+            this.setAnimation(c, 0);
+            f = true
           }
         }
-        if(!g) {
-          this.CurrentCommandTicksDone += l;
-          var d = this.CurrentCommandTargetPos.substract(i);
-          d.setLength(this.MovementSpeed / 1E3 * l);
+        if(!f) {
+          this.CurrentCommandTicksDone += k;
+          var d = this.CurrentCommandTargetPos.substract(h);
+          d.setLength(this.MovementSpeed / 1E3 * k);
           c.Pos.addToThis(d)
         }
-        m = this.animateRotation(c, b - this.CurrentCommandStartTime, this.CurrentCommandTargetPos.substract(i), this.RotationSpeedMs)
+        l = this.animateRotation(c, b - this.CurrentCommandStartTime, this.CurrentCommandTargetPos.substract(h), this.RotationSpeedMs)
       }
     }else {
       if(this.CurrentCommand == 2) {
-        this.CurrentCommandTicksDone += l;
+        this.CurrentCommandTicksDone += k;
         if(!this.AttackCommandExecuted && this.CurrentCommandTicksDone > this.CurrentCommandExpectedTickCount / 2) {
           this.CurrentlyShooting = true;
           if(this.ActionHandlerOnAttack) {
@@ -8460,53 +8554,64 @@ CL3D.AnimatorGameAI.prototype.animateNode = function(c, b) {
           }
           this.CurrentlyShooting = false;
           this.AttackCommandExecuted = true;
-          m = true
+          l = true
         }
         if(this.CurrentCommandTicksDone > this.CurrentCommandExpectedTickCount) {
           this.CurrentCommand = 0
         }else {
-          m = this.animateRotation(c, b - this.CurrentCommandStartTime, this.CurrentCommandTargetPos.substract(i), Math.min(this.RotationSpeedMs, this.CurrentCommandExpectedTickCount))
+          l = this.animateRotation(c, b - this.CurrentCommandStartTime, this.CurrentCommandTargetPos.substract(h), Math.min(this.RotationSpeedMs, this.CurrentCommandExpectedTickCount))
         }
       }else {
         if(this.CurrentCommand == 0) {
-          if(this.AIType == 1 || this.AIType == 2) {
-            var k = this.scanForAttackTargetIfNeeded(b, i);
-            if(k != null) {
-              var n = this.getAttackDistanceFromWeapon();
+          if(this.AIType == 1 || this.AIType == 2 || this.AIType == 3) {
+            var j = this.scanForAttackTargetIfNeeded(b, h);
+            if(j != null) {
+              var m = this.getAttackDistanceFromWeapon();
               if(!this.Activated && this.ActionHandlerOnActivate) {
                 this.ActionHandlerOnActivate.execute(c)
               }
               this.Activated = true;
-              m = true;
-              if(k.getAbsolutePosition().getDistanceTo(i) < n) {
-                if(this.isNodeVisibleFromNode(k, c)) {
+              l = true;
+              if(j.getAbsolutePosition().getDistanceTo(h) < m) {
+                if(this.isNodeVisibleFromNode(j, c)) {
                   this.CurrentlyShootingLine.Start = c.getTransformedBoundingBox().getCenter();
-                  this.CurrentlyShootingLine.End = k.getTransformedBoundingBox().getCenter();
-                  this.attackTarget(c, k, k.getAbsolutePosition(), i, b)
+                  this.CurrentlyShootingLine.End = j.getTransformedBoundingBox().getCenter();
+                  this.attackTarget(c, j, j.getAbsolutePosition(), h, b)
                 }else {
-                  this.moveToTarget(c, k.getAbsolutePosition(), i, b)
+                  this.moveToTarget(c, j.getAbsolutePosition(), h, b)
                 }
               }else {
-                this.moveToTarget(c, k.getAbsolutePosition(), i, b)
+                this.moveToTarget(c, j.getAbsolutePosition(), h, b)
               }
             }else {
-              if(this.AIType == 2) {
-                var f = 1E4;
-                if(this.MovementSpeed) {
-                  f = this.PatrolRadius / (this.MovementSpeed / 1E3)
-                }
-                if(!this.LastPatrolStartTime || b > this.LastPatrolStartTime + f) {
-                  var e = this.PatrolRadius;
-                  this.LastPatrolStartTime = b;
-                  var j = new CL3D.Vect3d((Math.random() - 0.5) * e, (Math.random() - 0.5) * e, (Math.random() - 0.5) * e);
-                  j.addToThis(this.StartPositionOfActor);
-                  if(!this.CanFly) {
-                    j.Y = this.StartPositionOfActor.Y
+              if(this.AIType == 2 || this.AIType == 3) {
+                if(!this.LastPatrolStartTime || b > this.LastPatrolStartTime + this.PatrolWaitTimeMs) {
+                  n = this.getCharacterWidth(c);
+                  var i = null;
+                  if(this.AIType == 3) {
+                    var o = null;
+                    if(this.PathIdToFollow != -1 && this.TheSceneManager != null) {
+                      o = this.TheSceneManager.getSceneNodeFromId(this.PathIdToFollow)
+                    }
+                    if(o != null && o.getType() == "path") {
+                      if(this.NextPathPointToGoTo >= o.getPathNodeCount()) {
+                        this.NextPathPointToGoTo = 0
+                      }
+                      i = o.getPathNodePosition(this.NextPathPointToGoTo)
+                    }
+                    ++this.NextPathPointToGoTo
+                  }else {
+                    var e = this.PatrolRadius;
+                    this.LastPatrolStartTime = b;
+                    i = new CL3D.Vect3d((Math.random() - 0.5) * e, (Math.random() - 0.5) * e, (Math.random() - 0.5) * e);
+                    i.addToThis(this.StartPositionOfActor);
+                    if(!this.CanFly) {
+                      i.Y = this.StartPositionOfActor.Y
+                    }
                   }
-                  o = this.getCharacterWidth(c);
-                  if(!(j.substract(i).getLength() < o)) {
-                    this.moveToTarget(c, j, i, b);
-                    m = true
+                  if(!(i.substract(h).getLength() < n)) {
+                    this.moveToTarget(c, i, h, b);
+                    l = true
                   }
                 }
               }
@@ -8516,7 +8621,7 @@ CL3D.AnimatorGameAI.prototype.animateNode = function(c, b) {
       }
     }
   }
-  return m
+  return l
 };
 CL3D.AnimatorGameAI.prototype.animateRotation = function(c, j, h, a) {
   if(!c) {
@@ -8994,7 +9099,7 @@ CL3D.AnimatorKeyboardControlled.prototype = new CL3D.Animator;
 CL3D.AnimatorKeyboardControlled.prototype.getType = function() {
   return"keyboardcontrolled"
 };
-CL3D.AnimatorKeyboardControlled.prototype.createClone = function(c, d) {
+CL3D.AnimatorKeyboardControlled.prototype.createClone = function(c, f, d, e) {
   var b = new CL3D.AnimatorKeyboardControlled(this.SMGr, this.Engine);
   b.MoveSpeed = this.MoveSpeed;
   b.RunSpeed = this.RunSpeed;
@@ -9227,7 +9332,7 @@ CL3D.Animator3rdPersonCamera.prototype = new CL3D.Animator;
 CL3D.Animator3rdPersonCamera.prototype.getType = function() {
   return"3rdpersoncamera"
 };
-CL3D.Animator3rdPersonCamera.prototype.createClone = function(c, d) {
+CL3D.Animator3rdPersonCamera.prototype.createClone = function(c, f, d, e) {
   var b = new CL3D.Animator3rdPersonCamera(this.SMGr);
   b.SceneNodeIDToFollow = this.SceneNodeIDToFollow;
   b.FollowSmoothingSpeed = this.FollowSmoothingSpeed;
@@ -9634,6 +9739,7 @@ CL3D.CopperLicht = function(e, f, d, b, a) {
   this.TheTextureManager = new CL3D.TextureManager;
   this.TheMeshCache = new CL3D.MeshCache;
   this.LoadingAFile = false;
+  this.WaitingForTexturesToBeLoaded = false;
   this.LoadingAnimationCounter = 0;
   this.FPS = 60;
   this.OnAnimate = null;
@@ -9777,6 +9883,10 @@ CL3D.CopperLicht.prototype.loadingUpdateIntervalHandler = function() {
     b = this.TheTextureManager.getCountOfTexturesToLoad();
     c = this.TheTextureManager.getTextureCount()
   }
+  if(this.WaitingForTexturesToBeLoaded && b == 0) {
+    this.WaitingForTexturesToBeLoaded = false;
+    this.startFirstSceneAfterEverythingLoaded()
+  }
   if(this.LoadingAFile || b) {
     var a = "Loading";
     if(b > 0) {
@@ -9801,8 +9911,8 @@ CL3D.CopperLicht.prototype.loadingUpdateIntervalHandler = function() {
     CL3D.gCCDebugOutput.setLoadingText(null)
   }
 };
-CL3D.CopperLicht.prototype.isLoading = function(a, b) {
-  return this.LoadingAFile
+CL3D.CopperLicht.prototype.isLoading = function() {
+  return this.LoadingAFile || this.WaitingForTexturesToBeLoaded
 };
 CL3D.CopperLicht.prototype.parseFile = function(b, c) {
   this.LoadingAFile = false;
@@ -9814,15 +9924,25 @@ CL3D.CopperLicht.prototype.parseFile = function(b, c) {
       this.LastLoadedFileContent = a.StoredFileContent;
       this.LastLoadedFilename = c
     }
-    this.gotoScene(d.getCurrentScene());
-    this.draw3dScene();
-    if(this.OnLoadingComplete != null) {
-      this.OnLoadingComplete()
+    if(!d.WaitUntilTexturesLoaded) {
+      this.startFirstSceneAfterEverythingLoaded()
+    }else {
+      this.WaitingForTexturesToBeLoaded = true
     }
+  }
+};
+CL3D.CopperLicht.prototype.startFirstSceneAfterEverythingLoaded = function() {
+  this.gotoScene(this.Document.getCurrentScene());
+  this.draw3dScene();
+  if(this.OnLoadingComplete != null) {
+    this.OnLoadingComplete()
   }
 };
 CL3D.CopperLicht.prototype.draw3dScene = function() {
   if(this.Document == null || this.TheRenderer == null) {
+    return
+  }
+  if(this.isLoading()) {
     return
   }
   this.updateCanvasTopLeftPosition();
@@ -10269,7 +10389,7 @@ CL3D.CopperLicht.prototype.reloadScene = function(e) {
   return true
 };
 CL3D.CopperLicht.prototype.updateLoadingDialog = function() {
-  if(!this.LoadingAFile) {
+  if(!this.LoadingAFile && !this.WaitingForTexturesToBeLoaded) {
     this.LoadingDialog.style.display = "none";
     this.LoadingDialog = null
   }
@@ -10977,6 +11097,17 @@ CL3D.FlaceLoader = function() {
     while(this.Data.bytesAvailable() > 0 && this.Data.getPosition() < c) {
       var a = this.readTag();
       switch(a) {
+        case 35:
+          this.Data.readInt();
+          this.Data.readInt();
+          this.Data.readInt();
+          this.Data.readInt();
+          var b = this.Data.readInt();
+          if((b & 1) != 0) {
+            this.Document.WaitUntilTexturesLoaded = true
+          }
+          this.SkipToNextTag();
+          break;
         case 37:
           var b = this.Data.readInt();
           this.Data.readInt();
@@ -11812,6 +11943,9 @@ CL3D.FlaceLoader = function() {
         if(g & 1) {
           k.TimeDisplacement = this.Data.readInt()
         }
+        if(k.EndMode == 3 || k.EndMode == 4) {
+          k.TheActionHandler = this.ReadActionHandlerSection(z)
+        }
         A = k;
         break;
       case 107:
@@ -11886,7 +12020,18 @@ CL3D.FlaceLoader = function() {
         h.WalkAnimation = this.ReadString();
         h.DieAnimation = this.ReadString();
         h.AttackAnimation = this.ReadString();
-        this.Data.readInt();
+        if(h.AIType == 3) {
+          h.PathIdToFollow = this.Data.readInt()
+        }
+        var g = this.Data.readInt();
+        if(g & 1) {
+          h.PatrolWaitTimeMs = this.Data.readInt()
+        }else {
+          h.PatrolWaitTimeMs = 1E4;
+          if(h.MovementSpeed != 0) {
+            h.PatrolWaitTimeMs = h.PatrolRadius / (h.MovementSpeed / 1E3)
+          }
+        }
         h.ActionHandlerOnAttack = this.ReadActionHandlerSection(z);
         h.ActionHandlerOnActivate = this.ReadActionHandlerSection(z);
         h.ActionHandlerOnHit = this.ReadActionHandlerSection(z);
@@ -12254,6 +12399,9 @@ CL3D.FlaceLoader = function() {
         if(k & 2) {
           c.ActionHandlerOnImpact = this.ReadActionHandlerSection(u)
         }
+        if(k & 4) {
+          c.ShootDisplacement = this.Read3DVectF()
+        }
         return c;
       case 14:
         this.SkipToNextTag();
@@ -12325,6 +12473,7 @@ CL3D.CCDocument = function() {
   this.ApplicationTitle = "";
   this.Scenes = new Array;
   this.UpdateMode = CL3D.Scene.REDRAW_EVERY_FRAME;
+  this.WaitUntilTexturesLoaded = false;
   this.CanvasWidth = 320;
   this.CanvasHeight = 200;
   this.addScene = function(a) {
